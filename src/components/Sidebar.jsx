@@ -44,9 +44,9 @@ export default function Sidebar({ activePage, sidebarOpen, setSidebarOpen }) {
 
       <aside
         className={`
-          fixed left-0 top-0 h-screen w-72 bg-emerald-50 rounded-r-3xl
+          fixed left-0 top-0 h-screen w-72 bg-[#e8f4ed] rounded-r-3xl
           flex flex-col p-6 gap-4 z-40
-          shadow-xl shadow-emerald-900/5
+          shadow-xl shadow-emerald-900/5 border-r border-emerald-100/50
           transition-transform duration-300
           ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
           lg:translate-x-0
