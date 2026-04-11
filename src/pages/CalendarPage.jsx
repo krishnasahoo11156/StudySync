@@ -7,6 +7,7 @@ import {
   addDoc, updateDoc, deleteDoc, doc, serverTimestamp,
 } from "firebase/firestore";
 import PageShell from "../components/PageShell";
+import TaskModal, { EMPTY_TASK } from "../components/TaskModal";
 
 /* ═══════════════════════════════════════════
    CONSTANTS
@@ -70,6 +71,7 @@ export default function CalendarPage() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [newTaskInitialData, setNewTaskInitialData] = useState(null);
   const [hoveredTask, setHoveredTask] = useState(null);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -78,17 +80,6 @@ export default function CalendarPage() {
 
   const today = useMemo(() => new Date(), []);
   const todayYMD = localYMD(today);
-
-  /* ── Empty form ── */
-  const emptyForm = {
-    title: "", description: "", subject: "BEE",
-    startDate: localYMD(selectedDate),
-    startTime: "09:00",
-    endDate: localYMD(selectedDate),
-    endTime: "10:00",
-    color: "emerald", priority: "normal", important: false,
-  };
-  const [taskForm, setTaskForm] = useState(emptyForm);
 
   useEffect(() => { document.title = "StudySync - Calendar"; }, []);
 
@@ -136,52 +127,33 @@ export default function CalendarPage() {
   }, [tasks]);
 
   /* ══════════════════ CRUD ══════════════════ */
-  const addTask = async () => {
-    if (!taskForm.title.trim()) return;
+  const addTask = useCallback(async (data) => {
     await addDoc(collection(db, "tasks"), {
-      title: taskForm.title,
-      description: taskForm.description,
-      subject: taskForm.subject,
-      deadline: taskForm.startDate,
-      startDate: taskForm.startDate,
-      startTime: taskForm.startTime,
-      endDate: taskForm.endDate,
-      endTime: taskForm.endTime,
-      color: taskForm.color,
-      priority: taskForm.priority,
-      important: taskForm.important,
+      ...data,
       userId: user.uid,
       status: "pending",
       createdAt: serverTimestamp(),
     });
-    setTaskForm({ ...emptyForm, startDate: localYMD(selectedDate), endDate: localYMD(selectedDate) });
+    setNewTaskInitialData({ ...EMPTY_TASK, startDate: localYMD(selectedDate), endDate: localYMD(selectedDate) });
     setShowAddModal(false);
-  };
+  }, [user]);
 
-  const updateTask = async () => {
-    if (!editingTask || !taskForm.title.trim()) return;
-    await updateDoc(doc(db, "tasks", editingTask.id), {
-      title: taskForm.title,
-      description: taskForm.description,
-      subject: taskForm.subject,
-      deadline: taskForm.startDate,
-      startDate: taskForm.startDate,
-      startTime: taskForm.startTime,
-      endDate: taskForm.endDate,
-      endTime: taskForm.endTime,
-      color: taskForm.color,
-      priority: taskForm.priority,
-      important: taskForm.important,
-    });
+  const updateTask = useCallback(async (data) => {
+    if (!editingTask) return;
+    await updateDoc(doc(db, "tasks", editingTask.id), data);
     setShowEditModal(false);
     setEditingTask(null);
-  };
+  }, [editingTask]);
 
-  const deleteTask = async (id) => {
+  const deleteTask = useCallback(async (id) => {
     await deleteDoc(doc(db, "tasks", id));
     setShowEditModal(false);
     setEditingTask(null);
-  };
+  }, []);
+
+  const handleDeleteFromModal = useCallback(() => {
+    if (editingTask?.id) deleteTask(editingTask.id);
+  }, [editingTask, deleteTask]);
 
   const toggleComplete = async (task) => {
     const newStatus = task.status === "completed" ? "pending" : "completed";
@@ -193,25 +165,13 @@ export default function CalendarPage() {
 
   const openEdit = useCallback((task) => {
     setEditingTask(task);
-    setTaskForm({
-      title: task.title || "",
-      description: task.description || "",
-      subject: task.subject || "BEE",
-      startDate: task.startDate || task.deadline || "",
-      startTime: task.startTime || "09:00",
-      endDate: task.endDate || task.startDate || task.deadline || "",
-      endTime: task.endTime || "10:00",
-      color: task.color || "emerald",
-      priority: task.priority || "normal",
-      important: task.important || false,
-    });
     setShowEditModal(true);
   }, []);
 
-  const openAddOnDate = (dateStr) => {
-    setTaskForm({ ...emptyForm, startDate: dateStr, endDate: dateStr });
+  const openAddOnDate = useCallback((dateStr) => {
+    setNewTaskInitialData({ ...EMPTY_TASK, startDate: dateStr, endDate: dateStr });
     setShowAddModal(true);
-  };
+  }, []);
 
   /* ── Drag & Drop ── */
   const handleDragStart = (e, task) => {
@@ -458,113 +418,7 @@ export default function CalendarPage() {
     );
   };
 
-  /* ═══════════════════════════════════════════
-     TASK FORM MODAL (shared by Add & Edit)
-  ═══════════════════════════════════════════ */
-  const TaskModal = ({ isEdit, onClose, onSave }) => (
-    <div className="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-3xl p-8 w-full max-w-lg shadow-2xl animate-scale-in max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <h3 className="text-xl font-bold text-emerald-900 mb-6">{isEdit ? "Edit Task" : "Add Task"}</h3>
-        <div className="space-y-5">
-          {/* Title */}
-          <div className="space-y-1.5">
-            <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Title</label>
-            <input className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 placeholder:text-emerald-400 focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
-              placeholder="e.g. BEE Assignment" value={taskForm.title} autoFocus
-              onChange={e => setTaskForm({ ...taskForm, title: e.target.value })} />
-          </div>
-          {/* Description */}
-          <div className="space-y-1.5">
-            <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Description / Notes</label>
-            <textarea className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 placeholder:text-emerald-400 focus:ring-2 focus:ring-emerald-400/40 transition-all resize-none text-sm"
-              placeholder="e.g. Room 402, bring lab journal..." rows={2}
-              value={taskForm.description} onChange={e => setTaskForm({ ...taskForm, description: e.target.value })} />
-          </div>
-          {/* Subject + Priority */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Subject</label>
-              <select className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
-                value={taskForm.subject} onChange={e => setTaskForm({ ...taskForm, subject: e.target.value })}>
-                {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Priority</label>
-              <select className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
-                value={taskForm.priority} onChange={e => setTaskForm({ ...taskForm, priority: e.target.value })}>
-                <option value="normal">Normal</option>
-                <option value="urgent">Urgent</option>
-              </select>
-            </div>
-          </div>
-          {/* Start Date + Time */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Start Date</label>
-              <input type="date" className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
-                value={taskForm.startDate} onChange={e => setTaskForm({ ...taskForm, startDate: e.target.value })} />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Start Time</label>
-              <input type="time" className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
-                value={taskForm.startTime} onChange={e => setTaskForm({ ...taskForm, startTime: e.target.value })} />
-            </div>
-          </div>
-          {/* End Date + Time */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">End Date</label>
-              <input type="date" className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
-                value={taskForm.endDate} onChange={e => setTaskForm({ ...taskForm, endDate: e.target.value })} />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">End Time</label>
-              <input type="time" className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
-                value={taskForm.endTime} onChange={e => setTaskForm({ ...taskForm, endTime: e.target.value })} />
-            </div>
-          </div>
-          {/* Color Picker */}
-          <div className="space-y-1.5">
-            <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Color</label>
-            <div className="flex gap-2 flex-wrap">
-              {TASK_COLORS.map(c => (
-                <button key={c.id} onClick={() => setTaskForm({ ...taskForm, color: c.id })}
-                  className={`w-8 h-8 rounded-xl transition-all hover:scale-110 ${taskForm.color === c.id ? "ring-2 ring-offset-2 ring-emerald-600 scale-110" : ""}`}
-                  style={{ backgroundColor: c.hex }} />
-              ))}
-            </div>
-          </div>
-          {/* Important Toggle */}
-          <div className="flex items-center justify-between bg-emerald-50 rounded-xl px-4 py-3">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-amber-500 text-lg">star</span>
-              <span className="text-sm font-bold text-emerald-800">Mark as Important</span>
-            </div>
-            <button onClick={() => setTaskForm({ ...taskForm, important: !taskForm.important })}
-              className={`w-12 h-7 rounded-full transition-all ${taskForm.important ? "bg-emerald-600" : "bg-emerald-200"}`}>
-              <div className={`w-5 h-5 rounded-full bg-white shadow-md transition-all ${taskForm.important ? "translate-x-6" : "translate-x-1"}`} />
-            </button>
-          </div>
-        </div>
-        {/* Actions */}
-        <div className="flex items-center justify-between mt-8">
-          {isEdit && (
-            <button onClick={() => deleteTask(editingTask.id)}
-              className="px-4 py-2.5 rounded-xl text-rose-600 hover:bg-rose-50 font-bold text-sm transition-all flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-base">delete</span> Delete
-            </button>
-          )}
-          <div className={`flex gap-3 ${isEdit ? "" : "ml-auto"}`}>
-            <button onClick={onClose} className="px-5 py-2.5 rounded-xl text-emerald-600 hover:bg-emerald-50 font-semibold text-sm transition-all">Cancel</button>
-            <button onClick={onSave} className="px-6 py-2.5 rounded-xl signature-gradient text-white font-bold text-sm hover:opacity-90 active:scale-95 transition-all shadow-md">
-              {isEdit ? "Save Changes" : "Add Task"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+
 
   /* ═══════════════════════════════════════════
      HOVER PREVIEW
@@ -627,8 +481,8 @@ export default function CalendarPage() {
 
             {/* Schedule Study Session */}
             <button onClick={() => {
-              setTaskForm({
-                ...emptyForm,
+              setNewTaskInitialData({
+                ...EMPTY_TASK,
                 title: "Study Session",
                 startDate: todayYMD,
                 endDate: todayYMD,
@@ -884,14 +738,45 @@ export default function CalendarPage() {
 
       {/* ══════════ FAB ══════════ */}
       <button
-        onClick={() => { setTaskForm({ ...emptyForm, startDate: todayYMD, endDate: todayYMD }); setShowAddModal(true); }}
+        onClick={() => { setNewTaskInitialData({ ...EMPTY_TASK, startDate: todayYMD, endDate: todayYMD }); setShowAddModal(true); }}
         className="fixed bottom-10 right-10 w-14 h-14 rounded-full signature-gradient text-white flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all z-40">
         <span className="material-symbols-outlined text-2xl">add</span>
       </button>
 
       {/* ══════════ MODALS ══════════ */}
-      {showAddModal && <TaskModal isEdit={false} onClose={() => setShowAddModal(false)} onSave={addTask} />}
-      {showEditModal && <TaskModal isEdit={true} onClose={() => { setShowEditModal(false); setEditingTask(null); }} onSave={updateTask} />}
+      {showAddModal && (
+        <TaskModal
+          key="add-modal"
+          isEdit={false}
+          initialData={newTaskInitialData || EMPTY_TASK}
+          onClose={() => setShowAddModal(false)}
+          onSave={addTask}
+        />
+      )}
+
+      {showEditModal && editingTask && (
+        <TaskModal
+          key={`edit-${editingTask.id}`}
+          isEdit={true}
+          initialData={{
+            ...EMPTY_TASK,
+            title:       editingTask.title       || "",
+            description: editingTask.description || "",
+            subject:     editingTask.subject     || "BEE",
+            startDate:   editingTask.startDate   || editingTask.deadline || "",
+            startTime:   editingTask.startTime   || "09:00",
+            endDate:     editingTask.endDate     || editingTask.startDate || editingTask.deadline || "",
+            endTime:     editingTask.endTime     || "10:00",
+            color:       editingTask.color       || "emerald",
+            priority:    editingTask.priority    || "normal",
+            important:   editingTask.important   || false,
+            deadline:    editingTask.deadline    || editingTask.startDate || "",
+          }}
+          onClose={() => { setShowEditModal(false); setEditingTask(null); }}
+          onSave={updateTask}
+          onDelete={handleDeleteFromModal}
+        />
+      )}
 
       {/* ══════════ HOVER PREVIEW ══════════ */}
       <HoverPreview />
