@@ -1,258 +1,24 @@
-import { useState, useEffect, useMemo, useRef, useCallback, memo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { db } from "../firebase/config";
 import {
-  collection,
-  query,
-  where,
-  onSnapshot,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-  serverTimestamp,
+  collection, query, where, onSnapshot,
+  addDoc, updateDoc, deleteDoc, doc, serverTimestamp,
 } from "firebase/firestore";
 import PageShell from "../components/PageShell";
+import TaskModal, { EMPTY_TASK } from "../components/TaskModal";
 
-/* ── Subject presets ── */
-const SUBJECTS = ["BEE", "EM", "ED", "EP", "PCE", "FEM", "Autocad", "Other"];
-
-/* ── Task Colors ── */
-const TASK_COLORS = [
-  { id: "emerald",  hex: "#006c49", bg: "bg-emerald-600",  light: "bg-emerald-100  text-emerald-800" },
-  { id: "teal",     hex: "#0d9488", bg: "bg-teal-500",     light: "bg-teal-100     text-teal-800"    },
-  { id: "sky",      hex: "#0284c7", bg: "bg-sky-600",      light: "bg-sky-100      text-sky-800"     },
-  { id: "violet",   hex: "#7c3aed", bg: "bg-violet-600",   light: "bg-violet-100   text-violet-800"  },
-  { id: "amber",    hex: "#d97706", bg: "bg-amber-500",    light: "bg-amber-100    text-amber-800"   },
-  { id: "rose",     hex: "#e11d48", bg: "bg-rose-600",     light: "bg-rose-100     text-rose-800"    },
-  { id: "lime",     hex: "#65a30d", bg: "bg-lime-600",     light: "bg-lime-100     text-lime-800"    },
-  { id: "orange",   hex: "#ea580c", bg: "bg-orange-600",   light: "bg-orange-100   text-orange-800"  },
-];
-
-/* ── Helpers ── */
+/* ── Helper ── */
 function localYMD(d) {
   if (!d) return "";
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
-
 function fmtDate(iso) {
   if (!iso) return "";
   const d = new Date(iso + "T00:00:00");
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
-
-/* ── Default empty form ──
-   Defined at module level so it never gets
-   recreated and never changes identity.
-*/
-const EMPTY_FORM = {
-  title: "", description: "", subject: "BEE",
-  startDate: "", startTime: "09:00",
-  endDate: "",  endTime: "10:00",
-  color: "emerald", priority: "normal", important: false,
-  deadline: "",
-};
-
-/* ═══════════════════════════════════════════
-   TASK MODAL — defined OUTSIDE Dashboard so
-   React never remounts it on parent re-renders.
-   All data passed via props; onChange uses the
-   stable useState setter so focus is never lost.
-═══════════════════════════════════════════ */
-const TaskModal = memo(function TaskModal({
-  isEdit, taskForm, setTaskForm, onClose, onSave, onDelete,
-}) {
-  const setField = useCallback((field, value) => {
-    setTaskForm(prev => ({ ...prev, [field]: value }));
-  }, [setTaskForm]);
-
-  return (
-    <div
-      className="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-3xl p-8 w-full max-w-lg shadow-2xl animate-scale-in max-h-[90vh] overflow-y-auto"
-        onClick={e => e.stopPropagation()}
-      >
-        <h3 className="text-xl font-bold mb-6" style={{ color: "#1A2621" }}>
-          {isEdit ? "Edit Task" : "Add Task"}
-        </h3>
-
-        <div className="space-y-5">
-          {/* Title */}
-          <div className="space-y-1.5">
-            <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>Title</label>
-            <input
-              className="w-full rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-[#16A34A]/30 outline-none transition-shadow"
-              style={{ background: "#F1F5F4", color: "#1A2621" }}
-              placeholder="e.g. BEE Assignment"
-              autoFocus
-              value={taskForm.title}
-              onChange={e => setField("title", e.target.value)}
-            />
-          </div>
-
-          {/* Description */}
-          <div className="space-y-1.5">
-            <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>Description / Notes</label>
-            <textarea
-              className="w-full rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-[#16A34A]/30 outline-none transition-shadow resize-none"
-              style={{ background: "#F1F5F4", color: "#1A2621" }}
-              placeholder="e.g. Room 402, bring lab journal..."
-              rows={2}
-              value={taskForm.description}
-              onChange={e => setField("description", e.target.value)}
-            />
-          </div>
-
-          {/* Subject + Priority */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>Subject</label>
-              <select
-                className="w-full rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-[#16A34A]/30 outline-none"
-                style={{ background: "#F1F5F4", color: "#1A2621" }}
-                value={taskForm.subject}
-                onChange={e => setField("subject", e.target.value)}
-              >
-                {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>Priority</label>
-              <select
-                className="w-full rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-[#16A34A]/30 outline-none"
-                style={{ background: "#F1F5F4", color: "#1A2621" }}
-                value={taskForm.priority}
-                onChange={e => setField("priority", e.target.value)}
-              >
-                <option value="normal">Normal</option>
-                <option value="urgent">Urgent</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Start Date + Time */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>Start Date</label>
-              <input type="date"
-                className="w-full rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-[#16A34A]/30 outline-none"
-                style={{ background: "#F1F5F4", color: "#1A2621" }}
-                value={taskForm.startDate}
-                onChange={e => setField("startDate", e.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>Start Time</label>
-              <input type="time"
-                className="w-full rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-[#16A34A]/30 outline-none"
-                style={{ background: "#F1F5F4", color: "#1A2621" }}
-                value={taskForm.startTime}
-                onChange={e => setField("startTime", e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* End Date + Time */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>End Date</label>
-              <input type="date"
-                className="w-full rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-[#16A34A]/30 outline-none"
-                style={{ background: "#F1F5F4", color: "#1A2621" }}
-                value={taskForm.endDate}
-                onChange={e => setField("endDate", e.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>End Time</label>
-              <input type="time"
-                className="w-full rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-[#16A34A]/30 outline-none"
-                style={{ background: "#F1F5F4", color: "#1A2621" }}
-                value={taskForm.endTime}
-                onChange={e => setField("endTime", e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Color Picker */}
-          <div className="space-y-1.5">
-            <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>Color</label>
-            <div className="flex gap-2 flex-wrap">
-              {TASK_COLORS.map(c => (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => setField("color", c.id)}
-                  className={`w-8 h-8 rounded-xl transition-all hover:scale-110 ${
-                    taskForm.color === c.id ? "ring-2 ring-offset-2 scale-110" : ""
-                  }`}
-                  style={{ backgroundColor: c.hex, ringColor: c.hex }}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Important Toggle */}
-          <div
-            className="flex items-center justify-between rounded-xl px-4 py-3"
-            style={{ background: "#F5F1E8", border: "1px solid #D6C7AE" }}
-          >
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-amber-500 text-lg">star</span>
-              <span className="text-sm font-bold" style={{ color: "#1A2621" }}>Mark as Important</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setField("important", !taskForm.important)}
-              className="w-12 h-7 rounded-full transition-all flex-shrink-0"
-              style={{ background: taskForm.important ? "#16A34A" : "#C2D4CE" }}
-            >
-              <div
-                className="w-5 h-5 rounded-full bg-white shadow-md transition-all"
-                style={{ transform: taskForm.important ? "translateX(24px)" : "translateX(4px)" }}
-              />
-            </button>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center justify-between mt-8">
-          {isEdit && (
-            <button
-              type="button"
-              onClick={onDelete}
-              className="px-4 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-1.5 hover:bg-[#FEE2E2]"
-              style={{ color: "#EF4444" }}
-            >
-              <span className="material-symbols-outlined text-base">delete</span> Delete
-            </button>
-          )}
-          <div className={`flex gap-3 ${isEdit ? "" : "ml-auto"}`}>
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:bg-[#F1F5F4]"
-              style={{ color: "#3D524A" }}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={onSave}
-              className="px-6 py-2.5 rounded-xl signature-gradient text-white font-bold text-sm hover:opacity-90 active:scale-95 transition-all shadow-btn"
-            >
-              {isEdit ? "Save Changes" : "Add Task"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-});
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -268,10 +34,6 @@ export default function Dashboard() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-
-  /* ── Task form ── */
-  const todayYMD = localYMD(new Date());
-  const [taskForm, setTaskForm] = useState(() => ({ ...EMPTY_FORM, startDate: localYMD(new Date()), endDate: localYMD(new Date()), deadline: localYMD(new Date()) }));
 
   /* ── Timer ── */
   const [timerSeconds, setTimerSeconds] = useState(25 * 60);
@@ -307,60 +69,51 @@ export default function Dashboard() {
   }, []);
 
   /* ══════════════════ CRUD Operations ══════════════════ */
-  const addTask = async () => {
-    if (!taskForm.title.trim()) return;
+  // data comes directly from TaskModal's own local state via onSave(data)
+  const addTask = useCallback(async (data) => {
     await addDoc(collection(db, "tasks"), {
-      ...taskForm,
-      deadline: taskForm.startDate,
+      ...data,
       userId: user.uid,
       status: "pending",
       createdAt: serverTimestamp(),
     });
-    const fresh = { ...EMPTY_FORM, startDate: todayYMD, endDate: todayYMD, deadline: todayYMD };
-    setTaskForm(fresh);
     setShowAddModal(false);
-  };
+  }, [user]);
 
-  const updateTask = async () => {
-    if (!editingTask || !taskForm.title.trim()) return;
-    await updateDoc(doc(db, "tasks", editingTask.id), {
-      ...taskForm,
-      deadline: taskForm.startDate
-    });
+  const updateTask = useCallback(async (data) => {
+    if (!editingTask) return;
+    await updateDoc(doc(db, "tasks", editingTask.id), data);
     setShowEditModal(false);
     setEditingTask(null);
-  };
+  }, [editingTask]);
 
-  const removeTask = async (id) => {
+  const removeTask = useCallback(async (id) => {
     await deleteDoc(doc(db, "tasks", id));
     setDeleteConfirmId(null);
-  };
+    setShowEditModal(false);
+    setEditingTask(null);
+  }, []);
 
-  const toggleComplete = async (task) => {
+  const toggleComplete = useCallback(async (task) => {
     const newStatus = task.status === "completed" ? "pending" : "completed";
     await updateDoc(doc(db, "tasks", task.id), {
       status: newStatus,
       ...(newStatus === "completed" ? { completedAt: new Date().toISOString() } : { completedAt: null }),
     });
-  };
+  }, []);
 
+  // openEdit just sets the editingTask; the modal seeds its own state from initialData
   const openEdit = useCallback((task) => {
     setEditingTask(task);
-    setTaskForm({
-      title: task.title || "",
-      description: task.description || "",
-      subject: task.subject || "BEE",
-      startDate: task.startDate || task.deadline || "",
-      startTime: task.startTime || "09:00",
-      endDate: task.endDate || task.startDate || task.deadline || "",
-      endTime: task.endTime || "10:00",
-      color: task.color || "emerald",
-      priority: task.priority || "normal",
-      important: task.important || false,
-      deadline: task.deadline || task.startDate || "",
-    });
     setShowEditModal(true);
   }, []);
+
+  /* ── Stable modal open handlers ── */
+  const handleOpenAdd  = useCallback(() => setShowAddModal(true), []);
+  const handleCloseAdd = useCallback(() => setShowAddModal(false), []);
+  const handleCloseEdit = useCallback(() => { setShowEditModal(false); setEditingTask(null); }, []);
+  const handleDeleteFromModal = useCallback(() => { if (editingTask?.id) removeTask(editingTask.id); }, [editingTask, removeTask]);
+
 
   /* ══════════════════ Computed Values ══════════════════ */
   const total = tasks.length;
@@ -422,22 +175,6 @@ export default function Dashboard() {
     return "Keep going — every task counts! 🌿";
   }, [total, completed, pending, tomorrowTasks]);
 
-  /* ── Stable modal handler callbacks ── */
-  const handleOpenAdd = useCallback(() => {
-    setTaskForm({ ...EMPTY_FORM, startDate: localYMD(new Date()), endDate: localYMD(new Date()), deadline: localYMD(new Date()) });
-    setShowAddModal(true);
-  }, []);
-
-  const handleCloseAdd = useCallback(() => setShowAddModal(false), []);
-
-  const handleCloseEdit = useCallback(() => {
-    setShowEditModal(false);
-    setEditingTask(null);
-  }, []);
-
-  const handleDeleteFromModal = useCallback(() => {
-    if (editingTask?.id) removeTask(editingTask.id);
-  }, [editingTask]);
 
   /* ══════════════════ Render ══════════════════ */
   return (
@@ -808,20 +545,37 @@ export default function Dashboard() {
       </button>
 
       {/* ══════════════════ MODALS ══════════════════ */}
+
+      {/* Add modal — always mounts with fresh EMPTY_TASK */}
       {showAddModal && (
         <TaskModal
+          key="add-modal"
           isEdit={false}
-          taskForm={taskForm}
-          setTaskForm={setTaskForm}
+          initialData={EMPTY_TASK}
           onClose={handleCloseAdd}
           onSave={addTask}
         />
       )}
-      {showEditModal && (
+
+      {/* Edit modal — seeded with the task being edited */}
+      {showEditModal && editingTask && (
         <TaskModal
+          key={`edit-${editingTask.id}`}
           isEdit={true}
-          taskForm={taskForm}
-          setTaskForm={setTaskForm}
+          initialData={{
+            ...EMPTY_TASK,
+            title:       editingTask.title       || "",
+            description: editingTask.description || "",
+            subject:     editingTask.subject     || "BEE",
+            startDate:   editingTask.startDate   || editingTask.deadline || "",
+            startTime:   editingTask.startTime   || "09:00",
+            endDate:     editingTask.endDate     || editingTask.startDate || editingTask.deadline || "",
+            endTime:     editingTask.endTime     || "10:00",
+            color:       editingTask.color       || "emerald",
+            priority:    editingTask.priority    || "normal",
+            important:   editingTask.important   || false,
+            deadline:    editingTask.deadline    || editingTask.startDate || "",
+          }}
           onClose={handleCloseEdit}
           onSave={updateTask}
           onDelete={handleDeleteFromModal}
