@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>StudySync - Login</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#005137",
+                        "outline-variant": "#bbcabf",
+                        "primary-fixed": "#6ffbbe",
+                        "primary": "#006c49",
+                        "on-tertiary-container": "#711419",
+                        "tertiary-container": "#fc7c78",
+                        "secondary": "#006c4b",
+                        "inverse-on-surface": "#e7f4eb",
+                        "on-secondary-container": "#00714e",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#842225",
+                        "surface-container-highest": "#d9e6dd",
+                        "tertiary-fixed-dim": "#ffb3af",
+                        "on-background": "#131e19",
+                        "tertiary": "#a43a3a",
+                        "on-primary-container": "#00422b",
+                        "surface-dim": "#d0ddd5",
+                        "inverse-primary": "#4edea3",
+                        "secondary-container": "#64f9bc",
+                        "surface-container": "#e4f1e8",
+                        "on-secondary-fixed": "#002114",
+                        "on-surface": "#131e19",
+                        "secondary-fixed": "#68fcbf",
+                        "on-surface-variant": "#3c4a42",
+                        "primary-fixed-dim": "#4edea3",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#d9e6dd",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-container": "#10b981",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "background": "#f0fdf4",
+                        "tertiary-fixed": "#ffdad7",
+                        "on-primary-fixed": "#002113",
+                        "surface-bright": "#f0fdf4",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#45dfa4",
+                        "surface-tint": "#006c49",
+                        "on-primary-fixed-variant": "#005236",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#deebe3",
+                        "inverse-surface": "#27332d",
+                        "outline": "#6c7a71",
+                        "surface-container-low": "#eaf7ee",
+                        "surface": "#f0fdf4",
+                        "on-tertiary-fixed": "#410005"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .signature-gradient {
+            background: linear-gradient(135deg, #006c49 0%, #10b981 100%);
+        }
+
+        .ambient-shadow {
+            box-shadow: 0 20px 40px rgba(19, 30, 25, 0.06);
+        }
+
+        .glass-hint {
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+
+        .no-border-input:focus {
+            outline: 2px solid rgba(0, 108, 73, 0.4);
+            border: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-on-surface min-h-screen flex flex-col overflow-x-hidden">
+    <!-- TopAppBar from JSON Authority -->
+    <header
+        class="bg-emerald-50/70 dark:bg-emerald-950/70 backdrop-blur-xl text-emerald-800 dark:text-emerald-100 font-plus-jakarta text-sm tracking-tight fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20">
+        <div class="text-2xl font-bold tracking-tighter text-emerald-900 dark:text-emerald-50">StudySync</div>
+        <nav class="hidden md:flex items-center gap-8">
+            <a class="text-emerald-700/60 dark:text-emerald-300/60 hover:text-emerald-900 dark:hover:text-emerald-50 transition-colors scale-95 duration-200"
+                href="#">Solutions</a>
+            <a class="text-emerald-700/60 dark:text-emerald-300/60 hover:text-emerald-900 dark:hover:text-emerald-50 transition-colors scale-95 duration-200"
+                href="#">Resources</a>
+            <a class="text-emerald-900 dark:text-emerald-50 font-semibold hover:text-emerald-900 dark:hover:text-emerald-50 transition-colors scale-95 duration-200"
+                href="#">Sign In</a>
+        </nav>
+        <div class="flex items-center gap-4">
+            <button
+                class="bg-primary text-on-primary px-6 py-2.5 rounded-xl font-medium transition-all hover:opacity-90 active:scale-95">Get
+                Started</button>
+        </div>
+    </header>
+    <main class="flex-grow flex items-center justify-center pt-24 pb-12 px-6 relative">
+        <!-- Organic Background Elements (Visual Respiration) -->
+        <div class="absolute top-1/4 -left-20 w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none">
+        </div>
+        <div
+            class="absolute bottom-1/4 -right-20 w-[500px] h-[500px] bg-secondary-container/10 rounded-full blur-[120px] pointer-events-none">
+        </div>
+        <!-- Main Login Card (Intentional Asymmetry: content-leaning left, button-leaning right) -->
+        <section class="w-full max-w-[1100px] grid md:grid-cols-12 items-center gap-12 z-10">
+            <!-- Left Branding Side (Desktop Only) -->
+            <div class="hidden md:flex md:col-span-5 flex-col gap-6 pr-8">
+                <h1 class="text-[3.5rem] font-extrabold leading-[1.1] tracking-[-0.03em] text-on-surface">
+                    Your focus <br /><span class="text-primary">evolved.</span>
+                </h1>
+                <p class="text-[1.125rem] text-on-surface-variant leading-relaxed max-w-sm">
+                    Re-enter your sanctuary of study. Where calm meets peak productivity.
+                </p>
+                <div class="mt-8">
+                    <img alt="Calm workspace with plant"
+                        class="w-full h-64 object-cover rounded-[2rem] grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-700"
+                        data-alt="Minimalist workspace with a small green plant and a notebook on a clean white desk, soft natural morning light"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIt9gywUXpuYbTl4uuoEPCa1lIjYIhuT1Bk1pozGz9llUzsc_iv4ochkPkfjvTtyyj1xYRqq6ZHdaaKk2Fo8e2x73jq4UA27J-apAWNtRJjJXWiDlEReOd0DhB31KZ4iJfiyKeRoYc-AMkSPKFXQo7aFgbWyOxXXa9UABMjI9yzj6y79rvYjHlfN6W0Pw7YJQAk1bhgfeqc3EQ0cc3ogdCLc8d2RDTXZcDKTfAWKjgFPwm6dVuYJNvAdnbyGNPxxiU6BP4rs2pWIw" />
+                </div>
+            </div>
+            <!-- Login Container (Floating Paper) -->
+            <div class="md:col-span-7 flex justify-center">
+                <div
+                    class="bg-surface-container-lowest ambient-shadow p-10 md:p-16 rounded-[2.5rem] w-full max-w-[540px]">
+                    <div class="mb-12">
+                        <span class="text-primary font-bold tracking-tighter text-2xl">StudySync</span>
+                        <h2 class="text-[2.75rem] font-bold tracking-[-0.02em] leading-tight mt-4 text-on-surface">Log
+                            in to your account</h2>
+                        <p class="text-on-surface-variant body-lg mt-2 opacity-70">Welcome back to your verdant
+                            sanctuary.</p>
+                    </div>
+                    <form class="space-y-8">
+                        <!-- Email Field -->
+                        <div class="space-y-2">
+                            <label
+                                class="text-[0.75rem] font-bold uppercase tracking-[0.05em] text-on-surface-variant block ml-1">Email
+                                Address</label>
+                            <input
+                                class="w-full bg-surface-container-highest border-none rounded-xl py-4 px-6 text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest transition-all"
+                                placeholder="alex@university.edu" type="email" />
+                        </div>
+                        <!-- Password Field -->
+                        <div class="space-y-2">
+                            <label
+                                class="text-[0.75rem] font-bold uppercase tracking-[0.05em] text-on-surface-variant block ml-1">Password</label>
+                            <div class="relative">
+                                <input
+                                    class="w-full bg-surface-container-highest border-none rounded-xl py-4 px-6 text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest transition-all"
+                                    placeholder="••••••••" type="password" />
+                                <button
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/60 hover:text-primary transition-colors"
+                                    type="button">
+                                    <span class="material-symbols-outlined">visibility</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Secondary Actions Row -->
+                        <div class="flex items-center justify-between text-sm">
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <div class="relative flex items-center">
+                                    <input
+                                        class="peer appearance-none w-5 h-5 bg-surface-container-high rounded-md checked:bg-primary transition-all cursor-pointer"
+                                        type="checkbox" />
+                                    <span
+                                        class="material-symbols-outlined absolute text-[14px] text-on-primary opacity-0 peer-checked:opacity-100 left-1/2 -translate-x-1/2 pointer-events-none">check</span>
+                                </div>
+                                <span
+                                    class="text-on-surface-variant group-hover:text-on-surface transition-colors">Remember
+                                    me</span>
+                            </label>
+                            <a class="text-primary font-semibold hover:opacity-70 transition-opacity" href="#">Forgot
+                                password?</a>
+                        </div>
+                        <!-- Login Button (Asymmetric placement: Right-of-center) -->
+                        <div class="flex justify-end pt-4">
+                            <button
+                                class="signature-gradient text-on-primary text-[1.125rem] font-bold py-4 px-12 rounded-xl ambient-shadow hover:scale-[1.02] active:scale-95 transition-all w-full md:w-auto"
+                                type="submit">
+                                Login
+                            </button>
+                        </div>
+                    </form>
+                    <div class="mt-12 flex items-center justify-center gap-2 text-sm">
+                        <span class="text-on-surface-variant">Don’t have an account?</span>
+                        <a class="text-primary font-bold hover:underline underline-offset-4" href="#">Sign up</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Floating Glass Hint (Bottom-Right) -->
+        <aside
+            class="fixed bottom-12 right-12 hidden lg:flex items-center gap-4 bg-emerald-50/70 glass-hint p-4 pr-8 rounded-full shadow-2xl z-20 transition-all hover:translate-y-[-4px]">
+            <div
+                class="w-10 h-10 bg-primary-container rounded-full flex items-center justify-center text-on-primary-container">
+                <span class="material-symbols-outlined text-[20px]">info</span>
+            </div>
+            <p class="text-[0.875rem] font-medium text-emerald-900">Enter your school email to get started</p>
+        </aside>
+    </main>
+    <!-- Footer from JSON Authority -->
+    <footer
+        class="bg-transparent w-full pb-8 flex flex-col items-center gap-4 text-emerald-800 dark:text-emerald-100 font-plus-jakarta text-[10px] uppercase tracking-widest">
+        <div class="flex gap-6">
+            <a class="text-emerald-700/40 dark:text-emerald-400/40 hover:text-emerald-600 transition-all opacity-80 hover:opacity-100"
+                href="#">Privacy</a>
+            <a class="text-emerald-700/40 dark:text-emerald-400/40 hover:text-emerald-600 transition-all opacity-80 hover:opacity-100"
+                href="#">Terms</a>
+            <a class="text-emerald-700/40 dark:text-emerald-400/40 hover:text-emerald-600 transition-all opacity-80 hover:opacity-100"
+                href="#">Support</a>
+        </div>
+        <p>© 2024 StudySync Sanctuary. Breathe deep, study well.</p>
+    </footer>
+</body>
+
+</html>
