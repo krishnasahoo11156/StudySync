@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { db } from "../firebase/config";
@@ -42,6 +42,218 @@ function fmtDate(iso) {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+/* ── Default empty form ──
+   Defined at module level so it never gets
+   recreated and never changes identity.
+*/
+const EMPTY_FORM = {
+  title: "", description: "", subject: "BEE",
+  startDate: "", startTime: "09:00",
+  endDate: "",  endTime: "10:00",
+  color: "emerald", priority: "normal", important: false,
+  deadline: "",
+};
+
+/* ═══════════════════════════════════════════
+   TASK MODAL — defined OUTSIDE Dashboard so
+   React never remounts it on parent re-renders.
+   All data passed via props; onChange uses the
+   stable useState setter so focus is never lost.
+═══════════════════════════════════════════ */
+const TaskModal = memo(function TaskModal({
+  isEdit, taskForm, setTaskForm, onClose, onSave, onDelete,
+}) {
+  const setField = useCallback((field, value) => {
+    setTaskForm(prev => ({ ...prev, [field]: value }));
+  }, [setTaskForm]);
+
+  return (
+    <div
+      className="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-3xl p-8 w-full max-w-lg shadow-2xl animate-scale-in max-h-[90vh] overflow-y-auto"
+        onClick={e => e.stopPropagation()}
+      >
+        <h3 className="text-xl font-bold mb-6" style={{ color: "#1A2621" }}>
+          {isEdit ? "Edit Task" : "Add Task"}
+        </h3>
+
+        <div className="space-y-5">
+          {/* Title */}
+          <div className="space-y-1.5">
+            <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>Title</label>
+            <input
+              className="w-full rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-[#16A34A]/30 outline-none transition-shadow"
+              style={{ background: "#F1F5F4", color: "#1A2621" }}
+              placeholder="e.g. BEE Assignment"
+              autoFocus
+              value={taskForm.title}
+              onChange={e => setField("title", e.target.value)}
+            />
+          </div>
+
+          {/* Description */}
+          <div className="space-y-1.5">
+            <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>Description / Notes</label>
+            <textarea
+              className="w-full rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-[#16A34A]/30 outline-none transition-shadow resize-none"
+              style={{ background: "#F1F5F4", color: "#1A2621" }}
+              placeholder="e.g. Room 402, bring lab journal..."
+              rows={2}
+              value={taskForm.description}
+              onChange={e => setField("description", e.target.value)}
+            />
+          </div>
+
+          {/* Subject + Priority */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>Subject</label>
+              <select
+                className="w-full rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-[#16A34A]/30 outline-none"
+                style={{ background: "#F1F5F4", color: "#1A2621" }}
+                value={taskForm.subject}
+                onChange={e => setField("subject", e.target.value)}
+              >
+                {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>Priority</label>
+              <select
+                className="w-full rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-[#16A34A]/30 outline-none"
+                style={{ background: "#F1F5F4", color: "#1A2621" }}
+                value={taskForm.priority}
+                onChange={e => setField("priority", e.target.value)}
+              >
+                <option value="normal">Normal</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Start Date + Time */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>Start Date</label>
+              <input type="date"
+                className="w-full rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-[#16A34A]/30 outline-none"
+                style={{ background: "#F1F5F4", color: "#1A2621" }}
+                value={taskForm.startDate}
+                onChange={e => setField("startDate", e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>Start Time</label>
+              <input type="time"
+                className="w-full rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-[#16A34A]/30 outline-none"
+                style={{ background: "#F1F5F4", color: "#1A2621" }}
+                value={taskForm.startTime}
+                onChange={e => setField("startTime", e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* End Date + Time */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>End Date</label>
+              <input type="date"
+                className="w-full rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-[#16A34A]/30 outline-none"
+                style={{ background: "#F1F5F4", color: "#1A2621" }}
+                value={taskForm.endDate}
+                onChange={e => setField("endDate", e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>End Time</label>
+              <input type="time"
+                className="w-full rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-[#16A34A]/30 outline-none"
+                style={{ background: "#F1F5F4", color: "#1A2621" }}
+                value={taskForm.endTime}
+                onChange={e => setField("endTime", e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Color Picker */}
+          <div className="space-y-1.5">
+            <label className="text-[0.7rem] font-bold uppercase tracking-widest" style={{ color: "#8FA99F" }}>Color</label>
+            <div className="flex gap-2 flex-wrap">
+              {TASK_COLORS.map(c => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setField("color", c.id)}
+                  className={`w-8 h-8 rounded-xl transition-all hover:scale-110 ${
+                    taskForm.color === c.id ? "ring-2 ring-offset-2 scale-110" : ""
+                  }`}
+                  style={{ backgroundColor: c.hex, ringColor: c.hex }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Important Toggle */}
+          <div
+            className="flex items-center justify-between rounded-xl px-4 py-3"
+            style={{ background: "#F5F1E8", border: "1px solid #D6C7AE" }}
+          >
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-amber-500 text-lg">star</span>
+              <span className="text-sm font-bold" style={{ color: "#1A2621" }}>Mark as Important</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setField("important", !taskForm.important)}
+              className="w-12 h-7 rounded-full transition-all flex-shrink-0"
+              style={{ background: taskForm.important ? "#16A34A" : "#C2D4CE" }}
+            >
+              <div
+                className="w-5 h-5 rounded-full bg-white shadow-md transition-all"
+                style={{ transform: taskForm.important ? "translateX(24px)" : "translateX(4px)" }}
+              />
+            </button>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center justify-between mt-8">
+          {isEdit && (
+            <button
+              type="button"
+              onClick={onDelete}
+              className="px-4 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-1.5 hover:bg-[#FEE2E2]"
+              style={{ color: "#EF4444" }}
+            >
+              <span className="material-symbols-outlined text-base">delete</span> Delete
+            </button>
+          )}
+          <div className={`flex gap-3 ${isEdit ? "" : "ml-auto"}`}>
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-5 py-2.5 rounded-xl font-semibold text-sm transition-all hover:bg-[#F1F5F4]"
+              style={{ color: "#3D524A" }}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={onSave}
+              className="px-6 py-2.5 rounded-xl signature-gradient text-white font-bold text-sm hover:opacity-90 active:scale-95 transition-all shadow-btn"
+            >
+              {isEdit ? "Save Changes" : "Add Task"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -58,16 +270,8 @@ export default function Dashboard() {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   /* ── Task form ── */
-  const emptyForm = {
-    title: "", description: "", subject: "BEE",
-    startDate: localYMD(new Date()),
-    startTime: "09:00",
-    endDate: localYMD(new Date()),
-    endTime: "10:00",
-    color: "emerald", priority: "normal", important: false,
-    deadline: localYMD(new Date())
-  };
-  const [taskForm, setTaskForm] = useState(emptyForm);
+  const todayYMD = localYMD(new Date());
+  const [taskForm, setTaskForm] = useState(() => ({ ...EMPTY_FORM, startDate: localYMD(new Date()), endDate: localYMD(new Date()), deadline: localYMD(new Date()) }));
 
   /* ── Timer ── */
   const [timerSeconds, setTimerSeconds] = useState(25 * 60);
@@ -112,7 +316,8 @@ export default function Dashboard() {
       status: "pending",
       createdAt: serverTimestamp(),
     });
-    setTaskForm(emptyForm);
+    const fresh = { ...EMPTY_FORM, startDate: todayYMD, endDate: todayYMD, deadline: todayYMD };
+    setTaskForm(fresh);
     setShowAddModal(false);
   };
 
@@ -217,113 +422,22 @@ export default function Dashboard() {
     return "Keep going — every task counts! 🌿";
   }, [total, completed, pending, tomorrowTasks]);
 
-  /* ═══════════════════════════════════════════
-     TASK FORM MODAL (shared by Add & Edit)
-  ═══════════════════════════════════════════ */
-  const TaskModal = ({ isEdit, onClose, onSave }) => (
-    <div className="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-3xl p-8 w-full max-w-lg shadow-2xl animate-scale-in max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <h3 className="text-xl font-bold text-emerald-900 mb-6">{isEdit ? "Edit Task" : "Add Task"}</h3>
-        <div className="space-y-5">
-          {/* Title */}
-          <div className="space-y-1.5">
-            <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Title</label>
-            <input className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 placeholder:text-emerald-400 focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
-              placeholder="e.g. BEE Assignment" value={taskForm.title} autoFocus
-              onChange={e => setTaskForm({ ...taskForm, title: e.target.value })} />
-          </div>
-          {/* Description */}
-          <div className="space-y-1.5">
-            <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Description / Notes</label>
-            <textarea className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 placeholder:text-emerald-400 focus:ring-2 focus:ring-emerald-400/40 transition-all resize-none text-sm"
-              placeholder="e.g. Room 402, bring lab journal..." rows={2}
-              value={taskForm.description} onChange={e => setTaskForm({ ...taskForm, description: e.target.value })} />
-          </div>
-          {/* Subject + Priority */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Subject</label>
-              <select className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
-                value={taskForm.subject} onChange={e => setTaskForm({ ...taskForm, subject: e.target.value })}>
-                {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Priority</label>
-              <select className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
-                value={taskForm.priority} onChange={e => setTaskForm({ ...taskForm, priority: e.target.value })}>
-                <option value="normal">Normal</option>
-                <option value="urgent">Urgent</option>
-              </select>
-            </div>
-          </div>
-          {/* Start Date + Time */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Start Date</label>
-              <input type="date" className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
-                value={taskForm.startDate} onChange={e => setTaskForm({ ...taskForm, startDate: e.target.value })} />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Start Time</label>
-              <input type="time" className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
-                value={taskForm.startTime} onChange={e => setTaskForm({ ...taskForm, startTime: e.target.value })} />
-            </div>
-          </div>
-          {/* End Date + Time */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">End Date</label>
-              <input type="date" className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
-                value={taskForm.endDate} onChange={e => setTaskForm({ ...taskForm, endDate: e.target.value })} />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">End Time</label>
-              <input type="time" className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
-                value={taskForm.endTime} onChange={e => setTaskForm({ ...taskForm, endTime: e.target.value })} />
-            </div>
-          </div>
-          {/* Color Picker */}
-          <div className="space-y-1.5">
-            <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Color</label>
-            <div className="flex gap-2 flex-wrap">
-              {TASK_COLORS.map(c => (
-                <button key={c.id} onClick={() => setTaskForm({ ...taskForm, color: c.id })}
-                  className={`w-8 h-8 rounded-xl transition-all hover:scale-110 ${taskForm.color === c.id ? "ring-2 ring-offset-2 ring-emerald-600 scale-110" : ""}`}
-                  style={{ backgroundColor: c.hex }} />
-              ))}
-            </div>
-          </div>
-          {/* Important Toggle */}
-          <div className="flex items-center justify-between bg-emerald-50 rounded-xl px-4 py-3">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-amber-500 text-lg">star</span>
-              <span className="text-sm font-bold text-emerald-800">Mark as Important</span>
-            </div>
-            <button onClick={() => setTaskForm({ ...taskForm, important: !taskForm.important })}
-              className={`w-12 h-7 rounded-full transition-all ${taskForm.important ? "bg-emerald-600" : "bg-emerald-200"}`}>
-              <div className={`w-5 h-5 rounded-full bg-white shadow-md transition-all ${taskForm.important ? "translate-x-6" : "translate-x-1"}`} />
-            </button>
-          </div>
-        </div>
-        {/* Actions */}
-        <div className="flex items-center justify-between mt-8">
-          {isEdit && (
-            <button onClick={() => removeTask(editingTask.id)}
-              className="px-4 py-2.5 rounded-xl text-rose-600 hover:bg-rose-50 font-bold text-sm transition-all flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-base">delete</span> Delete
-            </button>
-          )}
-          <div className={`flex gap-3 ${isEdit ? "" : "ml-auto"}`}>
-            <button onClick={onClose} className="px-5 py-2.5 rounded-xl text-emerald-600 hover:bg-emerald-50 font-semibold text-sm transition-all">Cancel</button>
-            <button onClick={onSave} className="px-6 py-2.5 rounded-xl signature-gradient text-white font-bold text-sm hover:opacity-90 active:scale-95 transition-all shadow-md">
-              {isEdit ? "Save Changes" : "Add Task"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  /* ── Stable modal handler callbacks ── */
+  const handleOpenAdd = useCallback(() => {
+    setTaskForm({ ...EMPTY_FORM, startDate: localYMD(new Date()), endDate: localYMD(new Date()), deadline: localYMD(new Date()) });
+    setShowAddModal(true);
+  }, []);
+
+  const handleCloseAdd = useCallback(() => setShowAddModal(false), []);
+
+  const handleCloseEdit = useCallback(() => {
+    setShowEditModal(false);
+    setEditingTask(null);
+  }, []);
+
+  const handleDeleteFromModal = useCallback(() => {
+    if (editingTask?.id) removeTask(editingTask.id);
+  }, [editingTask]);
 
   /* ══════════════════ Render ══════════════════ */
   return (
@@ -684,21 +798,35 @@ export default function Dashboard() {
 
       {/* ── FAB: Add Task ── */}
       <button
-        onClick={() => {
-          setTaskForm(emptyForm);
-          setShowAddModal(true);
-        }}
+        onClick={handleOpenAdd}
         className="fixed bottom-10 right-10 w-16 h-16 rounded-full signature-gradient text-white flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition-all z-50 group"
       >
         <span className="material-symbols-outlined text-3xl">add</span>
-        <span className="absolute right-full mr-4 bg-on-surface text-surface px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+        <span className="absolute right-full mr-4 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "#1A2621", color: "#F8FAF9" }}>
           Add New Task
         </span>
       </button>
 
       {/* ══════════════════ MODALS ══════════════════ */}
-      {showAddModal && <TaskModal isEdit={false} onClose={() => setShowAddModal(false)} onSave={addTask} />}
-      {showEditModal && <TaskModal isEdit={true} onClose={() => { setShowEditModal(false); setEditingTask(null); }} onSave={updateTask} />}
+      {showAddModal && (
+        <TaskModal
+          isEdit={false}
+          taskForm={taskForm}
+          setTaskForm={setTaskForm}
+          onClose={handleCloseAdd}
+          onSave={addTask}
+        />
+      )}
+      {showEditModal && (
+        <TaskModal
+          isEdit={true}
+          taskForm={taskForm}
+          setTaskForm={setTaskForm}
+          onClose={handleCloseEdit}
+          onSave={updateTask}
+          onDelete={handleDeleteFromModal}
+        />
+      )}
     </PageShell>
   );
 }
