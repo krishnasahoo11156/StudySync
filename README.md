@@ -6,7 +6,7 @@
   **Organize your academic life. Find your flow. Stay in the zone.**
 
   <p>
-    StudySync is not just another utility—it's a <strong>Verdant Sanctuary</strong> for students. Blending a beautifully calm, "Luminous Organicism" design system with powerful academic tools, StudySync transforms chaotic study habits into a streamlined, peaceful, and highly productive workflow.
+    StudySync is a premium React-based academic command center that integrates real-time task management, an intelligent calendar with conflict detection, and a focused study timer. It features a calming "soft-green" aesthetic and leverages Firebase to provide students with a unified, high-performance platform for organizing their academic life.
   </p>
 
   <p>
@@ -37,14 +37,21 @@ Your central command hub for academic life.
 - **Dynamic Weekly Insights:** A visual bar chart mapping completed vs. pending tasks.
 - **AI-Vibe Textual Insights:** Encouraging prompts ("You have 3 tasks due tomorrow", "10 tasks completed this week!").
 
-### 2. 🗂️ Library (Cloud Storage)
+### 2. 📅 Intelligent Calendar
+A comprehensive scheduling suite offering full visibility over your academic timeline.
+- **Multiple Views:** Seamlessly switch between Month, Week, and Day layouts.
+- **Conflict Detection:** Automatically warns you if study sessions or task deadlines overlap.
+- **Smart Suggestions:** Evaluates past workflows to suggest an optimal, data-backed study slot for the day.
+- **Unified Task Management:** Implements a centralized task-creation modal ensuring perfectly synchronized state between the Dashboard and Calendar.
+
+### 3. 🗂️ Library (Cloud Storage)
 A complete, Google Drive-style file management system integrated directly into your workspace.
 - **Hierarchical Folders:** Create, rename, delete, and navigate infinite folder trees.
 - **PDF Vault:** Upload and store your research and study materials.
 - **Smart Tech:** Uses a zero-CORS Base64-to-Firestore encoding strategy for instant, frictionless file storage.
 - **View Controls:** Toggle between List and Grid interfaces. Sort by Date Modified or Name. Tag files by subject.
 
-### 3. ⏳ Focus Sanctuary (Flow State)
+### 4. ⏳ Focus Sanctuary (Flow State)
 A breathtaking, distraction-free environment engineered to lock you into deep work.
 - **Advanced Pomodoro Engine:** Highly customizable Focus, Break, and Lap configurations.
 - **Web-Audio Ambient Soundscapes:** Built-in programmatic audio generation. Listen to *Forest Rain, Morning Birds, Library Ambience, Café, or White Noise*—no external audio files required.
