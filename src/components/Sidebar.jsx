@@ -9,7 +9,7 @@ const NAV_ITEMS = [
   { id: "library",   icon: "menu_book", label: "Library",   path: "/library"   },
   { id: "focus",     icon: "timer",     label: "Focus",     path: "/focus"     },
   { id: "analytics", icon: "bar_chart", label: "Analytics", path: "/analytics" },
-  { id: "community", icon: "groups",    label: "Community", path: "#"          },
+  { id: "calendar",  icon: "calendar_month", label: "Calendar",  path: "/calendar"  },
 ];
 
 /* ═══════════════════════════════════════════
@@ -101,7 +101,6 @@ export default function Sidebar({ activePage, sidebarOpen, setSidebarOpen }) {
                     ? "bg-emerald-800 text-white shadow-md shadow-emerald-900/10"
                     : "text-emerald-700/70 hover:bg-emerald-100 hover:text-emerald-800"
                   }
-                  ${item.path === "#" ? "opacity-60 cursor-default" : ""}
                 `}
               >
                 <span className="material-symbols-outlined text-xl">{item.icon}</span>

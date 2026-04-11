@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import LibraryPage from "./pages/LibraryPage";
 import FocusPage from "./pages/FocusPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import CalendarPage from "./pages/CalendarPage";
 
 function App() {
   return (
@@ -46,6 +47,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <AnalyticsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/calendar"
+            element={
+              <ProtectedRoute>
+                <CalendarPage />
               </ProtectedRoute>
             }
           />
