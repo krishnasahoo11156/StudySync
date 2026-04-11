@@ -231,7 +231,7 @@ export default function Dashboard() {
           </a>
           {[
             { icon: "menu_book", label: "Library",   path: "/library"   },
-            { icon: "timer",    label: "Focus",     path: "#"           },
+            { icon: "timer",    label: "Focus",     path: "/focus"     },
             { icon: "bar_chart",label: "Analytics", path: "#"           },
             { icon: "groups",   label: "Community", path: "#"           },
           ].map((item) => (
