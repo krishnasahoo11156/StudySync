@@ -252,12 +252,13 @@ function StatCard({ title, main, sub, badge, dark = false, children }) {
    SUBJECT COLORS
 ═══════════════════════════════════════════ */
 const SUBJECT_COLORS = {
-  "Math":           "#006c49",
-  "Science":        "#10b981",
-  "English":        "#6ee7b7",
-  "History":        "#34d399",
-  "Art":            "#a7f3d0",
-  "Computer Science":"#047857",
+  "BEE":            "#006c49",
+  "EM":             "#10b981",
+  "ED":             "#6ee7b7",
+  "EP":             "#34d399",
+  "PCE":            "#a7f3d0",
+  "FEM":            "#047857",
+  "Autocad":        "#38a169",
   "Other":          "#bbcabf",
 };
 const COLOR_LIST = Object.values(SUBJECT_COLORS);

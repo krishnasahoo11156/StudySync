@@ -16,7 +16,7 @@ import {
 import PageShell from "../components/PageShell";
 
 /* ── Subject presets ── */
-const SUBJECTS = ["Math", "Science", "English", "History", "Art", "Computer Science", "Other"];
+const SUBJECTS = ["BEE", "EM", "ED", "EP", "PCE", "FEM", "Autocad", "Other"];
 
 /* ── Helper: format a date string as readable ── */
 function fmtDate(iso) {
@@ -41,7 +41,7 @@ export default function Dashboard() {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   /* ── Task form ── */
-  const emptyForm = { title: "", subject: "Math", deadline: "", priority: "normal" };
+  const emptyForm = { title: "", subject: "BEE", deadline: "", priority: "normal", description: "" };
   const [taskForm, setTaskForm] = useState(emptyForm);
 
   /* ── Timer ── */
@@ -366,7 +366,12 @@ export default function Dashboard() {
                             <span className="bg-tertiary-container/20 text-tertiary text-[0.6rem] font-bold uppercase px-2 py-0.5 rounded-full">!</span>
                           )}
                         </div>
-                        <div className="flex items-center gap-4 lg:gap-8">
+                        {task.description && (
+                          <div className="pl-8 text-xs text-on-surface-variant/70 mt-1 line-clamp-2">
+                            {task.description}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-4 lg:gap-8 mt-2">
                           <span className="text-xs font-bold text-on-surface-variant/50 uppercase tracking-widest hidden sm:inline">
                             {task.subject}
                           </span>
@@ -603,6 +608,16 @@ export default function Dashboard() {
                   onChange={(e) => setTaskForm({ ...taskForm, deadline: e.target.value })}
                 />
               </div>
+              <div className="space-y-2">
+                <label className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant">Description / Notes</label>
+                <textarea
+                  className="w-full bg-surface-container-highest border-0 rounded-xl px-5 py-3.5 text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary/40 transition-all resize-none"
+                  placeholder="e.g. Room no. 402, requires lab journal..."
+                  rows={2}
+                  value={taskForm.description || ""}
+                  onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
+                />
+              </div>
             </div>
             <div className="flex justify-end gap-4 mt-8">
               <button
@@ -669,6 +684,16 @@ export default function Dashboard() {
                   type="date"
                   value={taskForm.deadline}
                   onChange={(e) => setTaskForm({ ...taskForm, deadline: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant">Description / Notes</label>
+                <textarea
+                  className="w-full bg-surface-container-highest border-0 rounded-xl px-5 py-3.5 text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary/40 transition-all resize-none"
+                  placeholder="e.g. Room no. 402, requires lab journal..."
+                  rows={2}
+                  value={taskForm.description || ""}
+                  onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
                 />
               </div>
             </div>
