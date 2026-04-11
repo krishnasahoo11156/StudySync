@@ -222,19 +222,23 @@ export default function Dashboard() {
           </div>
         </div>
         <nav className="flex flex-col gap-2">
-          <a className="flex items-center gap-4 px-4 py-3 bg-emerald-200/50 dark:bg-emerald-800/50 text-emerald-900 dark:text-emerald-50 rounded-xl transition-all" href="#">
+          <a
+            className="flex items-center gap-4 px-4 py-3 bg-emerald-200/50 dark:bg-emerald-800/50 text-emerald-900 dark:text-emerald-50 rounded-xl transition-all cursor-pointer"
+            onClick={() => navigate("/dashboard")}
+          >
             <span className="material-symbols-outlined">home</span>
             <span className="font-medium tracking-wide">Sanctuary</span>
           </a>
           {[
-            { icon: "menu_book", label: "Library" },
-            { icon: "timer", label: "Focus" },
-            { icon: "bar_chart", label: "Analytics" },
-            { icon: "groups", label: "Community" },
+            { icon: "menu_book", label: "Library",   path: "/library"   },
+            { icon: "timer",    label: "Focus",     path: "#"           },
+            { icon: "bar_chart",label: "Analytics", path: "#"           },
+            { icon: "groups",   label: "Community", path: "#"           },
           ].map((item) => (
             <a
               key={item.label}
-              className="flex items-center gap-4 px-4 py-3 text-emerald-700/70 dark:text-emerald-400/70 hover:bg-emerald-100 dark:hover:bg-emerald-900/80 transition-all rounded-xl"
+              className="flex items-center gap-4 px-4 py-3 text-emerald-700/70 dark:text-emerald-400/70 hover:bg-emerald-100 dark:hover:bg-emerald-900/80 transition-all rounded-xl cursor-pointer"
+              onClick={() => item.path !== "#" && navigate(item.path)}
               href="#"
             >
               <span className="material-symbols-outlined">{item.icon}</span>
