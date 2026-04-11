@@ -18,7 +18,24 @@ import PageShell from "../components/PageShell";
 /* ── Subject presets ── */
 const SUBJECTS = ["BEE", "EM", "ED", "EP", "PCE", "FEM", "Autocad", "Other"];
 
-/* ── Helper: format a date string as readable ── */
+/* ── Task Colors ── */
+const TASK_COLORS = [
+  { id: "emerald",  hex: "#006c49", bg: "bg-emerald-600",  light: "bg-emerald-100  text-emerald-800" },
+  { id: "teal",     hex: "#0d9488", bg: "bg-teal-500",     light: "bg-teal-100     text-teal-800"    },
+  { id: "sky",      hex: "#0284c7", bg: "bg-sky-600",      light: "bg-sky-100      text-sky-800"     },
+  { id: "violet",   hex: "#7c3aed", bg: "bg-violet-600",   light: "bg-violet-100   text-violet-800"  },
+  { id: "amber",    hex: "#d97706", bg: "bg-amber-500",    light: "bg-amber-100    text-amber-800"   },
+  { id: "rose",     hex: "#e11d48", bg: "bg-rose-600",     light: "bg-rose-100     text-rose-800"    },
+  { id: "lime",     hex: "#65a30d", bg: "bg-lime-600",     light: "bg-lime-100     text-lime-800"    },
+  { id: "orange",   hex: "#ea580c", bg: "bg-orange-600",   light: "bg-orange-100   text-orange-800"  },
+];
+
+/* ── Helpers ── */
+function localYMD(d) {
+  if (!d) return "";
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function fmtDate(iso) {
   if (!iso) return "";
   const d = new Date(iso + "T00:00:00");
@@ -41,7 +58,15 @@ export default function Dashboard() {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   /* ── Task form ── */
-  const emptyForm = { title: "", subject: "BEE", deadline: "", priority: "normal", description: "" };
+  const emptyForm = {
+    title: "", description: "", subject: "BEE",
+    startDate: localYMD(new Date()),
+    startTime: "09:00",
+    endDate: localYMD(new Date()),
+    endTime: "10:00",
+    color: "emerald", priority: "normal", important: false,
+    deadline: localYMD(new Date())
+  };
   const [taskForm, setTaskForm] = useState(emptyForm);
 
   /* ── Timer ── */
@@ -82,6 +107,7 @@ export default function Dashboard() {
     if (!taskForm.title.trim()) return;
     await addDoc(collection(db, "tasks"), {
       ...taskForm,
+      deadline: taskForm.startDate,
       userId: user.uid,
       status: "pending",
       createdAt: serverTimestamp(),
@@ -93,10 +119,8 @@ export default function Dashboard() {
   const updateTask = async () => {
     if (!editingTask || !taskForm.title.trim()) return;
     await updateDoc(doc(db, "tasks", editingTask.id), {
-      title: taskForm.title,
-      subject: taskForm.subject,
-      deadline: taskForm.deadline,
-      priority: taskForm.priority,
+      ...taskForm,
+      deadline: taskForm.startDate
     });
     setShowEditModal(false);
     setEditingTask(null);
@@ -118,10 +142,17 @@ export default function Dashboard() {
   const openEdit = useCallback((task) => {
     setEditingTask(task);
     setTaskForm({
-      title: task.title,
-      subject: task.subject,
-      deadline: task.deadline || "",
+      title: task.title || "",
+      description: task.description || "",
+      subject: task.subject || "BEE",
+      startDate: task.startDate || task.deadline || "",
+      startTime: task.startTime || "09:00",
+      endDate: task.endDate || task.startDate || task.deadline || "",
+      endTime: task.endTime || "10:00",
+      color: task.color || "emerald",
       priority: task.priority || "normal",
+      important: task.important || false,
+      deadline: task.deadline || task.startDate || "",
     });
     setShowEditModal(true);
   }, []);
@@ -185,6 +216,114 @@ export default function Dashboard() {
       return `You have <strong>${pending} pending task${pending > 1 ? "s" : ""}</strong>. Stay focused! 🎯`;
     return "Keep going — every task counts! 🌿";
   }, [total, completed, pending, tomorrowTasks]);
+
+  /* ═══════════════════════════════════════════
+     TASK FORM MODAL (shared by Add & Edit)
+  ═══════════════════════════════════════════ */
+  const TaskModal = ({ isEdit, onClose, onSave }) => (
+    <div className="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-3xl p-8 w-full max-w-lg shadow-2xl animate-scale-in max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <h3 className="text-xl font-bold text-emerald-900 mb-6">{isEdit ? "Edit Task" : "Add Task"}</h3>
+        <div className="space-y-5">
+          {/* Title */}
+          <div className="space-y-1.5">
+            <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Title</label>
+            <input className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 placeholder:text-emerald-400 focus:ring-2 focus:ring-emerald-400/40 transition-all text-sm"
+              placeholder="e.g. BEE Assignment" value={taskForm.title} autoFocus
+              onChange={e => setTaskForm({ ...taskForm, title: e.target.value })} />
+          </div>
+          {/* Description */}
+          <div className="space-y-1.5">
+            <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Description / Notes</label>
+            <textarea className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 placeholder:text-emerald-400 focus:ring-2 focus:ring-emerald-400/40 transition-all resize-none text-sm"
+              placeholder="e.g. Room 402, bring lab journal..." rows={2}
+              value={taskForm.description} onChange={e => setTaskForm({ ...taskForm, description: e.target.value })} />
+          </div>
+          {/* Subject + Priority */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Subject</label>
+              <select className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
+                value={taskForm.subject} onChange={e => setTaskForm({ ...taskForm, subject: e.target.value })}>
+                {SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Priority</label>
+              <select className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
+                value={taskForm.priority} onChange={e => setTaskForm({ ...taskForm, priority: e.target.value })}>
+                <option value="normal">Normal</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </div>
+          </div>
+          {/* Start Date + Time */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Start Date</label>
+              <input type="date" className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
+                value={taskForm.startDate} onChange={e => setTaskForm({ ...taskForm, startDate: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Start Time</label>
+              <input type="time" className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
+                value={taskForm.startTime} onChange={e => setTaskForm({ ...taskForm, startTime: e.target.value })} />
+            </div>
+          </div>
+          {/* End Date + Time */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">End Date</label>
+              <input type="date" className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
+                value={taskForm.endDate} onChange={e => setTaskForm({ ...taskForm, endDate: e.target.value })} />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">End Time</label>
+              <input type="time" className="w-full bg-emerald-50 border-0 rounded-xl px-4 py-3 text-emerald-900 focus:ring-2 focus:ring-emerald-400/40 text-sm"
+                value={taskForm.endTime} onChange={e => setTaskForm({ ...taskForm, endTime: e.target.value })} />
+            </div>
+          </div>
+          {/* Color Picker */}
+          <div className="space-y-1.5">
+            <label className="text-[0.7rem] font-bold uppercase tracking-widest text-emerald-600/60">Color</label>
+            <div className="flex gap-2 flex-wrap">
+              {TASK_COLORS.map(c => (
+                <button key={c.id} onClick={() => setTaskForm({ ...taskForm, color: c.id })}
+                  className={`w-8 h-8 rounded-xl transition-all hover:scale-110 ${taskForm.color === c.id ? "ring-2 ring-offset-2 ring-emerald-600 scale-110" : ""}`}
+                  style={{ backgroundColor: c.hex }} />
+              ))}
+            </div>
+          </div>
+          {/* Important Toggle */}
+          <div className="flex items-center justify-between bg-emerald-50 rounded-xl px-4 py-3">
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-amber-500 text-lg">star</span>
+              <span className="text-sm font-bold text-emerald-800">Mark as Important</span>
+            </div>
+            <button onClick={() => setTaskForm({ ...taskForm, important: !taskForm.important })}
+              className={`w-12 h-7 rounded-full transition-all ${taskForm.important ? "bg-emerald-600" : "bg-emerald-200"}`}>
+              <div className={`w-5 h-5 rounded-full bg-white shadow-md transition-all ${taskForm.important ? "translate-x-6" : "translate-x-1"}`} />
+            </button>
+          </div>
+        </div>
+        {/* Actions */}
+        <div className="flex items-center justify-between mt-8">
+          {isEdit && (
+            <button onClick={() => removeTask(editingTask.id)}
+              className="px-4 py-2.5 rounded-xl text-rose-600 hover:bg-rose-50 font-bold text-sm transition-all flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-base">delete</span> Delete
+            </button>
+          )}
+          <div className={`flex gap-3 ${isEdit ? "" : "ml-auto"}`}>
+            <button onClick={onClose} className="px-5 py-2.5 rounded-xl text-emerald-600 hover:bg-emerald-50 font-semibold text-sm transition-all">Cancel</button>
+            <button onClick={onSave} className="px-6 py-2.5 rounded-xl signature-gradient text-white font-bold text-sm hover:opacity-90 active:scale-95 transition-all shadow-md">
+              {isEdit ? "Save Changes" : "Add Task"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   /* ══════════════════ Render ══════════════════ */
   return (
@@ -558,162 +697,9 @@ export default function Dashboard() {
         </span>
       </button>
 
-      {/* ══════════════════ Add Task Modal ══════════════════ */}
-      {showAddModal && (
-        <div className="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-6" onClick={() => setShowAddModal(false)}>
-          <div className="bg-surface-container-lowest rounded-3xl p-8 md:p-10 w-full max-w-md ambient-shadow animate-scale-in" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-2xl font-bold text-on-surface mb-8">Add New Task</h3>
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant">Title</label>
-                <input
-                  className="w-full bg-surface-container-highest border-0 rounded-xl px-5 py-3.5 text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary/40 transition-all"
-                  placeholder="e.g. Biology Report"
-                  value={taskForm.title}
-                  onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
-                  autoFocus
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant">Subject</label>
-                  <select
-                    className="w-full bg-surface-container-highest border-0 rounded-xl px-5 py-3.5 text-on-surface focus:ring-2 focus:ring-primary/40 transition-all"
-                    value={taskForm.subject}
-                    onChange={(e) => setTaskForm({ ...taskForm, subject: e.target.value })}
-                  >
-                    {SUBJECTS.map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant">Priority</label>
-                  <select
-                    className="w-full bg-surface-container-highest border-0 rounded-xl px-5 py-3.5 text-on-surface focus:ring-2 focus:ring-primary/40 transition-all"
-                    value={taskForm.priority}
-                    onChange={(e) => setTaskForm({ ...taskForm, priority: e.target.value })}
-                  >
-                    <option value="normal">Normal</option>
-                    <option value="urgent">Urgent</option>
-                  </select>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant">Deadline</label>
-                <input
-                  className="w-full bg-surface-container-highest border-0 rounded-xl px-5 py-3.5 text-on-surface focus:ring-2 focus:ring-primary/40 transition-all"
-                  type="date"
-                  value={taskForm.deadline}
-                  onChange={(e) => setTaskForm({ ...taskForm, deadline: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant">Description / Notes</label>
-                <textarea
-                  className="w-full bg-surface-container-highest border-0 rounded-xl px-5 py-3.5 text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary/40 transition-all resize-none"
-                  placeholder="e.g. Room no. 402, requires lab journal..."
-                  rows={2}
-                  value={taskForm.description || ""}
-                  onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-4 mt-8">
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="px-6 py-3 rounded-xl text-on-surface-variant font-semibold hover:bg-surface-container-high transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={addTask}
-                className="px-8 py-3 rounded-xl signature-gradient text-on-primary font-bold ambient-shadow hover:scale-[1.02] active:scale-95 transition-all"
-              >
-                Add Task
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ══════════════════ Edit Task Modal ══════════════════ */}
-      {showEditModal && (
-        <div className="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-6" onClick={() => setShowEditModal(false)}>
-          <div className="bg-surface-container-lowest rounded-3xl p-8 md:p-10 w-full max-w-md ambient-shadow animate-scale-in" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-2xl font-bold text-on-surface mb-8">Edit Task</h3>
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant">Title</label>
-                <input
-                  className="w-full bg-surface-container-highest border-0 rounded-xl px-5 py-3.5 text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary/40 transition-all"
-                  value={taskForm.title}
-                  onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
-                  autoFocus
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant">Subject</label>
-                  <select
-                    className="w-full bg-surface-container-highest border-0 rounded-xl px-5 py-3.5 text-on-surface focus:ring-2 focus:ring-primary/40 transition-all"
-                    value={taskForm.subject}
-                    onChange={(e) => setTaskForm({ ...taskForm, subject: e.target.value })}
-                  >
-                    {SUBJECTS.map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant">Priority</label>
-                  <select
-                    className="w-full bg-surface-container-highest border-0 rounded-xl px-5 py-3.5 text-on-surface focus:ring-2 focus:ring-primary/40 transition-all"
-                    value={taskForm.priority}
-                    onChange={(e) => setTaskForm({ ...taskForm, priority: e.target.value })}
-                  >
-                    <option value="normal">Normal</option>
-                    <option value="urgent">Urgent</option>
-                  </select>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant">Deadline</label>
-                <input
-                  className="w-full bg-surface-container-highest border-0 rounded-xl px-5 py-3.5 text-on-surface focus:ring-2 focus:ring-primary/40 transition-all"
-                  type="date"
-                  value={taskForm.deadline}
-                  onChange={(e) => setTaskForm({ ...taskForm, deadline: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[0.7rem] font-bold uppercase tracking-widest text-on-surface-variant">Description / Notes</label>
-                <textarea
-                  className="w-full bg-surface-container-highest border-0 rounded-xl px-5 py-3.5 text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary/40 transition-all resize-none"
-                  placeholder="e.g. Room no. 402, requires lab journal..."
-                  rows={2}
-                  value={taskForm.description || ""}
-                  onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
-                />
-              </div>
-            </div>
-            <div className="flex justify-end gap-4 mt-8">
-              <button
-                onClick={() => setShowEditModal(false)}
-                className="px-6 py-3 rounded-xl text-on-surface-variant font-semibold hover:bg-surface-container-high transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={updateTask}
-                className="px-8 py-3 rounded-xl signature-gradient text-on-primary font-bold ambient-shadow hover:scale-[1.02] active:scale-95 transition-all"
-              >
-                Save Changes
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ══════════════════ MODALS ══════════════════ */}
+      {showAddModal && <TaskModal isEdit={false} onClose={() => setShowAddModal(false)} onSave={addTask} />}
+      {showEditModal && <TaskModal isEdit={true} onClose={() => { setShowEditModal(false); setEditingTask(null); }} onSave={updateTask} />}
     </PageShell>
   );
 }
