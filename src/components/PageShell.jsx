@@ -17,26 +17,12 @@ export default function PageShell({ activePage, title, subtitle, topBarChildren,
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="bg-surface text-on-surface min-h-screen">
-      {/* Sidebar */}
-      <Sidebar
-        activePage={activePage}
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-      />
-
-      {/* Main area */}
+    <div className="min-h-screen" style={{ background: "#F8FAF9", color: "#1A2621" }}>
+      <Sidebar activePage={activePage} sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       <main className="lg:ml-72 min-h-screen relative">
-        {/* Top Bar */}
-        <TopBar
-          title={title}
-          subtitle={subtitle}
-          onMenuClick={() => setSidebarOpen(true)}
-        >
+        <TopBar title={title} subtitle={subtitle} onMenuClick={() => setSidebarOpen(true)}>
           {topBarChildren}
         </TopBar>
-
-        {/* Page content (below fixed top bar) */}
         <div className="pt-24 px-5 lg:px-10 pb-16">
           {children}
         </div>

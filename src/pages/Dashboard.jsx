@@ -338,19 +338,23 @@ export default function Dashboard() {
         </div>
       ) : (
         <div className="animate-page-enter max-w-7xl mx-auto">
-          {/* Welcome */}
-          <section className="mb-10 p-8 lg:p-12 bg-surface-container-low rounded-3xl relative overflow-hidden animate-fade-in">
+          {/* Welcome Hero */}
+          <section
+            className="mb-10 p-8 lg:p-12 rounded-3xl relative overflow-hidden animate-fade-in"
+            style={{ background: "linear-gradient(135deg, #F0FDF4 0%, #F5F1E8 55%, #EFF6FF 100%)", border: "1px solid #E4EDEA" }}
+          >
             <div className="relative z-10">
-              <h2 className="text-3xl lg:text-[3.5rem] font-extrabold tracking-tight text-on-surface leading-tight mb-4">
+              <h2 className="text-3xl lg:text-[3.5rem] font-extrabold tracking-tight leading-tight mb-4" style={{ color: "#1A2621" }}>
                 {greeting}, {userName}
               </h2>
-              <p className="text-lg lg:text-xl text-on-surface-variant opacity-80 max-w-lg">
+              <p className="text-lg lg:text-xl max-w-lg" style={{ color: "#3D524A", opacity: 0.85 }}>
                 {total === 0
                   ? "Let's add your first task and get started ✨"
                   : `You're on track — ${completed}/${total} completed ✨`}
               </p>
             </div>
-            <div className="absolute top-0 right-0 w-64 h-64 signature-gradient opacity-10 rounded-full -mr-20 -mt-20 blur-3xl" />
+            <div className="absolute top-0 right-0 w-72 h-72 rounded-full -mr-24 -mt-24 blur-3xl opacity-20" style={{ background: "#16A34A" }} />
+            <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full -mb-16 blur-3xl opacity-10" style={{ background: "#60A5FA" }} />
           </section>
 
           {/* 2-Column Grid */}
@@ -359,17 +363,20 @@ export default function Dashboard() {
             <div className="lg:col-span-8">
               {/* Overview Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12 stagger-children">
-                <div className="bg-surface-container-lowest p-8 rounded-2xl ambient-shadow flex flex-col justify-between h-40 animate-slide-up">
-                  <span className="text-primary font-bold uppercase tracking-widest text-[0.7rem]">Total Tasks</span>
-                  <div className="text-4xl font-extrabold text-on-surface">{String(total).padStart(2, "0")}</div>
+                {/* Total */}
+                <div className="bg-white p-8 rounded-2xl flex flex-col justify-between h-40 animate-slide-up" style={{ border: "1px solid #E4EDEA", boxShadow: "0 2px 12px rgba(22,163,74,0.06)" }}>
+                  <span className="font-bold uppercase tracking-widest text-[0.7rem]" style={{ color: "#16A34A" }}>Total Tasks</span>
+                  <div className="text-4xl font-extrabold" style={{ color: "#1A2621" }}>{String(total).padStart(2, "0")}</div>
                 </div>
-                <div className="bg-surface-container-lowest p-8 rounded-2xl ambient-shadow flex flex-col justify-between h-40 sm:mt-6 animate-slide-up">
-                  <span className="text-primary font-bold uppercase tracking-widest text-[0.7rem]">Completed</span>
-                  <div className="text-4xl font-extrabold text-secondary">{String(completed).padStart(2, "0")}</div>
+                {/* Completed */}
+                <div className="p-8 rounded-2xl flex flex-col justify-between h-40 sm:mt-6 animate-slide-up" style={{ background: "#DCFCE7", border: "1px solid #BBF7D0", boxShadow: "0 2px 12px rgba(22,163,74,0.08)" }}>
+                  <span className="font-bold uppercase tracking-widest text-[0.7rem]" style={{ color: "#15803D" }}>Completed</span>
+                  <div className="text-4xl font-extrabold" style={{ color: "#14532D" }}>{String(completed).padStart(2, "0")}</div>
                 </div>
-                <div className="bg-surface-container-lowest p-8 rounded-2xl ambient-shadow flex flex-col justify-between h-40 animate-slide-up">
-                  <span className="text-tertiary font-bold uppercase tracking-widest text-[0.7rem]">Pending</span>
-                  <div className="text-4xl font-extrabold text-on-surface">{String(pending).padStart(2, "0")}</div>
+                {/* Pending */}
+                <div className="p-8 rounded-2xl flex flex-col justify-between h-40 animate-slide-up" style={{ background: "#F5F1E8", border: "1px solid #D6C7AE", boxShadow: "0 2px 8px rgba(214,199,174,0.2)" }}>
+                  <span className="font-bold uppercase tracking-widest text-[0.7rem]" style={{ color: "#F87171" }}>Pending</span>
+                  <div className="text-4xl font-extrabold" style={{ color: "#1A2621" }}>{String(pending).padStart(2, "0")}</div>
                 </div>
               </div>
 
@@ -380,8 +387,8 @@ export default function Dashboard() {
                   <span className="text-primary font-bold text-sm">{todayTasks.length} tasks</span>
                 </div>
                 {todayTasks.length === 0 ? (
-                  <div className="bg-surface-container-lowest p-8 rounded-2xl ambient-shadow text-center text-on-surface-variant">
-                    <span className="material-symbols-outlined text-4xl mb-2 block opacity-40">task_alt</span>
+                  <div className="p-8 rounded-2xl text-center" style={{ background: "#F5F1E8", border: "1px solid #D6C7AE", color: "#78634A" }}>
+                    <span className="material-symbols-outlined text-4xl mb-2 block" style={{ opacity: 0.5 }}>task_alt</span>
                     No tasks due today — enjoy the calm 🌿
                   </div>
                 ) : (
@@ -389,27 +396,29 @@ export default function Dashboard() {
                     {todayTasks.map((task) => (
                       <div
                         key={task.id}
-                        className="bg-surface-container-lowest p-6 rounded-2xl ambient-shadow relative overflow-hidden group hover:translate-y-[-2px] transition-all duration-300 animate-slide-up"
+                        className="bg-white p-6 rounded-2xl relative overflow-hidden group hover:-translate-y-0.5 transition-all duration-300 animate-slide-up"
+                        style={{ border: "1px solid #E4EDEA", boxShadow: "0 2px 12px rgba(22,163,74,0.06)" }}
                       >
                         <div className="flex justify-between items-start mb-4">
                           <div className="flex items-start gap-4">
                             <button
                               onClick={() => toggleComplete(task)}
-                              className="mt-1 w-6 h-6 rounded-lg border-2 border-primary/40 flex items-center justify-center hover:bg-primary/10 transition-colors flex-shrink-0"
+                              className="mt-1 w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-all"
+                              style={{ border: "2px solid #16A34A", background: task.status === "completed" ? "#16A34A" : "transparent" }}
                             >
                               {task.status === "completed" && (
-                                <span className="material-symbols-outlined text-primary text-[16px] animate-check-pop">check</span>
+                                <span className="material-symbols-outlined text-white text-[14px] animate-check-pop">check</span>
                               )}
                             </button>
                             <div>
-                              <h4 className={`text-lg font-bold text-on-surface mb-2 ${task.status === "completed" ? "line-through opacity-50" : ""}`}>
-                                {task.title}
+                              <h4 className={`text-lg font-bold mb-2 ${task.status === "completed" ? "line-through opacity-50" : ""}`} style={{ color: "#1A2621" }}>
+                                {task.important && <span className="text-amber-400 mr-1">⭐</span>}{task.title}
                               </h4>
                               <div className="flex items-center gap-3">
-                                <span className="bg-surface-container-high text-on-surface-variant text-[0.65rem] font-bold uppercase tracking-wider px-3 py-1 rounded-full">
+                                <span className="text-[0.65rem] font-bold uppercase tracking-wider px-3 py-1 rounded-full" style={{ background: "#F5F1E8", color: "#78634A" }}>
                                   {task.subject}
                                 </span>
-                                <div className="flex items-center gap-1 text-on-surface-variant/60 text-xs">
+                                <div className="flex items-center gap-1 text-xs" style={{ color: "#8FA99F" }}>
                                   <span className="material-symbols-outlined text-[1rem]">schedule</span>
                                   <span>{fmtDate(task.deadline) || "No deadline"}</span>
                                 </div>
@@ -418,25 +427,25 @@ export default function Dashboard() {
                           </div>
                           <div className="flex items-center gap-2">
                             {task.priority === "urgent" && (
-                              <span className="bg-tertiary-container/30 text-tertiary text-[0.65rem] font-bold uppercase px-3 py-1 rounded-full">
-                                Urgent
-                              </span>
+                              <span className="text-[0.65rem] font-bold uppercase px-3 py-1 rounded-full" style={{ background: "#FEE2E2", color: "#EF4444" }}>Urgent</span>
                             )}
-                            <button onClick={() => openEdit(task)} className="opacity-0 group-hover:opacity-100 text-on-surface-variant/60 hover:text-primary transition-all">
+                            <button onClick={() => openEdit(task)} className="opacity-0 group-hover:opacity-100 transition-all p-1 rounded-lg hover:bg-[#DCFCE7]" style={{ color: "#16A34A" }}>
                               <span className="material-symbols-outlined text-xl">edit</span>
                             </button>
-                            <button onClick={() => setDeleteConfirmId(task.id)} className="opacity-0 group-hover:opacity-100 text-on-surface-variant/60 hover:text-tertiary transition-all">
+                            <button onClick={() => setDeleteConfirmId(task.id)} className="opacity-0 group-hover:opacity-100 transition-all p-1 rounded-lg hover:bg-[#FEE2E2]" style={{ color: "#F87171" }}>
                               <span className="material-symbols-outlined text-xl">delete</span>
                             </button>
                           </div>
                         </div>
-                        <div className="w-24 h-1 bg-primary-fixed-dim rounded-full" />
-                        {/* Delete confirm */}
+                        {task.description && (
+                          <p className="text-xs mb-3 pl-10" style={{ color: "#8FA99F" }}>{task.description}</p>
+                        )}
+                        <div className="w-20 h-1 rounded-full signature-gradient" />
                         {deleteConfirmId === task.id && (
-                          <div className="absolute inset-0 bg-surface-container-lowest/95 backdrop-blur-sm flex items-center justify-center gap-4 rounded-2xl animate-scale-in z-10">
-                            <p className="text-sm font-medium">Delete this task?</p>
-                            <button onClick={() => removeTask(task.id)} className="px-4 py-2 rounded-lg bg-tertiary text-on-tertiary text-xs font-bold">Yes, Delete</button>
-                            <button onClick={() => setDeleteConfirmId(null)} className="px-4 py-2 rounded-lg bg-surface-container-high text-on-surface-variant text-xs font-bold">Cancel</button>
+                          <div className="absolute inset-0 backdrop-blur-sm flex items-center justify-center gap-4 rounded-2xl animate-scale-in z-10" style={{ background: "rgba(255,255,255,0.95)" }}>
+                            <p className="text-sm font-medium" style={{ color: "#1A2621" }}>Delete this task?</p>
+                            <button onClick={() => removeTask(task.id)} className="px-4 py-2 rounded-lg text-white text-xs font-bold" style={{ background: "#EF4444" }}>Yes, Delete</button>
+                            <button onClick={() => setDeleteConfirmId(null)} className="px-4 py-2 rounded-lg text-xs font-bold" style={{ background: "#F1F5F4", color: "#3D524A" }}>Cancel</button>
                           </div>
                         )}
                       </div>
@@ -447,15 +456,14 @@ export default function Dashboard() {
 
               {/* All Tasks & Filters */}
               <div>
-                <div className="flex flex-wrap items-center gap-4 mb-8">
-                  <h3 className="text-2xl font-bold text-on-surface mr-4">All Tasks</h3>
+                <div className="flex flex-wrap items-center gap-3 mb-8">
+                  <h3 className="text-2xl font-bold mr-4" style={{ color: "#1A2621" }}>All Tasks</h3>
                   <button
                     onClick={() => setActiveFilter("All")}
-                    className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
-                      activeFilter === "All"
-                        ? "bg-secondary-container text-on-secondary-container"
-                        : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest"
-                    }`}
+                    className="px-5 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all"
+                    style={activeFilter === "All"
+                      ? { background: "#16A34A", color: "#FFFFFF" }
+                      : { background: "#F1F5F4", color: "#3D524A" }}
                   >
                     All
                   </button>
@@ -463,11 +471,10 @@ export default function Dashboard() {
                     <button
                       key={s}
                       onClick={() => setActiveFilter(s)}
-                      className={`px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest transition-all ${
-                        activeFilter === s
-                          ? "bg-secondary-container text-on-secondary-container"
-                          : "bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest"
-                      }`}
+                      className="px-5 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all"
+                      style={activeFilter === s
+                        ? { background: "#16A34A", color: "#FFFFFF" }
+                        : { background: "#F1F5F4", color: "#3D524A" }}
                     >
                       {s}
                     </button>
@@ -475,73 +482,65 @@ export default function Dashboard() {
                 </div>
 
                 {filteredTasks.length === 0 ? (
-                  <div className="bg-surface-container p-8 rounded-2xl text-center text-on-surface-variant">
+                  <div className="p-8 rounded-2xl text-center" style={{ background: "#F1F5F4", color: "#8FA99F" }}>
                     No tasks yet — click the + button to add one!
                   </div>
                 ) : (
-                  <div className="space-y-4 stagger-children">
-                    {filteredTasks.map((task) => (
-                      <div
-                        key={task.id}
-                        className="bg-surface-container p-5 rounded-2xl flex items-center justify-between group hover:bg-surface-container-high transition-all animate-slide-up relative"
-                      >
-                        <div className="flex items-center gap-4">
-                          <button
-                            onClick={() => toggleComplete(task)}
-                            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                              task.status === "completed"
-                                ? "bg-primary border-primary"
-                                : "border-outline-variant hover:border-primary"
-                            }`}
-                          >
-                            {task.status === "completed" && (
-                              <span className="material-symbols-outlined text-on-primary text-[12px] animate-check-pop">check</span>
+                  <div className="space-y-3 stagger-children">
+                    {filteredTasks.map((task) => {
+                      const taskColorHex = task.color ? { emerald:"#16A34A",teal:"#0d9488",sky:"#0284c7",violet:"#7c3aed",amber:"#d97706",rose:"#e11d48",lime:"#65a30d",orange:"#ea580c" }[task.color] || "#16A34A" : "#16A34A";
+                      return (
+                        <div
+                          key={task.id}
+                          className="bg-white p-5 rounded-2xl flex flex-wrap items-center justify-between group hover:shadow-md transition-all animate-slide-up relative"
+                          style={{ border: "1px solid #E4EDEA", borderLeft: `4px solid ${taskColorHex}` }}
+                        >
+                          <div className="flex items-center gap-3">
+                            <button
+                              onClick={() => toggleComplete(task)}
+                              className="w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all"
+                              style={task.status === "completed"
+                                ? { background: "#16A34A", borderColor: "#16A34A" }
+                                : { borderColor: "#C2D4CE" }}
+                            >
+                              {task.status === "completed" && (
+                                <span className="material-symbols-outlined text-white text-[12px] animate-check-pop">check</span>
+                              )}
+                            </button>
+                            <div>
+                              <span className={`font-semibold text-sm ${task.status === "completed" ? "line-through opacity-50" : ""}`} style={{ color: "#1A2621" }}>
+                                {task.important && <span className="text-amber-400 mr-1">⭐</span>}{task.title}
+                              </span>
+                              {task.description && (
+                                <p className="text-xs mt-0.5 line-clamp-1" style={{ color: "#8FA99F" }}>{task.description}</p>
+                              )}
+                            </div>
+                            {task.priority === "urgent" && (
+                              <span className="text-[0.6rem] font-bold uppercase px-2 py-0.5 rounded-full" style={{ background: "#FEE2E2", color: "#EF4444" }}>!</span>
                             )}
-                          </button>
-                          <span className={`font-medium ${task.status === "completed" ? "line-through opacity-50" : ""}`}>
-                            {task.title}
-                          </span>
-                          {task.priority === "urgent" && (
-                            <span className="bg-tertiary-container/20 text-tertiary text-[0.6rem] font-bold uppercase px-2 py-0.5 rounded-full">!</span>
+                          </div>
+                          <div className="flex items-center gap-4 lg:gap-6 mt-1">
+                            <span className="text-xs font-bold uppercase tracking-widest hidden sm:inline" style={{ color: "#8FA99F" }}>{task.subject}</span>
+                            <span className="text-xs hidden sm:inline" style={{ color: "#8FA99F" }}>{fmtDate(task.deadline)}</span>
+                            <div className="flex items-center gap-1">
+                              <button onClick={() => openEdit(task)} className="opacity-0 group-hover:opacity-100 transition-all p-1 rounded-lg hover:bg-[#DCFCE7]" style={{ color: "#16A34A" }}>
+                                <span className="material-symbols-outlined text-xl">edit</span>
+                              </button>
+                              <button onClick={() => setDeleteConfirmId(task.id)} className="opacity-0 group-hover:opacity-100 transition-all p-1 rounded-lg hover:bg-[#FEE2E2]" style={{ color: "#F87171" }}>
+                                <span className="material-symbols-outlined text-xl">delete</span>
+                              </button>
+                            </div>
+                          </div>
+                          {deleteConfirmId === task.id && (
+                            <div className="absolute inset-0 backdrop-blur-sm flex items-center justify-center gap-4 rounded-2xl animate-scale-in z-10" style={{ background: "rgba(255,255,255,0.95)" }}>
+                              <p className="text-sm font-medium" style={{ color: "#1A2621" }}>Delete?</p>
+                              <button onClick={() => removeTask(task.id)} className="px-4 py-1.5 rounded-lg text-white text-xs font-bold" style={{ background: "#EF4444" }}>Yes</button>
+                              <button onClick={() => setDeleteConfirmId(null)} className="px-4 py-1.5 rounded-lg text-xs font-bold" style={{ background: "#F1F5F4", color: "#3D524A" }}>No</button>
+                            </div>
                           )}
                         </div>
-                        {task.description && (
-                          <div className="pl-8 text-xs text-on-surface-variant/70 mt-1 line-clamp-2">
-                            {task.description}
-                          </div>
-                        )}
-                        <div className="flex items-center gap-4 lg:gap-8 mt-2">
-                          <span className="text-xs font-bold text-on-surface-variant/50 uppercase tracking-widest hidden sm:inline">
-                            {task.subject}
-                          </span>
-                          <span className="text-xs text-on-surface-variant font-medium hidden sm:inline">
-                            {fmtDate(task.deadline)}
-                          </span>
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => openEdit(task)}
-                              className="text-on-surface-variant/40 group-hover:text-primary transition-colors p-1"
-                            >
-                              <span className="material-symbols-outlined text-xl">edit</span>
-                            </button>
-                            <button
-                              onClick={() => setDeleteConfirmId(task.id)}
-                              className="text-on-surface-variant/40 group-hover:text-tertiary transition-colors p-1"
-                            >
-                              <span className="material-symbols-outlined text-xl">delete</span>
-                            </button>
-                          </div>
-                        </div>
-                        {/* Inline delete confirm */}
-                        {deleteConfirmId === task.id && (
-                          <div className="absolute inset-0 bg-surface-container/95 backdrop-blur-sm flex items-center justify-center gap-4 rounded-2xl animate-scale-in z-10">
-                            <p className="text-sm font-medium">Delete?</p>
-                            <button onClick={() => removeTask(task.id)} className="px-4 py-1.5 rounded-lg bg-tertiary text-on-tertiary text-xs font-bold">Yes</button>
-                            <button onClick={() => setDeleteConfirmId(null)} className="px-4 py-1.5 rounded-lg bg-surface-container-high text-on-surface-variant text-xs font-bold">No</button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

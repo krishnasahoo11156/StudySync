@@ -3,139 +3,172 @@
 @tailwind utilities;
 
 /* ══════════════════════════════════════════════
-   STUDYSYNC DESIGN SYSTEM
-   Single source of truth for styles, animations,
-   and utilities across all pages.
+   STUDYSYNC DESIGN SYSTEM v2
+   Multi-tone palette — no monochromatic fatigue.
+   Primary: #16A34A  |  Accent: #60A5FA
+   Warm sand: #F5F1E8  |  Bg: #F8FAF9
 ══════════════════════════════════════════════ */
 
 /* ── Base ── */
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #F8FAF9;
+  color: #1A2621;
 }
 
-/* ── Reusable Utility Classes ── */
+/* ════════════════════════════════════════════
+   UTILITY CLASSES
+════════════════════════════════════════════ */
+
+/* Primary gradient — green with a hint of teal depth */
 .signature-gradient {
-  background: linear-gradient(135deg, #006c49 0%, #10b981 100%);
+  background: linear-gradient(135deg, #15803D 0%, #16A34A 55%, #22C55E 100%);
 }
 
+/* Accent gradient — soft blue wash */
+.accent-gradient {
+  background: linear-gradient(135deg, #3B82F6 0%, #60A5FA 100%);
+}
+
+/* Warm gradient — beige warmth for cards */
+.warm-gradient {
+  background: linear-gradient(135deg, #F5F1E8 0%, #EDE7D4 100%);
+}
+
+/* Hero gradient — main welcome section */
+.hero-gradient {
+  background: linear-gradient(135deg, #F0FDF4 0%, #F5F1E8 60%, #DBEAFE 100%);
+}
+
+/* Shadow utilities */
 .ambient-shadow {
-  box-shadow: 0 20px 40px rgba(19, 30, 25, 0.06);
+  box-shadow: 0 4px 24px rgba(22, 163, 74, 0.08), 0 1px 4px rgba(0,0,0,0.04);
 }
 
+.card-shadow {
+  box-shadow: 0 2px 12px rgba(22, 163, 74, 0.06), 0 1px 4px rgba(0,0,0,0.03);
+}
+
+.accent-shadow {
+  box-shadow: 0 4px 16px rgba(96, 165, 250, 0.2);
+}
+
+/* Glass effects */
 .glass-nav {
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
 }
 
-.glass-hint {
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-}
-
 .glass-effect {
-  background: rgba(240, 253, 244, 0.7);
+  background: rgba(248, 250, 249, 0.85);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
 }
 
-.ghost-border {
-  outline: 1.5px solid rgba(187, 202, 191, 0.2);
-}
-
+/* Icon rendering */
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
-/* ── Card System ── */
+/* ════════════════════════════════════════════
+   CARD SYSTEM
+════════════════════════════════════════════ */
 .card {
-  @apply bg-white rounded-2xl p-6 shadow-sm border border-emerald-50;
+  background: #FFFFFF;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid #E4EDEA;
+  box-shadow: 0 2px 12px rgba(22, 163, 74, 0.05), 0 1px 3px rgba(0,0,0,0.03);
   transition: transform 0.25s cubic-bezier(.4,0,.2,1), box-shadow 0.25s ease;
 }
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(19, 30, 25, 0.08);
+  box-shadow: 0 8px 28px rgba(22, 163, 74, 0.1), 0 2px 8px rgba(0,0,0,0.04);
 }
 
 .card-static {
-  @apply bg-white rounded-2xl p-6 shadow-sm border border-emerald-50;
+  background: #FFFFFF;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid #E4EDEA;
+  box-shadow: 0 2px 12px rgba(22, 163, 74, 0.05);
 }
 
-/* ── Animations ── */
+/* Warm card variant — sand tone for variety */
+.card-warm {
+  background: #F5F1E8;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid #D6C7AE;
+  box-shadow: 0 2px 8px rgba(214, 199, 174, 0.2);
+}
+
+/* Accent card — soft blue tint */
+.card-accent {
+  background: #DBEAFE;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid #BFDBFE;
+  box-shadow: 0 2px 8px rgba(96, 165, 250, 0.12);
+}
+
+/* ════════════════════════════════════════════
+   ANIMATIONS
+════════════════════════════════════════════ */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes scaleIn {
   from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 @keyframes checkPop {
-  0% { transform: scale(0); }
-  50% { transform: scale(1.3); }
+  0%   { transform: scale(0); }
+  50%  { transform: scale(1.3); }
   100% { transform: scale(1); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  50%       { transform: translateY(-8px); }
 }
 
 @keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(0, 108, 73, 0.15); }
-  50% { box-shadow: 0 0 40px rgba(0, 108, 73, 0.3); }
+  0%, 100% { box-shadow: 0 0 20px rgba(22, 163, 74, 0.15); }
+  50%       { box-shadow: 0 0 40px rgba(22, 163, 74, 0.3); }
+}
+
+@keyframes accentPulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(96, 165, 250, 0.2); }
+  50%       { box-shadow: 0 0 40px rgba(96, 165, 250, 0.4); }
 }
 
 @keyframes pageEnter {
   from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out both;
-}
+.animate-fade-in    { animation: fadeIn 0.4s ease-out both; }
+.animate-slide-up   { animation: slideUp 0.5s ease-out both; }
+.animate-scale-in   { animation: scaleIn 0.3s ease-out both; }
+.animate-check-pop  { animation: checkPop 0.4s ease-out both; }
+.animate-float      { animation: float 3s ease-in-out infinite; }
+.animate-glow-pulse { animation: glowPulse 2s ease-in-out infinite; }
+.animate-accent-pulse { animation: accentPulse 2s ease-in-out infinite; }
+.animate-page-enter { animation: pageEnter 0.35s ease-out both; }
 
-.animate-slide-up {
-  animation: slideUp 0.5s ease-out both;
-}
-
-.animate-scale-in {
-  animation: scaleIn 0.3s ease-out both;
-}
-
-.animate-check-pop {
-  animation: checkPop 0.4s ease-out both;
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-.animate-glow-pulse {
-  animation: glowPulse 2s ease-in-out infinite;
-}
-
-.animate-page-enter {
-  animation: pageEnter 0.35s ease-out both;
-}
-
-/* Staggered children animations */
+/* Stagger */
 .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
 .stagger-children > *:nth-child(2) { animation-delay: 80ms; }
 .stagger-children > *:nth-child(3) { animation-delay: 160ms; }
@@ -143,34 +176,40 @@ body {
 .stagger-children > *:nth-child(5) { animation-delay: 320ms; }
 .stagger-children > *:nth-child(6) { animation-delay: 400ms; }
 
-/* ── Modal Backdrop ── */
+/* ════════════════════════════════════════════
+   MODAL BACKDROP
+════════════════════════════════════════════ */
 .modal-backdrop {
-  background: rgba(19, 30, 25, 0.4);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(26, 38, 33, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+/* ════════════════════════════════════════════
+   SCROLLBAR
+════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: #bbcabf;
-  border-radius: 3px;
+  background: #C2D4CE;
+  border-radius: 4px;
 }
+::-webkit-scrollbar-thumb:hover { background: #8FA99F; }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #6c7a71;
-}
-
-/* ── Focus-visible ring (a11y) ── */
+/* ════════════════════════════════════════════
+   FOCUS RING (a11y)
+════════════════════════════════════════════ */
 *:focus-visible {
-  outline: 2px solid #006c49;
+  outline: 2px solid #16A34A;
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* ════════════════════════════════════════════
+   BADGE / PILL SYSTEM
+════════════════════════════════════════════ */
+.badge-green  { background: #DCFCE7; color: #15803D; }
+.badge-blue   { background: #DBEAFE; color: #1D4ED8; }
+.badge-amber  { background: #FEF9C3; color: #92400E; }
+.badge-red    { background: #FEE2E2; color: #991B1B; }
+.badge-stone  { background: #F5F1E8; color: #78634A; }
