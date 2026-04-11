@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed-dim": "#45dfa4",
+                        "on-tertiary-fixed-variant": "#842225",
+                        "on-tertiary-fixed": "#410005",
+                        "primary-fixed": "#6ffbbe",
+                        "primary-fixed-dim": "#4edea3",
+                        "tertiary-container": "#fc7c78",
+                        "surface-dim": "#d0ddd5",
+                        "outline-variant": "#bbcabf",
+                        "inverse-on-surface": "#e7f4eb",
+                        "tertiary-fixed": "#ffdad7",
+                        "secondary-fixed": "#68fcbf",
+                        "on-secondary-fixed": "#002114",
+                        "on-primary-container": "#00422b",
+                        "surface-variant": "#d9e6dd",
+                        "background": "#f0fdf4",
+                        "inverse-primary": "#4edea3",
+                        "surface-container": "#e4f1e8",
+                        "outline": "#6c7a71",
+                        "on-error": "#ffffff",
+                        "surface": "#f0fdf4",
+                        "primary-container": "#10b981",
+                        "on-background": "#131e19",
+                        "surface-container-low": "#eaf7ee",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-container": "#711419",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#006c4b",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "tertiary": "#a43a3a",
+                        "on-primary-fixed-variant": "#005236",
+                        "surface-container-highest": "#d9e6dd",
+                        "surface-bright": "#f0fdf4",
+                        "tertiary-fixed-dim": "#ffb3af",
+                        "secondary-container": "#64f9bc",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed": "#002113",
+                        "on-secondary": "#ffffff",
+                        "surface-tint": "#006c49",
+                        "on-surface": "#131e19",
+                        "on-secondary-fixed-variant": "#005137",
+                        "inverse-surface": "#27332d",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#3c4a42",
+                        "surface-container-high": "#deebe3",
+                        "primary": "#006c49",
+                        "on-secondary-container": "#00714e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .signature-gradient {
+            background: linear-gradient(135deg, #006c49 0%, #10b981 100%);
+        }
+
+        .glass-effect {
+            background: rgba(240, 253, 244, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface min-h-screen flex items-center justify-center p-6 md:p-12 overflow-x-hidden">
+    <!-- Background Decorative Element (Organic Feel) -->
+    <div
+        class="absolute top-[-10%] right-[-5%] w-[600px] h-[600px] bg-primary-container/10 rounded-full blur-[120px] pointer-events-none">
+    </div>
+    <div
+        class="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-secondary-container/10 rounded-full blur-[100px] pointer-events-none">
+    </div>
+    <main class="relative w-full max-w-7xl flex flex-col items-center md:items-start">
+        <!-- Main Form Card (The Floating Paper) -->
+        <div
+            class="relative z-10 w-full max-w-2xl bg-surface-container-lowest rounded-[2rem] p-10 md:p-16 shadow-[0_20px_40px_rgba(19,30,25,0.06)] md:ml-[5%] md:mr-auto transition-all">
+            <!-- Header Section -->
+            <header class="mb-12">
+                <h1 class="text-[2.75rem] font-bold tracking-tight text-on-surface leading-tight mb-4 font-headline">
+                    Join StudySync
+                </h1>
+                <p class="text-lg text-on-surface-variant font-body leading-relaxed max-w-md">
+                    Create an account to start organizing your academic life with intentional focus and clarity.
+                </p>
+            </header>
+            <!-- Sign Up Form -->
+            <form action="#" class="space-y-8">
+                <!-- Name Field -->
+                <div class="space-y-3">
+                    <label
+                        class="block text-[0.75rem] uppercase tracking-widest font-semibold text-on-surface-variant px-1 font-label">
+                        Full name
+                    </label>
+                    <input
+                        class="w-full bg-surface-container-highest border-0 rounded-xl px-6 py-4 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest transition-all text-on-surface placeholder:text-on-surface-variant/50"
+                        placeholder="Enter your name" type="text" />
+                </div>
+                <!-- Email Field -->
+                <div class="space-y-3">
+                    <label
+                        class="block text-[0.75rem] uppercase tracking-widest font-semibold text-on-surface-variant px-1 font-label">
+                        Email
+                    </label>
+                    <input
+                        class="w-full bg-surface-container-highest border-0 rounded-xl px-6 py-4 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest transition-all text-on-surface placeholder:text-on-surface-variant/50"
+                        placeholder="student@university.edu" type="email" />
+                </div>
+                <!-- Password Fields Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-3">
+                        <label
+                            class="block text-[0.75rem] uppercase tracking-widest font-semibold text-on-surface-variant px-1 font-label">
+                            Password
+                        </label>
+                        <div class="relative">
+                            <input
+                                class="w-full bg-surface-container-highest border-0 rounded-xl px-6 py-4 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest transition-all text-on-surface placeholder:text-on-surface-variant/50"
+                                placeholder="••••••••" type="password" />
+                            <button
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/60 hover:text-primary transition-colors"
+                                type="button">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </button>
+                        </div>
+                        <p class="text-[0.7rem] text-on-surface-variant/70 px-1 font-body">Use 8+ characters with mixed
+                            types</p>
+                    </div>
+                    <div class="space-y-3">
+                        <label
+                            class="block text-[0.75rem] uppercase tracking-widest font-semibold text-on-surface-variant px-1 font-label">
+                            Confirm password
+                        </label>
+                        <div class="relative">
+                            <input
+                                class="w-full bg-surface-container-highest border-0 rounded-xl px-6 py-4 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest transition-all text-on-surface placeholder:text-on-surface-variant/50"
+                                placeholder="••••••••" type="password" />
+                            <button
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/60 hover:text-primary transition-colors"
+                                type="button">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Actions Section -->
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6 pt-6">
+                    <a class="text-sm font-medium text-primary hover:text-secondary-container transition-all order-2 md:order-1 font-body"
+                        href="#">
+                        Already have an account? <span class="underline underline-offset-4">Log in</span>
+                    </a>
+                    <button
+                        class="signature-gradient text-on-primary w-full md:w-auto px-10 py-4 rounded-xl text-[0.75rem] uppercase tracking-widest font-bold shadow-lg shadow-primary/20 active:scale-95 transition-transform order-1 md:order-2 font-label"
+                        type="submit">
+                        Create Account
+                    </button>
+                </div>
+            </form>
+            <!-- Bottom Disclaimer -->
+            <footer class="mt-12 pt-8 border-t border-surface-container">
+                <p class="text-[0.7rem] text-on-surface-variant/60 text-center leading-relaxed font-body">
+                    By signing up, you agree to StudySync's <a class="underline hover:text-primary" href="#">terms of
+                        service</a> and <a class="underline hover:text-primary" href="#">privacy policy</a>.
+                </p>
+            </footer>
+        </div>
+        <!-- Overlapping Aesthetic Element -->
+        <div
+            class="hidden lg:block absolute top-[15%] right-[5%] w-64 h-64 rounded-3xl overflow-hidden shadow-2xl z-0 transform rotate-3">
+            <img class="w-full h-full object-cover grayscale-[0.2] opacity-80"
+                data-alt="Close-up of a clean organized workspace with a small succulent and a focused student writing in a green notebook"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwMnoAN5ut0opNn_3ZVqT27bNV1hqhBSqj7ag_LAwQ6T_K0yb8j_CKYjc7tN7yz9p8BRww3NaI4Mx5dJLsnlmWT6cMvdSi_vR6pQRp2u6nied73Kcp-obTTeDPMJUSU3FAwB_OXASXZ02dwXGDs8JYzwvfA64RguFA88IpCGfgDrg3FFPIX5tPKzYhHR3E5f1zn591PneOhiJE8aGPeWZXpXYn7nHPqSPIKnBcsJf5mkrS-ZbTRsUMA06Tticniv481aHXcdN1czs" />
+        </div>
+        <!-- Floating Data Usage Card (Glassmorphism) -->
+        <div
+            class="glass-effect fixed bottom-12 right-12 max-w-[240px] p-6 rounded-2xl shadow-[0_20px_40px_rgba(19,30,25,0.06)] z-20 hidden md:block">
+            <div class="flex items-start gap-4">
+                <div class="p-2 bg-primary-container/30 rounded-full text-primary">
+                    <span class="material-symbols-outlined text-[20px]">shield</span>
+                </div>
+                <p class="text-[0.75rem] leading-relaxed text-on-surface font-body font-medium">
+                    Your data is only used to help you stay on track. Privacy is our priority.
+                </p>
+            </div>
+        </div>
+    </main>
+    <!-- Global Footer Fragment (Subtle) -->
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 md:left-12 md:translate-x-0">
+        <span
+            class="text-[0.75rem] uppercase tracking-[0.2em] font-bold text-primary opacity-40 font-headline">StudySync</span>
+    </div>
+</body>
+
+</html>
