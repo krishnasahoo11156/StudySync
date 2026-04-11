@@ -118,12 +118,13 @@ function Sidebar({ sidebarOpen, setSidebarOpen, userName, greeting, onLogout, na
             <span className="font-semibold tracking-wide text-sm">Library</span>
           </div>
           {[
-            { icon: "timer",     label: "Focus"     },
-            { icon: "bar_chart", label: "Analytics" },
-            { icon: "groups",    label: "Community" },
+            { icon: "timer",     label: "Focus",     path: "/focus"     },
+            { icon: "bar_chart", label: "Analytics", path: "/analytics" },
+            { icon: "groups",    label: "Community", path: "#"          },
           ].map((item) => (
             <button
               key={item.label}
+              onClick={() => item.path !== "#" && navigate(item.path)}
               className="flex items-center gap-4 px-4 py-3 text-emerald-700/70 hover:bg-emerald-100 transition-all rounded-xl w-full text-left"
             >
               <span className="material-symbols-outlined">{item.icon}</span>
