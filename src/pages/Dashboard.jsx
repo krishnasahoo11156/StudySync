@@ -154,6 +154,7 @@ export default function Dashboard() {
   const weeklyData = useMemo(() => {
     const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const now = new Date();
+    const nowYMD = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
     const dow = now.getDay(); // 0=Sun, 1=Mon … 6=Sat
     // Find this week's Monday
     const monday = new Date(now);
@@ -162,8 +163,8 @@ export default function Dashboard() {
     return dayLabels.map((label, i) => {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
-      const ds = d.toISOString().split("T")[0];
-      const isToday = ds === now.toISOString().split("T")[0];
+      const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      const isToday = ds === nowYMD;
       const isFuture = d > now && !isToday;
       const done = tasks.filter((t) => t.completedAt && t.completedAt.startsWith(ds)).length;
       const due = tasks.filter((t) => t.deadline === ds).length;
