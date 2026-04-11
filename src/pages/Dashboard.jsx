@@ -150,21 +150,24 @@ export default function Dashboard() {
   const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
   const userName = user?.displayName || user?.email?.split("@")[0] || "Student";
 
-  /* ── Weekly chart data ── */
+  /* ── Weekly chart data (Mon–Sun, always includes today) ── */
   const weeklyData = useMemo(() => {
-    const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+    const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
     const now = new Date();
-    const dow = now.getDay();
+    const dow = now.getDay(); // 0=Sun, 1=Mon … 6=Sat
+    // Find this week's Monday
     const monday = new Date(now);
     monday.setDate(now.getDate() - ((dow + 6) % 7));
     monday.setHours(0, 0, 0, 0);
-    return days.map((label, i) => {
+    return dayLabels.map((label, i) => {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
       const ds = d.toISOString().split("T")[0];
+      const isToday = ds === now.toISOString().split("T")[0];
+      const isFuture = d > now && !isToday;
       const done = tasks.filter((t) => t.completedAt && t.completedAt.startsWith(ds)).length;
       const due = tasks.filter((t) => t.deadline === ds).length;
-      return { label, done, due };
+      return { label, done, due, isToday, isFuture };
     });
   }, [tasks]);
   const maxWeekly = Math.max(...weeklyData.map((d) => Math.max(d.done, d.due, 1)));
@@ -403,25 +406,77 @@ export default function Dashboard() {
             <div className="lg:col-span-4 space-y-8">
               {/* Weekly Progress */}
               <div className="bg-surface-container-lowest p-8 rounded-2xl ambient-shadow animate-fade-in">
-                <h4 className="text-lg font-bold text-on-surface mb-6">Weekly Progress</h4>
-                <div className="h-64 flex items-end justify-between gap-3 px-2">
-                  {weeklyData.map((d) => (
-                    <div key={d.label} className="w-full bg-surface-container-low rounded-t-lg relative group" style={{ height: `${Math.max((Math.max(d.done, d.due) / maxWeekly) * 100, 10)}%` }}>
-                      <div
-                        className="absolute bottom-0 w-full signature-gradient rounded-t-lg group-hover:opacity-90 transition-all duration-500"
-                        style={{ height: `${d.due > 0 ? (d.done / d.due) * 100 : d.done > 0 ? 100 : 0}%` }}
-                      />
-                      {/* Tooltip */}
-                      <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface text-[0.6rem] px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                        {d.done}/{d.due} done
-                      </div>
-                    </div>
-                  ))}
+                <div className="flex items-center justify-between mb-6">
+                  <h4 className="text-lg font-bold text-on-surface">Weekly Progress</h4>
+                  <span className="text-xs font-semibold text-on-surface-variant/50">
+                    Mon – Sun
+                  </span>
                 </div>
-                <div className="flex justify-between mt-4 text-[0.65rem] font-bold text-on-surface-variant/40 uppercase tracking-widest">
-                  {weeklyData.map((d) => (
-                    <span key={d.label}>{d.label}</span>
-                  ))}
+                <div className="h-56 flex items-end justify-between gap-2">
+                  {weeklyData.map((d) => {
+                    const barHeightPct = Math.max((Math.max(d.done, d.due) / maxWeekly) * 100, d.isFuture ? 0 : 8);
+                    const fillPct = d.due > 0 ? (d.done / d.due) * 100 : d.done > 0 ? 100 : 0;
+                    return (
+                      <div key={d.label} className="flex-1 flex flex-col items-center gap-1.5">
+                        {/* Bar column */}
+                        <div className="w-full relative group flex flex-col justify-end" style={{ height: "200px" }}>
+                          {/* Background track */}
+                          <div
+                            className={`w-full rounded-t-xl relative overflow-hidden transition-all duration-700 ${
+                              d.isFuture
+                                ? "border-2 border-dashed border-emerald-100 bg-transparent"
+                                : d.isToday
+                                ? "bg-emerald-100 ring-2 ring-emerald-400 ring-offset-1"
+                                : "bg-surface-container-low"
+                            }`}
+                            style={{ height: d.isFuture ? "16px" : `${barHeightPct}%` }}
+                          >
+                            {/* Fill */}
+                            {!d.isFuture && (
+                              <div
+                                className="absolute bottom-0 w-full signature-gradient rounded-t-xl transition-all duration-700"
+                                style={{ height: `${fillPct}%` }}
+                              />
+                            )}
+                            {/* Tooltip */}
+                            {!d.isFuture && (
+                              <div className="absolute -top-9 left-1/2 -translate-x-1/2 bg-emerald-900 text-white text-[0.6rem] px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+                                {d.done} done · {d.due} due
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        {/* Day label */}
+                        <span className={`text-[0.6rem] font-bold uppercase tracking-wider ${
+                          d.isToday
+                            ? "text-emerald-600"
+                            : d.isFuture
+                            ? "text-on-surface-variant/25"
+                            : "text-on-surface-variant/40"
+                        }`}>
+                          {d.label}
+                          {d.isToday && (
+                            <span className="block w-1 h-1 rounded-full bg-emerald-500 mx-auto mt-0.5" />
+                          )}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* Legend */}
+                <div className="flex items-center gap-4 mt-5 pt-4 border-t border-surface-container-low">
+                  <div className="flex items-center gap-1.5 text-[0.65rem] font-semibold text-on-surface-variant/60">
+                    <div className="w-2.5 h-2.5 rounded-sm signature-gradient" />
+                    Completed
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[0.65rem] font-semibold text-on-surface-variant/60">
+                    <div className="w-2.5 h-2.5 rounded-sm bg-emerald-100" />
+                    Due
+                  </div>
+                  <div className="ml-auto flex items-center gap-1.5 text-[0.65rem] font-semibold text-emerald-600">
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    Today
+                  </div>
                 </div>
               </div>
 
