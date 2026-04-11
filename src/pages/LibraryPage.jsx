@@ -17,6 +17,7 @@ import {
   ref,
   deleteObject,
 } from "firebase/storage";
+import PageShell from "../components/PageShell";
 
 /* ── Tag colour map ── */
 const TAG_COLORS = {
@@ -55,105 +56,6 @@ function fmtRelative(ts) {
   if (days === 1) return "Yesterday";
   if (days < 7) return `${days} days ago`;
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
-/* ════════════════════════════════════════════
-   SIDEBAR (shared shell — mirrors Dashboard)
-════════════════════════════════════════════ */
-function Sidebar({ sidebarOpen, setSidebarOpen, userName, greeting, onLogout, navigate }) {
-  return (
-    <>
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/30 z-30 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-      <aside
-        className={`fixed left-0 top-0 h-screen w-72 bg-emerald-50 rounded-r-3xl flex flex-col p-6 gap-4 z-40 shadow-xl shadow-emerald-900/5 transition-transform duration-300 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0`}
-      >
-        {/* Logo */}
-        <div className="mb-2 px-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl signature-gradient flex items-center justify-center">
-              <span className="material-symbols-outlined text-white text-lg">school</span>
-            </div>
-            <div>
-              <span className="text-lg font-extrabold text-emerald-900 leading-none">StudySync</span>
-              <p className="text-[0.6rem] font-bold uppercase tracking-widest text-emerald-600/70">Your Verdant Sanctuary</p>
-            </div>
-          </div>
-          <button className="lg:hidden text-emerald-700" onClick={() => setSidebarOpen(false)}>
-            <span className="material-symbols-outlined">close</span>
-          </button>
-        </div>
-
-        {/* User avatar */}
-        <div className="mb-6 px-2">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-primary-container flex items-center justify-center text-on-primary text-lg font-bold">
-              {userName.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <h3 className="text-on-surface font-bold text-sm">{greeting}, {userName}</h3>
-              <p className="text-on-surface-variant text-xs opacity-70">Ready for a deep breath?</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Nav */}
-        <nav className="flex flex-col gap-1 flex-1">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="flex items-center gap-4 px-4 py-3 text-emerald-700/70 hover:bg-emerald-100 transition-all rounded-xl w-full text-left"
-          >
-            <span className="material-symbols-outlined">home</span>
-            <span className="font-semibold tracking-wide text-sm">Sanctuary</span>
-          </button>
-          {/* Library — ACTIVE */}
-          <div className="flex items-center gap-4 px-4 py-3 bg-emerald-800 text-white rounded-xl">
-            <span className="material-symbols-outlined">menu_book</span>
-            <span className="font-semibold tracking-wide text-sm">Library</span>
-          </div>
-          {[
-            { icon: "timer",     label: "Focus",     path: "/focus"     },
-            { icon: "bar_chart", label: "Analytics", path: "/analytics" },
-            { icon: "groups",    label: "Community", path: "#"          },
-          ].map((item) => (
-            <button
-              key={item.label}
-              onClick={() => item.path !== "#" && navigate(item.path)}
-              className="flex items-center gap-4 px-4 py-3 text-emerald-700/70 hover:bg-emerald-100 transition-all rounded-xl w-full text-left"
-            >
-              <span className="material-symbols-outlined">{item.icon}</span>
-              <span className="font-semibold tracking-wide text-sm">{item.label}</span>
-            </button>
-          ))}
-
-          <div className="flex-1" />
-
-          {/* Start Focus Session */}
-          <button className="mx-2 my-2 py-3 px-4 rounded-xl signature-gradient text-white font-bold text-sm hover:opacity-90 active:scale-95 transition-all">
-            Start Focus Session
-          </button>
-
-          <button className="flex items-center gap-4 px-4 py-3 text-emerald-700/70 hover:bg-emerald-100 transition-all rounded-xl w-full text-left">
-            <span className="material-symbols-outlined">help_outline</span>
-            <span className="font-semibold tracking-wide text-sm">Help</span>
-          </button>
-          <button
-            onClick={onLogout}
-            className="flex items-center gap-4 px-4 py-3 text-emerald-700/70 hover:bg-emerald-100 transition-all rounded-xl w-full text-left"
-          >
-            <span className="material-symbols-outlined">logout</span>
-            <span className="font-semibold tracking-wide text-sm">Sign Out</span>
-          </button>
-        </nav>
-      </aside>
-    </>
-  );
 }
 
 /* ════════════════════════════════════════════
@@ -362,11 +264,10 @@ function FileCard({ file, onDelete, onRename }) {
    MAIN: LibraryPage
 ════════════════════════════════════════════ */
 export default function LibraryPage() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   /* ── UI state ── */
-  const [sidebarOpen, setSidebarOpen]     = useState(false);
   const [viewMode, setViewMode]           = useState("list"); // "list" | "grid"
   const [searchQuery, setSearchQuery]     = useState("");
   const [sortMode, setSortMode]           = useState("modified"); // "modified" | "name"
@@ -387,7 +288,7 @@ export default function LibraryPage() {
   const [showRenameModal,     setShowRenameModal]     = useState(false);
   const [showDeleteConfirm,   setShowDeleteConfirm]   = useState(false);
   const [showUploadModal,     setShowUploadModal]     = useState(false);
-  const [selectedItem,        setSelectedItem]        = useState(null); // folder or file being acted on
+  const [selectedItem,        setSelectedItem]        = useState(null);
   const [renameValue,         setRenameValue]         = useState("");
   const [newFolderName,       setNewFolderName]       = useState("");
 
@@ -398,11 +299,6 @@ export default function LibraryPage() {
   const [uploading,           setUploading]           = useState(false);
   const [uploadError,         setUploadError]         = useState("");
   const fileInputRef = useRef(null);
-
-  /* ── Greeting ── */
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
-  const userName = user?.displayName || user?.email?.split("@")[0] || "Student";
 
   useEffect(() => { document.title = "StudySync - Library"; }, []);
 
@@ -583,213 +479,181 @@ export default function LibraryPage() {
       return bTime - aTime;
     });
 
-  const handleLogout = async () => { await logout(); navigate("/"); };
-
   /* ══════════════════ RENDER ══════════════════ */
-  return (
-    <div className="bg-surface text-on-surface min-h-screen">
+  const topBarContent = (
+    <>
+      {/* Search bar */}
+      <div className="relative flex-1 max-w-xl">
+        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 text-lg">search</span>
+        <input
+          id="library-search"
+          type="text"
+          placeholder="Search in Library..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full bg-white border border-emerald-100 rounded-2xl pl-11 pr-5 py-2.5 text-sm text-emerald-900 placeholder:text-emerald-400/70 focus:outline-none focus:ring-2 focus:ring-emerald-300 transition-all shadow-sm"
+        />
+      </div>
 
-      {/* ── Sidebar ── */}
-      <Sidebar
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        userName={userName}
-        greeting={greeting}
-        onLogout={handleLogout}
-        navigate={navigate}
-      />
-
-      {/* ── Main content ── */}
-      <main className="lg:ml-72 min-h-screen relative">
-
-        {/* ── Top Bar ── */}
-        <header className="fixed top-0 left-0 lg:left-72 right-0 z-30 h-20 bg-emerald-50/80 backdrop-blur-xl flex items-center px-6 lg:px-8 gap-4">
-          {/* Hamburger (mobile) */}
-          <button className="lg:hidden text-emerald-700" onClick={() => setSidebarOpen(true)}>
-            <span className="material-symbols-outlined">menu</span>
-          </button>
-
-          {/* Search bar */}
-          <div className="relative flex-1 max-w-xl">
-            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 text-lg">search</span>
-            <input
-              id="library-search"
-              type="text"
-              placeholder="Search in Library..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white border border-emerald-100 rounded-2xl pl-11 pr-5 py-2.5 text-sm text-emerald-900 placeholder:text-emerald-400/70 focus:outline-none focus:ring-2 focus:ring-emerald-300 transition-all shadow-sm"
-            />
-          </div>
-
-          {/* Spacer */}
-          <div className="flex-1" />
-
-          {/* Add Material button */}
-          <div className="relative" ref={addMenuRef}>
+      {/* Add Material button */}
+      <div className="relative" ref={addMenuRef}>
+        <button
+          id="add-material-btn"
+          onClick={() => setShowAddMenu((v) => !v)}
+          className="flex items-center gap-2 signature-gradient text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 active:scale-95 transition-all shadow-md"
+        >
+          <span className="material-symbols-outlined text-lg">add</span>
+          Add Material
+        </button>
+        {showAddMenu && (
+          <div className="absolute right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-emerald-100 w-48 z-50 animate-scale-in overflow-hidden">
             <button
-              id="add-material-btn"
-              onClick={() => setShowAddMenu((v) => !v)}
-              className="flex items-center gap-2 signature-gradient text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 active:scale-95 transition-all shadow-md"
+              id="upload-pdf-option"
+              onClick={() => { setShowAddMenu(false); setShowUploadModal(true); }}
+              className="w-full text-left px-5 py-3.5 text-sm text-on-surface hover:bg-emerald-50 flex items-center gap-3"
             >
-              <span className="material-symbols-outlined text-lg">add</span>
-              Add Material
+              <span className="material-symbols-outlined text-red-400">picture_as_pdf</span>
+              Upload PDF
             </button>
-            {showAddMenu && (
-              <div className="absolute right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-emerald-100 w-48 z-50 animate-scale-in overflow-hidden">
-                <button
-                  id="upload-pdf-option"
-                  onClick={() => { setShowAddMenu(false); setShowUploadModal(true); }}
-                  className="w-full text-left px-5 py-3.5 text-sm text-on-surface hover:bg-emerald-50 flex items-center gap-3"
-                >
-                  <span className="material-symbols-outlined text-red-400">picture_as_pdf</span>
-                  Upload PDF
-                </button>
-                <button
-                  id="create-folder-option"
-                  onClick={() => { setShowAddMenu(false); setShowNewFolderModal(true); }}
-                  className="w-full text-left px-5 py-3.5 text-sm text-on-surface hover:bg-emerald-50 flex items-center gap-3 border-t border-emerald-50"
-                >
-                  <span className="material-symbols-outlined text-emerald-600">create_new_folder</span>
-                  Create Folder
-                </button>
-              </div>
-            )}
+            <button
+              id="create-folder-option"
+              onClick={() => { setShowAddMenu(false); setShowNewFolderModal(true); }}
+              className="w-full text-left px-5 py-3.5 text-sm text-on-surface hover:bg-emerald-50 flex items-center gap-3 border-t border-emerald-50"
+            >
+              <span className="material-symbols-outlined text-emerald-600">create_new_folder</span>
+              Create Folder
+            </button>
           </div>
+        )}
+      </div>
+    </>
+  );
 
-          {/* Notification + Settings icons */}
-          <button className="p-2 text-emerald-700/60 hover:bg-emerald-100 rounded-full transition-colors">
-            <span className="material-symbols-outlined">notifications</span>
-          </button>
-          <button className="p-2 text-emerald-700/60 hover:bg-emerald-100 rounded-full transition-colors">
-            <span className="material-symbols-outlined">settings</span>
-          </button>
-          <div className="w-9 h-9 rounded-full signature-gradient flex items-center justify-center text-white font-bold text-sm">
-            {userName.charAt(0).toUpperCase()}
-          </div>
-        </header>
+  return (
+    <PageShell
+      activePage="library"
+      title="Library"
+      subtitle="Your study materials, organized"
+      topBarChildren={topBarContent}
+    >
+      <div className="animate-page-enter max-w-7xl mx-auto">
+        {/* ── Breadcrumb + Controls ── */}
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-1 text-sm flex-wrap" aria-label="breadcrumb">
+            {breadcrumb.map((crumb, idx) => (
+              <span key={crumb.id ?? "root"} className="flex items-center gap-1">
+                {idx > 0 && (
+                  <span className="material-symbols-outlined text-emerald-400 text-sm">chevron_right</span>
+                )}
+                {idx < breadcrumb.length - 1 ? (
+                  <button
+                    onClick={() => navigateBreadcrumb(idx)}
+                    className="text-emerald-600 hover:text-emerald-800 font-medium transition-colors"
+                  >
+                    {crumb.name}
+                  </button>
+                ) : (
+                  <span className="font-bold text-emerald-900">{crumb.name}</span>
+                )}
+              </span>
+            ))}
+          </nav>
 
-        {/* ── Page Body ── */}
-        <div className="pt-24 px-6 lg:px-10 pb-12">
-
-          {/* ── Breadcrumb + Controls ── */}
-          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-            {/* Breadcrumb */}
-            <nav className="flex items-center gap-1 text-sm flex-wrap" aria-label="breadcrumb">
-              {breadcrumb.map((crumb, idx) => (
-                <span key={crumb.id ?? "root"} className="flex items-center gap-1">
-                  {idx > 0 && (
-                    <span className="material-symbols-outlined text-emerald-400 text-sm">chevron_right</span>
-                  )}
-                  {idx < breadcrumb.length - 1 ? (
-                    <button
-                      onClick={() => navigateBreadcrumb(idx)}
-                      className="text-emerald-600 hover:text-emerald-800 font-medium transition-colors"
-                    >
-                      {crumb.name}
-                    </button>
-                  ) : (
-                    <span className="font-bold text-emerald-900">{crumb.name}</span>
-                  )}
-                </span>
-              ))}
-            </nav>
-
-            {/* Sort + View toggle */}
-            <div className="flex items-center gap-2">
-              <button
-                id="sort-last-modified"
-                onClick={() => setSortMode((v) => (v === "modified" ? "name" : "modified"))}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-emerald-100 rounded-xl text-xs font-semibold text-emerald-700 hover:bg-emerald-50 transition-colors shadow-sm"
-              >
-                <span className="material-symbols-outlined text-base">filter_list</span>
-                {sortMode === "modified" ? "Last Modified" : "Name A–Z"}
-              </button>
-              <button
-                id="toggle-view-grid"
-                onClick={() => setViewMode("grid")}
-                className={`p-2 rounded-xl border transition-colors ${viewMode === "grid" ? "bg-emerald-700 text-white border-emerald-700" : "bg-white border-emerald-100 text-emerald-600 hover:bg-emerald-50"}`}
-              >
-                <span className="material-symbols-outlined text-base">grid_view</span>
-              </button>
-              <button
-                id="toggle-view-list"
-                onClick={() => setViewMode("list")}
-                className={`p-2 rounded-xl border transition-colors ${viewMode === "list" ? "bg-emerald-700 text-white border-emerald-700" : "bg-white border-emerald-100 text-emerald-600 hover:bg-emerald-50"}`}
-              >
-                <span className="material-symbols-outlined text-base">view_list</span>
-              </button>
-            </div>
-          </div>
-
-          {/* ── Content Card ── */}
-          <div className="bg-white rounded-3xl shadow-sm p-6 lg:p-8 border border-emerald-50">
-
-            {loading ? (
-              <div className="flex items-center justify-center h-48">
-                <span className="material-symbols-outlined text-5xl text-primary/30 animate-spin">progress_activity</span>
-              </div>
-            ) : (
-              <>
-                {/* ── Folders Section ── */}
-                {filteredFolders.length > 0 || true /* always show section */ ? (
-                  <section className="mb-10">
-                    <h2 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-5">Folders</h2>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                      {filteredFolders.map((folder) => (
-                        <FolderCard
-                          key={folder.id}
-                          folder={folder}
-                          onOpen={openFolder}
-                          onRename={(f) => startRename(f, "folder")}
-                          onDelete={(f) => startDelete(f, "folder")}
-                        />
-                      ))}
-                      <NewFolderCard onClick={() => setShowNewFolderModal(true)} />
-                    </div>
-                  </section>
-                ) : null}
-
-                {/* ── Files Section ── */}
-                <section>
-                  <h2 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-5">Files</h2>
-                  {filteredFiles.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-16 text-center">
-                      <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4">
-                        <span className="material-symbols-outlined text-emerald-300 text-3xl">folder_open</span>
-                      </div>
-                      <p className="text-on-surface-variant font-medium text-sm">No files here yet</p>
-                      <p className="text-on-surface-variant/60 text-xs mt-1">Upload a PDF using the "Add Material" button</p>
-                    </div>
-                  ) : viewMode === "list" ? (
-                    <div className="divide-y divide-emerald-50 stagger-children">
-                      {filteredFiles.map((file) => (
-                        <FileRow
-                          key={file.id}
-                          file={file}
-                          onDelete={(f) => startDelete(f, "file")}
-                          onRename={(f) => startRename(f, "file")}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 stagger-children">
-                      {filteredFiles.map((file) => (
-                        <FileCard
-                          key={file.id}
-                          file={file}
-                          onDelete={(f) => startDelete(f, "file")}
-                          onRename={(f) => startRename(f, "file")}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </section>
-              </>
-            )}
+          {/* Sort + View toggle */}
+          <div className="flex items-center gap-2">
+            <button
+              id="sort-last-modified"
+              onClick={() => setSortMode((v) => (v === "modified" ? "name" : "modified"))}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-emerald-100 rounded-xl text-xs font-semibold text-emerald-700 hover:bg-emerald-50 transition-colors shadow-sm"
+            >
+            <span className="material-symbols-outlined text-base">filter_list</span>
+            {sortMode === "modified" ? "Last Modified" : "Name A–Z"}
+            </button>
+            <button
+              id="toggle-view-grid"
+              onClick={() => setViewMode("grid")}
+              className={`p-2 rounded-xl border transition-colors ${viewMode === "grid" ? "bg-emerald-700 text-white border-emerald-700" : "bg-white border-emerald-100 text-emerald-600 hover:bg-emerald-50"}`}
+            >
+              <span className="material-symbols-outlined text-base">grid_view</span>
+            </button>
+            <button
+              id="toggle-view-list"
+              onClick={() => setViewMode("list")}
+              className={`p-2 rounded-xl border transition-colors ${viewMode === "list" ? "bg-emerald-700 text-white border-emerald-700" : "bg-white border-emerald-100 text-emerald-600 hover:bg-emerald-50"}`}
+            >
+              <span className="material-symbols-outlined text-base">view_list</span>
+            </button>
           </div>
         </div>
-      </main>
+
+        {/* ── Content Card ── */}
+        <div className="bg-white rounded-3xl shadow-sm p-6 lg:p-8 border border-emerald-50">
+
+          {loading ? (
+            <div className="flex items-center justify-center h-48">
+              <span className="material-symbols-outlined text-5xl text-primary/30 animate-spin">progress_activity</span>
+            </div>
+          ) : (
+            <>
+              {/* ── Folders Section ── */}
+              {filteredFolders.length > 0 || true /* always show section */ ? (
+                <section className="mb-10">
+                  <h2 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-5">Folders</h2>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    {filteredFolders.map((folder) => (
+                      <FolderCard
+                        key={folder.id}
+                        folder={folder}
+                        onOpen={openFolder}
+                        onRename={(f) => startRename(f, "folder")}
+                        onDelete={(f) => startDelete(f, "folder")}
+                      />
+                    ))}
+                    <NewFolderCard onClick={() => setShowNewFolderModal(true)} />
+                  </div>
+                </section>
+              ) : null}
+
+              {/* ── Files Section ── */}
+              <section>
+                <h2 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-5">Files</h2>
+                {filteredFiles.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4">
+                      <span className="material-symbols-outlined text-emerald-300 text-3xl">folder_open</span>
+                    </div>
+                    <p className="text-on-surface-variant font-medium text-sm">No files here yet</p>
+                    <p className="text-on-surface-variant/60 text-xs mt-1">Upload a PDF using the "Add Material" button</p>
+                  </div>
+                ) : viewMode === "list" ? (
+                  <div className="divide-y divide-emerald-50 stagger-children">
+                    {filteredFiles.map((file) => (
+                      <FileRow
+                        key={file.id}
+                        file={file}
+                        onDelete={(f) => startDelete(f, "file")}
+                        onRename={(f) => startRename(f, "file")}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 stagger-children">
+                    {filteredFiles.map((file) => (
+                      <FileCard
+                        key={file.id}
+                        file={file}
+                        onDelete={(f) => startDelete(f, "file")}
+                        onRename={(f) => startRename(f, "file")}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+        </div>
+      </div>
 
       {/* ══════════════════ MODAL: New Folder ══════════════════ */}
       {showNewFolderModal && (
@@ -1025,6 +889,6 @@ export default function LibraryPage() {
       >
         <span className="material-symbols-outlined text-2xl">bolt</span>
       </button>
-    </div>
+    </PageShell>
   );
 }

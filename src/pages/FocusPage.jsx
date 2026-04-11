@@ -6,6 +6,7 @@ import {
   collection, query, where, onSnapshot,
   doc, getDoc, setDoc, updateDoc, serverTimestamp,
 } from "firebase/firestore";
+import PageShell from "../components/PageShell";
 
 /* ═══════════════════════════════════════════
    WEB AUDIO AMBIENT SOUND ENGINE
@@ -61,10 +62,8 @@ class AmbientEngine {
     const master = this._masterGain();
     const buf = this._whiteNoiseBuffer();
     const src = this._playNoise(buf);
-    // heavy lowpass → rain feel
     const lp = this.ctx.createBiquadFilter();
     lp.type = "lowpass"; lp.frequency.value = 600; lp.Q.value = 0.5;
-    // gentle amplitude modulation for "patter"
     const mod = this.ctx.createOscillator();
     const modGain = this.ctx.createGain();
     mod.frequency.value = 2.5;
@@ -82,7 +81,6 @@ class AmbientEngine {
     master.gain.setValueAtTime(this.volume * 0.35, this.ctx.currentTime);
     const buf = this._whiteNoiseBuffer();
     const src = this._playNoise(buf);
-    // brown noise simulation: steep lowpass
     const lp = this.ctx.createBiquadFilter();
     lp.type = "lowpass"; lp.frequency.value = 180; lp.Q.value = 0.2;
     const lp2 = this.ctx.createBiquadFilter();
@@ -95,7 +93,6 @@ class AmbientEngine {
     this._ensure(); this.stop();
     const master = this._masterGain();
     master.gain.setValueAtTime(this.volume * 0.5, this.ctx.currentTime);
-    // gentle background noise
     const buf = this._whiteNoiseBuffer();
     const src = this._playNoise(buf);
     const lp = this.ctx.createBiquadFilter();
@@ -104,7 +101,6 @@ class AmbientEngine {
     noiseGain.gain.value = 0.05;
     src.connect(lp); lp.connect(noiseGain); noiseGain.connect(master);
     src.start();
-    // chirp oscillators
     const chirpFreqs = [2200, 2800, 3200, 1800, 2600];
     chirpFreqs.forEach((freq, i) => {
       const osc = this.ctx.createOscillator();
@@ -112,7 +108,6 @@ class AmbientEngine {
       osc.type = "sine"; osc.frequency.value = freq;
       g.gain.setValueAtTime(0, this.ctx.currentTime);
       const period = 3 + i * 1.7;
-      // schedule repeating chirps
       for (let t = i * 0.4; t < 120; t += period) {
         const st = this.ctx.currentTime + t;
         g.gain.setValueAtTime(0, st);
@@ -176,94 +171,6 @@ const SOUNDS = [
 ];
 
 const CIRCUMFERENCE = 2 * Math.PI * 110; // r=110
-
-/* ═══════════════════════════════════════════
-   SIDEBAR — identical pattern to Library page
-═══════════════════════════════════════════ */
-function Sidebar({ sidebarOpen, setSidebarOpen, userName, greeting, onLogout, navigate }) {
-  return (
-    <>
-      {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/30 z-30 lg:hidden" onClick={() => setSidebarOpen(false)} />
-      )}
-      <aside className={`fixed left-0 top-0 h-screen w-72 bg-emerald-50 rounded-r-3xl flex flex-col p-6 gap-4 z-40 shadow-xl shadow-emerald-900/5 transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
-        {/* Logo */}
-        <div className="mb-2 px-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl signature-gradient flex items-center justify-center">
-              <span className="material-symbols-outlined text-white text-lg">school</span>
-            </div>
-            <div>
-              <span className="text-lg font-extrabold text-emerald-900 leading-none">StudySync</span>
-              <p className="text-[0.6rem] font-bold uppercase tracking-widest text-emerald-600/70">Your Verdant Sanctuary</p>
-            </div>
-          </div>
-          <button className="lg:hidden text-emerald-700" onClick={() => setSidebarOpen(false)}>
-            <span className="material-symbols-outlined">close</span>
-          </button>
-        </div>
-
-        {/* Avatar */}
-        <div className="mb-6 px-2">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-primary-container flex items-center justify-center text-on-primary text-lg font-bold">
-              {userName.charAt(0).toUpperCase()}
-            </div>
-            <div>
-              <h3 className="text-on-surface font-bold text-sm">{greeting}, {userName}</h3>
-              <p className="text-on-surface-variant text-xs opacity-70">Ready for a deep breath?</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Nav */}
-        <nav className="flex flex-col gap-1 flex-1">
-          {[
-            { icon: "home",      label: "Sanctuary",  path: "/dashboard" },
-            { icon: "menu_book", label: "Library",     path: "/library"   },
-          ].map(item => (
-            <button key={item.label} onClick={() => navigate(item.path)}
-              className="flex items-center gap-4 px-4 py-3 text-emerald-700/70 hover:bg-emerald-100 transition-all rounded-xl w-full text-left">
-              <span className="material-symbols-outlined">{item.icon}</span>
-              <span className="font-semibold tracking-wide text-sm">{item.label}</span>
-            </button>
-          ))}
-
-          {/* Focus — ACTIVE */}
-          <div className="flex items-center gap-4 px-4 py-3 bg-emerald-800 text-white rounded-xl">
-            <span className="material-symbols-outlined">timer</span>
-            <span className="font-semibold tracking-wide text-sm">Focus</span>
-          </div>
-
-          {[
-            { icon: "bar_chart", label: "Analytics",  path: "/analytics" },
-            { icon: "groups",    label: "Community",  path: "#" },
-          ].map(item => (
-            <button key={item.label}
-              onClick={() => item.path !== "#" && navigate(item.path)}
-              className="flex items-center gap-4 px-4 py-3 text-emerald-700/70 hover:bg-emerald-100 transition-all rounded-xl w-full text-left">
-              <span className="material-symbols-outlined">{item.icon}</span>
-              <span className="font-semibold tracking-wide text-sm">{item.label}</span>
-            </button>
-          ))}
-
-          <div className="flex-1" />
-          <button className="mx-2 my-2 py-3 px-4 rounded-xl signature-gradient text-white font-bold text-sm hover:opacity-90 active:scale-95 transition-all">
-            Start Focus Session
-          </button>
-          <button className="flex items-center gap-4 px-4 py-3 text-emerald-700/70 hover:bg-emerald-100 transition-all rounded-xl w-full text-left">
-            <span className="material-symbols-outlined">help_outline</span>
-            <span className="font-semibold tracking-wide text-sm">Help</span>
-          </button>
-          <button onClick={onLogout} className="flex items-center gap-4 px-4 py-3 text-emerald-700/70 hover:bg-emerald-100 transition-all rounded-xl w-full text-left">
-            <span className="material-symbols-outlined">logout</span>
-            <span className="font-semibold tracking-wide text-sm">Sign Out</span>
-          </button>
-        </nav>
-      </aside>
-    </>
-  );
-}
 
 /* ═══════════════════════════════════════════
    CIRCULAR PROGRESS RING
@@ -386,14 +293,8 @@ function GoalRing({ progress }) {
    MAIN: FocusPage
 ═══════════════════════════════════════════ */
 export default function FocusPage() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-
-  /* ── Sidebar ── */
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
-  const userName = user?.displayName || user?.email?.split("@")[0] || "Student";
 
   /* ── Timer settings (with defaults) ── */
   const [focusMins,  setFocusMins]  = useState(25);
@@ -410,7 +311,7 @@ export default function FocusPage() {
   const timerRef = useRef(null);
 
   /* ── Audio ── */
-  const [activeSound,  setActiveSound]  = useState(null);  // sound id or null
+  const [activeSound,  setActiveSound]  = useState(null);
   const [volume,       setVolume]       = useState(0.4);
 
   /* ── Task tethering ── */
@@ -419,11 +320,11 @@ export default function FocusPage() {
   const [showTaskPicker, setShowTaskPicker] = useState(false);
 
   /* ── Daily goal ── */
-  const [dailyGoal,      setDailyGoal]      = useState(120); // mins
-  const [focusedToday,   setFocusedToday]   = useState(0);   // mins
+  const [dailyGoal,      setDailyGoal]      = useState(120);
+  const [focusedToday,   setFocusedToday]   = useState(0);
   const [editingGoal,    setEditingGoal]    = useState(false);
   const [goalInput,      setGoalInput]      = useState("120");
-  const focusedTodayRef = useRef(0); // tracks seconds accrued during current session
+  const focusedTodayRef = useRef(0);
 
   /* ── Session completed count ── */
   const [completedSessions, setCompletedSessions] = useState(0);
@@ -473,7 +374,6 @@ export default function FocusPage() {
     if (isRunning && secsLeft > 0) {
       timerRef.current = setInterval(() => {
         setSecsLeft(s => s - 1);
-        // track focused seconds (only in focus mode)
         if (mode === "focus") {
           focusedTodayRef.current += 1;
           if (focusedTodayRef.current % 60 === 0) {
@@ -495,23 +395,22 @@ export default function FocusPage() {
   /* Session complete */
   useEffect(() => {
     if (secsLeft > 0 || !isRunning) return;
-    // session finished
     if (mode === "focus") {
       setCompletedSessions(c => c + 1);
-      showToast("🎉 Focus session complete! Take a break.");
+      showToastMsg("🎉 Focus session complete! Take a break.");
       if (currentLap < laps) {
         setMode("break");
         setSecsLeft(breakMins * 60);
         if (!autoStart) setIsRunning(false);
       } else {
-        showToast("🌿 All sessions done! Excellent work.");
+        showToastMsg("🌿 All sessions done! Excellent work.");
         setIsRunning(false);
         setMode("focus");
         setCurrentLap(1);
         setSecsLeft(focusMins * 60);
       }
     } else {
-      showToast("⏱️ Break over — back to focus!");
+      showToastMsg("⏱️ Break over — back to focus!");
       setMode("focus");
       setCurrentLap(l => l + 1);
       setSecsLeft(focusMins * 60);
@@ -520,7 +419,7 @@ export default function FocusPage() {
   }, [secsLeft]); // eslint-disable-line
 
   /* ════════════════ handlers ════════════════ */
-  const showToast = (msg) => {
+  const showToastMsg = (msg) => {
     setToast(msg);
     setTimeout(() => setToast(""), 3500);
   };
@@ -584,8 +483,6 @@ export default function FocusPage() {
     await savePrefs({ dailyGoal: g });
   };
 
-  const handleLogout = async () => { engine.stop(); await logout(); navigate("/"); };
-
   /* ── Display ── */
   const mm = String(Math.floor(secsLeft / 60)).padStart(2, "0");
   const ss = String(secsLeft % 60).padStart(2, "0");
@@ -593,9 +490,30 @@ export default function FocusPage() {
   const progress = secsLeft / totalSecs;
   const goalProgress = dailyGoal > 0 ? focusedToday / dailyGoal : 0;
 
+  /* ── TopBar children: lap indicator ── */
+  const topBarContent = (
+    <div className="hidden sm:flex items-center gap-2">
+      {Array.from({ length: laps }).map((_, i) => (
+        <div key={i} className={`w-2.5 h-2.5 rounded-full transition-all ${
+          i < completedSessions ? "bg-emerald-500" :
+          i === currentLap - 1 && mode === "focus" ? "bg-emerald-300 ring-2 ring-emerald-400" :
+          "bg-emerald-100"
+        }`} />
+      ))}
+      <span className="text-xs text-emerald-600 font-semibold ml-1">
+        Lap {currentLap}/{laps}
+      </span>
+    </div>
+  );
+
   /* ════════════════ RENDER ════════════════ */
   return (
-    <div className="bg-surface text-on-surface min-h-screen">
+    <PageShell
+      activePage="focus"
+      title="Focus Sanctuary"
+      subtitle="Breathe in. Immerse yourself. Begin your flow."
+      topBarChildren={topBarContent}
+    >
       <style>{`
         @keyframes soundBar {
           from { transform: scaleY(0.3); }
@@ -605,291 +523,242 @@ export default function FocusPage() {
           0%, 100% { transform: translateY(0); }
           50%       { transform: translateY(-4px); }
         }
-        @keyframes pulseRing {
-          0%   { transform: scale(1);    opacity: 0.6; }
-          100% { transform: scale(1.15); opacity: 0;   }
-        }
       `}</style>
 
-      {/* ══ Sidebar ══ */}
-      <Sidebar
-        sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}
-        userName={userName} greeting={greeting}
-        onLogout={handleLogout} navigate={navigate}
-      />
+      <div className="animate-page-enter max-w-6xl mx-auto">
 
-      {/* ══ Main ══ */}
-      <main className="lg:ml-72 min-h-screen">
+        {/* 3-column grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
 
-        {/* Top bar */}
-        <header className="fixed top-0 left-0 lg:left-72 right-0 z-30 h-20 bg-emerald-50/80 backdrop-blur-xl flex items-center px-6 lg:px-8 gap-4">
-          <button className="lg:hidden text-emerald-700" onClick={() => setSidebarOpen(true)}>
-            <span className="material-symbols-outlined">menu</span>
-          </button>
-          <div>
-            <h1 className="text-emerald-900 font-extrabold text-lg tracking-tight leading-tight">Focus Sanctuary</h1>
-            <p className="text-emerald-600/70 text-xs font-medium">Breathe in. Immerse yourself. Begin your flow.</p>
-          </div>
-          <div className="flex-1" />
-          {/* Lap indicator */}
-          <div className="hidden sm:flex items-center gap-2">
-            {Array.from({ length: laps }).map((_, i) => (
-              <div key={i} className={`w-2.5 h-2.5 rounded-full transition-all ${
-                i < completedSessions ? "bg-emerald-500" :
-                i === currentLap - 1 && mode === "focus" ? "bg-emerald-300 ring-2 ring-emerald-400" :
-                "bg-emerald-100"
-              }`} />
-            ))}
-            <span className="text-xs text-emerald-600 font-semibold ml-1">
-              Lap {currentLap}/{laps}
-            </span>
-          </div>
-          <button className="p-2 text-emerald-700/60 hover:bg-emerald-100 rounded-full transition-colors">
-            <span className="material-symbols-outlined">notifications</span>
-          </button>
-          <div className="w-9 h-9 rounded-full signature-gradient flex items-center justify-center text-white font-bold text-sm">
-            {userName.charAt(0).toUpperCase()}
-          </div>
-        </header>
+          {/* ── LEFT PANEL ── */}
+          <div className="lg:col-span-3 flex flex-col gap-5">
 
-        {/* ══ Page body ══ */}
-        <div className="pt-24 px-4 lg:px-8 pb-12">
-          <div className="max-w-6xl mx-auto">
-
-            {/* 3-column grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-
-              {/* ── LEFT PANEL ── */}
-              <div className="lg:col-span-3 flex flex-col gap-5">
-
-                {/* Duration Controls */}
-                <div className="bg-white rounded-3xl p-6 shadow-sm border border-emerald-50">
-                  <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-6">Session Settings</h3>
-                  <div className="flex flex-col gap-6">
-                    <DurationControl label="Focus Time" value={focusMins}
-                      onDec={handleFocusDec} onInc={handleFocusInc} max={120} />
-                    <div className="h-px bg-emerald-50" />
-                    <DurationControl label="Break Time" value={breakMins}
-                      onDec={handleBreakDec} onInc={handleBreakInc} max={60} />
-                    <div className="h-px bg-emerald-50" />
-                    <DurationControl label="Laps" value={laps}
-                      onDec={handleLapsDec} onInc={handleLapsInc} unit="×" min={1} max={12} />
-                  </div>
-                </div>
-
-                {/* Auto-start toggle */}
-                <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-emerald-50 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-emerald-900">Auto-start</p>
-                    <p className="text-xs text-emerald-500/70">Next session starts automatically</p>
-                  </div>
-                  <button
-                    onClick={() => setAutoStart(a => !a)}
-                    className={`relative w-11 h-6 rounded-full transition-colors ${autoStart ? "bg-emerald-600" : "bg-emerald-100"}`}>
-                    <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${autoStart ? "translate-x-5" : "translate-x-0.5"}`} />
-                  </button>
-                </div>
-
-                {/* Daily Goal */}
-                <div className="bg-white rounded-3xl p-6 shadow-sm border border-emerald-50">
-                  <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-4">Daily Goal</h3>
-                  <div className="flex items-center gap-4">
-                    <div className="relative">
-                      <GoalRing progress={goalProgress} />
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-xs font-bold text-emerald-800">{Math.round(goalProgress * 100)}%</span>
-                      </div>
-                    </div>
-                    <div className="flex-1">
-                      {editingGoal ? (
-                        <div className="flex gap-2">
-                          <input
-                            type="number" value={goalInput} min={10} max={480}
-                            onChange={e => setGoalInput(e.target.value)}
-                            onKeyDown={e => e.key === "Enter" && handleSaveGoal()}
-                            className="w-16 border border-emerald-200 rounded-lg px-2 py-1 text-sm text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-300"
-                            autoFocus
-                          />
-                          <button onClick={handleSaveGoal}
-                            className="px-2 py-1 rounded-lg signature-gradient text-white text-xs font-bold">OK</button>
-                        </div>
-                      ) : (
-                        <button onClick={() => { setEditingGoal(true); setGoalInput(String(dailyGoal)); }}
-                          className="text-left group">
-                          <p className="text-lg font-extrabold text-emerald-900 group-hover:text-emerald-600 transition-colors">{focusedToday}<span className="text-sm font-semibold text-emerald-400">/{dailyGoal}</span></p>
-                          <p className="text-xs text-emerald-500/60">minutes • tap to edit</p>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                  {/* Thin progress bar */}
-                  <div className="mt-4 h-1.5 bg-emerald-50 rounded-full overflow-hidden">
-                    <div className="h-full signature-gradient rounded-full transition-all duration-700"
-                      style={{ width: `${Math.min(goalProgress * 100, 100)}%` }} />
-                  </div>
-                </div>
+            {/* Duration Controls */}
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-emerald-50">
+              <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-6">Session Settings</h3>
+              <div className="flex flex-col gap-6">
+                <DurationControl label="Focus Time" value={focusMins}
+                  onDec={handleFocusDec} onInc={handleFocusInc} max={120} />
+                <div className="h-px bg-emerald-50" />
+                <DurationControl label="Break Time" value={breakMins}
+                  onDec={handleBreakDec} onInc={handleBreakInc} max={60} />
+                <div className="h-px bg-emerald-50" />
+                <DurationControl label="Laps" value={laps}
+                  onDec={handleLapsDec} onInc={handleLapsInc} unit="×" min={1} max={12} />
               </div>
+            </div>
 
-              {/* ── CENTER PANEL ── */}
-              <div className="lg:col-span-6 flex flex-col items-center gap-6">
+            {/* Auto-start toggle */}
+            <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-emerald-50 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-emerald-900">Auto-start</p>
+                <p className="text-xs text-emerald-500/70">Next session starts automatically</p>
+              </div>
+              <button
+                onClick={() => setAutoStart(a => !a)}
+                className={`relative w-11 h-6 rounded-full transition-colors ${autoStart ? "bg-emerald-600" : "bg-emerald-100"}`}>
+                <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${autoStart ? "translate-x-5" : "translate-x-0.5"}`} />
+              </button>
+            </div>
 
-                {/* Timer card */}
-                <div className={`w-full bg-white rounded-[2.5rem] shadow-sm border transition-all duration-500 p-10 flex flex-col items-center gap-6 ${
-                  isRunning && mode === "focus"
-                    ? "border-emerald-200 shadow-emerald-100 shadow-lg"
-                    : isRunning && mode === "break"
-                    ? "border-sky-200 shadow-sky-100 shadow-lg"
-                    : "border-emerald-50"
-                }`}>
-                  {/* Mode badge */}
-                  <div className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors ${
-                    mode === "focus"
-                      ? "bg-emerald-100 text-emerald-700"
-                      : "bg-sky-100 text-sky-700"
-                  }`}>
-                    {mode === "focus" ? "🍅 Focus Session" : "☕ Break Time"}
-                  </div>
-
-                  {/* The ring */}
-                  <TimerRing
-                    progress={progress}
-                    isRunning={isRunning}
-                    mode={mode}
-                    displayTime={displayTime}
-                  />
-
-                  {/* Controls */}
-                  <div className="flex items-center gap-4">
-                    <button onClick={handleReset}
-                      className="w-12 h-12 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center transition-all active:scale-90">
-                      <span className="material-symbols-outlined">restart_alt</span>
-                    </button>
-                    <button
-                      id="focus-start-pause-btn"
-                      onClick={handleStartPause}
-                      className={`h-14 px-10 rounded-2xl font-bold text-base flex items-center gap-3 transition-all active:scale-95 shadow-md ${
-                        isRunning
-                          ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                          : "signature-gradient text-white hover:opacity-90 shadow-emerald-200"
-                      }`}>
-                      <span className="material-symbols-outlined">
-                        {isRunning ? "pause" : "play_arrow"}
-                      </span>
-                      {isRunning ? "Pause" : "Start Focus Session"}
-                    </button>
-                    <button onClick={() => { setMode(m => m === "focus" ? "break" : "focus"); setIsRunning(false); setSecsLeft(mode === "focus" ? breakMins * 60 : focusMins * 60); }}
-                      className="w-12 h-12 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center transition-all active:scale-90"
-                      title="Switch mode">
-                      <span className="material-symbols-outlined">swap_horiz</span>
-                    </button>
+            {/* Daily Goal */}
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-emerald-50">
+              <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-4">Daily Goal</h3>
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <GoalRing progress={goalProgress} />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs font-bold text-emerald-800">{Math.round(goalProgress * 100)}%</span>
                   </div>
                 </div>
-
-                {/* Task Tethering */}
-                <div className="w-full bg-white rounded-3xl p-6 shadow-sm border border-emerald-50">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60">Task Tethering</h3>
-                    <button onClick={() => setShowTaskPicker(true)}
-                      className="text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors flex items-center gap-1">
-                      <span className="material-symbols-outlined text-sm">swap_horiz</span>
-                      Change Task
-                    </button>
-                  </div>
-                  {selectedTask ? (
-                    <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-2xl">
-                      <div className="w-9 h-9 rounded-xl signature-gradient flex items-center justify-center flex-shrink-0">
-                        <span className="material-symbols-outlined text-white text-base">task_alt</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-emerald-900 text-sm truncate">{selectedTask.title}</p>
-                        <p className="text-xs text-emerald-500/70">{selectedTask.subject} • {selectedTask.deadline || "No deadline"}</p>
-                      </div>
-                      <button onClick={() => setSelectedTask(null)}
-                        className="p-1 rounded-lg hover:bg-emerald-100 text-emerald-500 transition-colors">
-                        <span className="material-symbols-outlined text-sm">close</span>
-                      </button>
+                <div className="flex-1">
+                  {editingGoal ? (
+                    <div className="flex gap-2">
+                      <input
+                        type="number" value={goalInput} min={10} max={480}
+                        onChange={e => setGoalInput(e.target.value)}
+                        onKeyDown={e => e.key === "Enter" && handleSaveGoal()}
+                        className="w-16 border border-emerald-200 rounded-lg px-2 py-1 text-sm text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+                        autoFocus
+                      />
+                      <button onClick={handleSaveGoal}
+                        className="px-2 py-1 rounded-lg signature-gradient text-white text-xs font-bold">OK</button>
                     </div>
                   ) : (
-                    <button onClick={() => setShowTaskPicker(true)}
-                      className="w-full flex items-center gap-3 p-3 border-2 border-dashed border-emerald-200 rounded-2xl hover:border-emerald-400 hover:bg-emerald-50/50 transition-all group">
-                      <span className="material-symbols-outlined text-emerald-300 group-hover:text-emerald-500 transition-colors">add_circle</span>
-                      <span className="text-sm text-emerald-500 font-medium">Tether a task to this session</span>
+                    <button onClick={() => { setEditingGoal(true); setGoalInput(String(dailyGoal)); }}
+                      className="text-left group">
+                      <p className="text-lg font-extrabold text-emerald-900 group-hover:text-emerald-600 transition-colors">{focusedToday}<span className="text-sm font-semibold text-emerald-400">/{dailyGoal}</span></p>
+                      <p className="text-xs text-emerald-500/60">minutes • tap to edit</p>
                     </button>
                   )}
                 </div>
-
-                {/* Stats row */}
-                <div className="w-full grid grid-cols-3 gap-4">
-                  {[
-                    { label: "Sessions", value: completedSessions, icon: "check_circle" },
-                    { label: "Focused", value: `${focusedToday}m`, icon: "schedule" },
-                    { label: "Current Lap", value: `${currentLap}/${laps}`, icon: "repeat" },
-                  ].map(stat => (
-                    <div key={stat.label} className="bg-white rounded-2xl p-4 text-center shadow-sm border border-emerald-50">
-                      <span className="material-symbols-outlined text-emerald-400 text-lg">{stat.icon}</span>
-                      <p className="text-xl font-extrabold text-emerald-900 mt-1">{stat.value}</p>
-                      <p className="text-[0.6rem] font-bold uppercase tracking-widest text-emerald-500/60">{stat.label}</p>
-                    </div>
-                  ))}
-                </div>
               </div>
-
-              {/* ── RIGHT PANEL ── */}
-              <div className="lg:col-span-3 flex flex-col gap-5">
-
-                {/* Ambient Sounds */}
-                <div className="bg-white rounded-3xl p-6 shadow-sm border border-emerald-50">
-                  <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-1">Ambient Soundscapes</h3>
-                  <p className="text-xs text-emerald-500/60 mb-5">Generated in-browser — no files needed</p>
-                  <div className="grid grid-cols-2 gap-2 mb-5">
-                    {SOUNDS.map(s => (
-                      <SoundCard key={s.id} sound={s} active={activeSound === s.id} onClick={handleSound} />
-                    ))}
-                    {/* Stop button — takes last cell */}
-                    {activeSound && (
-                      <button onClick={() => { engine.stop(); setActiveSound(null); }}
-                        className="flex flex-col items-center gap-2 p-4 rounded-2xl border-2 border-red-100 bg-red-50 hover:border-red-200 transition-all w-full">
-                        <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
-                          <span className="material-symbols-outlined text-red-400 text-xl">stop_circle</span>
-                        </div>
-                        <span className="text-xs font-semibold text-red-500">Stop</span>
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Volume slider */}
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-[0.6rem] font-bold uppercase tracking-widest text-emerald-600/60">Volume</span>
-                      <span className="text-xs font-bold text-emerald-700">{Math.round(volume * 100)}%</span>
-                    </div>
-                    <input
-                      type="range" min={0} max={1} step={0.02} value={volume}
-                      onChange={e => handleVolume(parseFloat(e.target.value))}
-                      className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
-                      style={{ accentColor: "#006c49" }}
-                    />
-                  </div>
-                </div>
-
-                {/* Tips */}
-                <div className="bg-emerald-700 rounded-3xl p-6 text-white">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="material-symbols-outlined text-emerald-300 text-lg">auto_awesome</span>
-                    <h3 className="text-xs font-bold uppercase tracking-widest text-emerald-200">Flow Tips</h3>
-                  </div>
-                  <ul className="space-y-3 text-xs text-emerald-100/80 leading-relaxed">
-                    <li className="flex gap-2"><span className="text-emerald-400 font-bold">01</span> Put your phone in another room</li>
-                    <li className="flex gap-2"><span className="text-emerald-400 font-bold">02</span> Drink water before starting</li>
-                    <li className="flex gap-2"><span className="text-emerald-400 font-bold">03</span> One task at a time</li>
-                    <li className="flex gap-2"><span className="text-emerald-400 font-bold">04</span> Take your full break — you've earned it</li>
-                  </ul>
-                </div>
+              {/* Thin progress bar */}
+              <div className="mt-4 h-1.5 bg-emerald-50 rounded-full overflow-hidden">
+                <div className="h-full signature-gradient rounded-full transition-all duration-700"
+                  style={{ width: `${Math.min(goalProgress * 100, 100)}%` }} />
               </div>
             </div>
           </div>
+
+          {/* ── CENTER PANEL ── */}
+          <div className="lg:col-span-6 flex flex-col items-center gap-6">
+
+            {/* Timer card */}
+            <div className={`w-full bg-white rounded-[2.5rem] shadow-sm border transition-all duration-500 p-10 flex flex-col items-center gap-6 ${
+              isRunning && mode === "focus"
+                ? "border-emerald-200 shadow-emerald-100 shadow-lg"
+                : isRunning && mode === "break"
+                ? "border-sky-200 shadow-sky-100 shadow-lg"
+                : "border-emerald-50"
+            }`}>
+              {/* Mode badge */}
+              <div className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors ${
+                mode === "focus"
+                  ? "bg-emerald-100 text-emerald-700"
+                  : "bg-sky-100 text-sky-700"
+              }`}>
+                {mode === "focus" ? "🍅 Focus Session" : "☕ Break Time"}
+              </div>
+
+              {/* The ring */}
+              <TimerRing
+                progress={progress}
+                isRunning={isRunning}
+                mode={mode}
+                displayTime={displayTime}
+              />
+
+              {/* Controls */}
+              <div className="flex items-center gap-4">
+                <button onClick={handleReset}
+                  className="w-12 h-12 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center transition-all active:scale-90">
+                  <span className="material-symbols-outlined">restart_alt</span>
+                </button>
+                <button
+                  id="focus-start-pause-btn"
+                  onClick={handleStartPause}
+                  className={`h-14 px-10 rounded-2xl font-bold text-base flex items-center gap-3 transition-all active:scale-95 shadow-md ${
+                    isRunning
+                      ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+                      : "signature-gradient text-white hover:opacity-90 shadow-emerald-200"
+                  }`}>
+                  <span className="material-symbols-outlined">
+                    {isRunning ? "pause" : "play_arrow"}
+                  </span>
+                  {isRunning ? "Pause" : "Start Focus Session"}
+                </button>
+                <button onClick={() => { setMode(m => m === "focus" ? "break" : "focus"); setIsRunning(false); setSecsLeft(mode === "focus" ? breakMins * 60 : focusMins * 60); }}
+                  className="w-12 h-12 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center transition-all active:scale-90"
+                  title="Switch mode">
+                  <span className="material-symbols-outlined">swap_horiz</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Task Tethering */}
+            <div className="w-full bg-white rounded-3xl p-6 shadow-sm border border-emerald-50">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60">Task Tethering</h3>
+                <button onClick={() => setShowTaskPicker(true)}
+                  className="text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors flex items-center gap-1">
+                  <span className="material-symbols-outlined text-sm">swap_horiz</span>
+                  Change Task
+                </button>
+              </div>
+              {selectedTask ? (
+                <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-2xl">
+                  <div className="w-9 h-9 rounded-xl signature-gradient flex items-center justify-center flex-shrink-0">
+                    <span className="material-symbols-outlined text-white text-base">task_alt</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-emerald-900 text-sm truncate">{selectedTask.title}</p>
+                    <p className="text-xs text-emerald-500/70">{selectedTask.subject} • {selectedTask.deadline || "No deadline"}</p>
+                  </div>
+                  <button onClick={() => setSelectedTask(null)}
+                    className="p-1 rounded-lg hover:bg-emerald-100 text-emerald-500 transition-colors">
+                    <span className="material-symbols-outlined text-sm">close</span>
+                  </button>
+                </div>
+              ) : (
+                <button onClick={() => setShowTaskPicker(true)}
+                  className="w-full flex items-center gap-3 p-3 border-2 border-dashed border-emerald-200 rounded-2xl hover:border-emerald-400 hover:bg-emerald-50/50 transition-all group">
+                  <span className="material-symbols-outlined text-emerald-300 group-hover:text-emerald-500 transition-colors">add_circle</span>
+                  <span className="text-sm text-emerald-500 font-medium">Tether a task to this session</span>
+                </button>
+              )}
+            </div>
+
+            {/* Stats row */}
+            <div className="w-full grid grid-cols-3 gap-4">
+              {[
+                { label: "Sessions", value: completedSessions, icon: "check_circle" },
+                { label: "Focused", value: `${focusedToday}m`, icon: "schedule" },
+                { label: "Current Lap", value: `${currentLap}/${laps}`, icon: "repeat" },
+              ].map(stat => (
+                <div key={stat.label} className="bg-white rounded-2xl p-4 text-center shadow-sm border border-emerald-50">
+                  <span className="material-symbols-outlined text-emerald-400 text-lg">{stat.icon}</span>
+                  <p className="text-xl font-extrabold text-emerald-900 mt-1">{stat.value}</p>
+                  <p className="text-[0.6rem] font-bold uppercase tracking-widest text-emerald-500/60">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── RIGHT PANEL ── */}
+          <div className="lg:col-span-3 flex flex-col gap-5">
+
+            {/* Ambient Sounds */}
+            <div className="bg-white rounded-3xl p-6 shadow-sm border border-emerald-50">
+              <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-1">Ambient Soundscapes</h3>
+              <p className="text-xs text-emerald-500/60 mb-5">Generated in-browser — no files needed</p>
+              <div className="grid grid-cols-2 gap-2 mb-5">
+                {SOUNDS.map(s => (
+                  <SoundCard key={s.id} sound={s} active={activeSound === s.id} onClick={handleSound} />
+                ))}
+                {/* Stop button — takes last cell */}
+                {activeSound && (
+                  <button onClick={() => { engine.stop(); setActiveSound(null); }}
+                    className="flex flex-col items-center gap-2 p-4 rounded-2xl border-2 border-red-100 bg-red-50 hover:border-red-200 transition-all w-full">
+                    <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-red-400 text-xl">stop_circle</span>
+                    </div>
+                    <span className="text-xs font-semibold text-red-500">Stop</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Volume slider */}
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-[0.6rem] font-bold uppercase tracking-widest text-emerald-600/60">Volume</span>
+                  <span className="text-xs font-bold text-emerald-700">{Math.round(volume * 100)}%</span>
+                </div>
+                <input
+                  type="range" min={0} max={1} step={0.02} value={volume}
+                  onChange={e => handleVolume(parseFloat(e.target.value))}
+                  className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
+                  style={{ accentColor: "#006c49" }}
+                />
+              </div>
+            </div>
+
+            {/* Tips */}
+            <div className="bg-emerald-700 rounded-3xl p-6 text-white">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="material-symbols-outlined text-emerald-300 text-lg">auto_awesome</span>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-emerald-200">Flow Tips</h3>
+              </div>
+              <ul className="space-y-3 text-xs text-emerald-100/80 leading-relaxed">
+                <li className="flex gap-2"><span className="text-emerald-400 font-bold">01</span> Put your phone in another room</li>
+                <li className="flex gap-2"><span className="text-emerald-400 font-bold">02</span> Drink water before starting</li>
+                <li className="flex gap-2"><span className="text-emerald-400 font-bold">03</span> One task at a time</li>
+                <li className="flex gap-2"><span className="text-emerald-400 font-bold">04</span> Take your full break — you've earned it</li>
+              </ul>
+            </div>
+          </div>
         </div>
-      </main>
+      </div>
 
       {/* ══ Task Picker Modal ══ */}
       {showTaskPicker && (
@@ -937,6 +806,6 @@ export default function FocusPage() {
           {toast}
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }
