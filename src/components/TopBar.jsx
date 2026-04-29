@@ -1,52 +1,40 @@
 import { useAuth } from "../contexts/AuthContext";
 
 /* ═══════════════════════════════════════════
-   TOP BAR — unified, used by every page
+   TOP BAR — unified header for every page
+   Glass effect, slim 56px, seamless with sidebar
 ═══════════════════════════════════════════ */
-export default function TopBar({ title, subtitle, onMenuClick, children }) {
+export default function TopBar({ title, subtitle, children }) {
   const { user } = useAuth();
   const userName = user?.displayName || user?.email?.split("@")[0] || "Student";
 
   return (
     <header
-      className="fixed top-0 left-0 lg:left-72 right-0 z-30 h-20 flex items-center px-5 lg:px-10 gap-4"
-      style={{
-        background: "rgba(248, 250, 249, 0.92)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        borderBottom: "1px solid #E4EDEA",
-        boxShadow: "0 1px 12px rgba(22, 163, 74, 0.05)",
-      }}
+      className="topbar-shell fixed top-0 left-0 lg:left-[64px] right-0 z-30 h-14 flex items-center px-4 lg:px-8 gap-4 glass-effect border-b border-border-default"
+      style={{ boxShadow: "0 1px 8px rgba(22, 163, 74, 0.04)" }}
     >
-      {/* Hamburger (mobile) */}
-      <button
-        className="lg:hidden p-2 rounded-xl transition-colors hover:bg-[#F1F5F4]"
-        style={{ color: "#3D524A" }}
-        onClick={onMenuClick}
-      >
-        <span className="material-symbols-outlined">menu</span>
-      </button>
-
       {/* Title block */}
-      <div className="flex-shrink-0">
-        <h1 className="font-extrabold text-xl tracking-tight leading-tight" style={{ color: "#1A2621" }}>
+      <div className="flex-shrink-0 min-w-0">
+        <h1 className="font-bold text-base tracking-tight leading-tight text-on-surface truncate">
           {title}
         </h1>
         {subtitle && (
-          <p className="text-xs font-medium mt-0.5" style={{ color: "#8FA99F" }}>{subtitle}</p>
+          <p className="text-[11px] font-medium text-text-muted mt-0.5 truncate hidden sm:block">{subtitle}</p>
         )}
       </div>
 
       {/* Spacer + page-specific children */}
-      <div className="flex-1 flex items-center justify-end gap-3">
+      <div className="flex-1 flex items-center justify-end gap-2 min-w-0">
         {children}
       </div>
 
       {/* User avatar */}
-      <div
-        className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-btn flex-shrink-0 signature-gradient"
-      >
-        {userName.charAt(0).toUpperCase()}
+      <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm signature-gradient flex-shrink-0 ring-2 ring-primary/10">
+        {user?.photoURL ? (
+          <img src={user.photoURL} alt="" className="w-full h-full rounded-full object-cover" />
+        ) : (
+          userName.charAt(0).toUpperCase()
+        )}
       </div>
     </header>
   );

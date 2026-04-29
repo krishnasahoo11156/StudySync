@@ -11,13 +11,13 @@ import PageShell from "../components/PageShell";
 /* ═══════════════════════════════════════════
    CIRCULAR PROGRESS RING (Performance Rank)
 ═══════════════════════════════════════════ */
-function CircularRing({ value, max = 100, size = 120, strokeWidth = 10, color = "#006c49" }) {
+function CircularRing({ value, max = 100, size = 120, strokeWidth = 10, color = "#16A34A" }) {
   const r = (size - strokeWidth) / 2;
   const c = 2 * Math.PI * r;
   const offset = c * (1 - Math.min(value / max, 1));
   return (
     <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#d1fae5" strokeWidth={strokeWidth} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#E4EDEA" strokeWidth={strokeWidth} />
       <circle
         cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color}
         strokeWidth={strokeWidth} strokeLinecap="round"
@@ -39,11 +39,11 @@ function AnimatedBar({ pct, color, label, value }) {
   }, [pct]);
   return (
     <div className="mb-4">
-      <div className="flex justify-between text-xs font-semibold text-emerald-800 mb-1.5">
+      <div className="flex justify-between text-xs font-semibold text-on-surface mb-1.5">
         <span>{label}</span>
-        <span className="text-emerald-600">{value}h</span>
+        <span className="text-text-muted">{value}h</span>
       </div>
-      <div className="h-3 bg-emerald-50 rounded-full overflow-hidden">
+      <div className="h-2.5 bg-surface-container-low rounded-full overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-1000 ease-out"
           style={{ width: `${width}%`, backgroundColor: color }}
@@ -58,7 +58,7 @@ function AnimatedBar({ pct, color, label, value }) {
 ═══════════════════════════════════════════ */
 function PieChart({ slices }) {
   const total = slices.reduce((s, d) => s + d.value, 0);
-  if (total === 0) return <div className="w-40 h-40 rounded-full bg-emerald-50 mx-auto" />;
+  if (total === 0) return <div className="w-40 h-40 rounded-full bg-surface-container-low mx-auto" />;
 
   let cumAngle = -Math.PI / 2;
   const cx = 80, cy = 80, r = 65, inner = 38;
@@ -90,7 +90,7 @@ function PieChart({ slices }) {
       </svg>
       <div className="flex flex-wrap justify-center gap-2">
         {paths.map((p, i) => (
-          <div key={i} className="flex items-center gap-1.5 text-xs font-medium text-emerald-800">
+          <div key={i} className="flex items-center gap-1.5 text-xs font-medium text-on-surface">
             <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: p.color }} />
             {p.label} {p.pct}%
           </div>
@@ -119,23 +119,23 @@ function LineChart({ data }) {
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} className="overflow-visible">
       <defs>
         <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#006c49" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="#006c49" stopOpacity="0" />
+          <stop offset="0%" stopColor="#16A34A" stopOpacity="0.25" />
+          <stop offset="100%" stopColor="#16A34A" stopOpacity="0" />
         </linearGradient>
       </defs>
       {[0.25, 0.5, 0.75, 1].map(f => (
         <line key={f} x1={20} y1={H - 20 - f * (H - 40)} x2={W - 20} y2={H - 20 - f * (H - 40)}
-          stroke="#d1fae5" strokeWidth="1" />
+          stroke="#E4EDEA" strokeWidth="1" />
       ))}
       <path d={areaD} fill="url(#lineGrad)" />
-      <path d={pathD} fill="none" stroke="#006c49" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={pathD} fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
       {pts.map((p, i) => (
         <g key={i}>
-          <circle cx={p.x} cy={p.y} r="4" fill="#006c49" />
-          <circle cx={p.x} cy={p.y} r="7" fill="#006c49" fillOpacity="0.15" />
-          <text x={p.x} y={H - 4} textAnchor="middle" fontSize="9" fill="#3c4a42" fontWeight="600">{p.label}</text>
+          <circle cx={p.x} cy={p.y} r="4" fill="#16A34A" />
+          <circle cx={p.x} cy={p.y} r="7" fill="#16A34A" fillOpacity="0.15" />
+          <text x={p.x} y={H - 4} textAnchor="middle" fontSize="9" fill="#3D524A" fontWeight="600">{p.label}</text>
           {p.hours > 0 && (
-            <text x={p.x} y={p.y - 10} textAnchor="middle" fontSize="8" fill="#006c49" fontWeight="700">{p.hours}h</text>
+            <text x={p.x} y={p.y - 10} textAnchor="middle" fontSize="8" fill="#16A34A" fontWeight="700">{p.hours}h</text>
           )}
         </g>
       ))}
@@ -202,11 +202,11 @@ function Heatmap({ logs }) {
         ))}
       </div>
       <div className="flex items-center gap-1 mt-3">
-        <span className="text-[0.6rem] text-emerald-600/60 mr-1">Less</span>
-        {["#e8f5ec","#bbf7d0","#4ade80","#16a34a","#006c49"].map(c => (
+        <span className="text-[0.6rem] text-text-muted mr-1">Less</span>
+        {["#E4EDEA","#bbf7d0","#4ade80","#16a34a","#15803D"].map(c => (
           <div key={c} className="w-3 h-3 rounded-sm" style={{ backgroundColor: c }} />
         ))}
-        <span className="text-[0.6rem] text-emerald-600/60 ml-1">More</span>
+        <span className="text-[0.6rem] text-text-muted ml-1">More</span>
       </div>
     </div>
   );
@@ -217,14 +217,14 @@ function Heatmap({ logs }) {
 ═══════════════════════════════════════════ */
 function InsightCard({ icon, iconBg, iconColor, title, value, sub, accent = false }) {
   return (
-    <div className={`p-5 rounded-2xl flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:shadow-md ${accent ? "bg-red-50 border border-red-100" : "bg-white border border-emerald-50 shadow-sm"}`}>
+    <div className={`p-5 rounded-2xl flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:shadow-card ${accent ? "bg-error-container border border-error/10" : "card-static"}`}>
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}>
         <span className={`material-symbols-outlined text-lg ${iconColor}`}>{icon}</span>
       </div>
       <div>
-        <p className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60">{title}</p>
-        <p className={`text-base font-extrabold ${accent ? "text-red-700" : "text-emerald-900"}`}>{value}</p>
-        {sub && <p className="text-xs text-emerald-500/70">{sub}</p>}
+        <p className="type-caption text-text-muted">{title}</p>
+        <p className={`text-base font-bold ${accent ? "text-error-dark" : "text-on-surface"}`}>{value}</p>
+        {sub && <p className="text-xs text-text-muted">{sub}</p>}
       </div>
     </div>
   );
@@ -235,14 +235,16 @@ function InsightCard({ icon, iconBg, iconColor, title, value, sub, accent = fals
 ═══════════════════════════════════════════ */
 function StatCard({ title, main, sub, badge, dark = false, children }) {
   return (
-    <div className={`rounded-3xl p-7 flex flex-col justify-between min-h-[11rem] shadow-sm border transition-all hover:-translate-y-1 hover:shadow-lg ${dark ? "bg-emerald-800 border-emerald-700 text-white" : "bg-white border-emerald-50"}`}>
-      <span className={`text-[0.65rem] font-bold uppercase tracking-widest ${dark ? "text-emerald-200/80" : "text-emerald-600/60"}`}>{title}</span>
+    <div className={`rounded-2xl p-6 flex flex-col justify-between min-h-[10rem] border transition-all hover:-translate-y-1 hover:shadow-card ${
+      dark ? "bg-primary-dark border-primary text-white" : "card-static"}`}>
+      <span className={`type-caption ${dark ? "text-white/60" : "text-text-muted"}`}>{title}</span>
       <div>
         {children || (
-          <div className={`text-4xl font-extrabold tracking-tight ${dark ? "text-white" : "text-emerald-900"}`}>{main}</div>
+          <div className={`text-4xl font-bold tracking-tight ${dark ? "text-white" : "text-on-surface"}`}>{main}</div>
         )}
-        {sub && <p className={`text-xs font-semibold mt-1.5 ${dark ? "text-emerald-300" : "text-emerald-500"}`}>{sub}</p>}
-        {badge && <span className={`inline-block mt-2 px-3 py-0.5 rounded-full text-[0.65rem] font-bold ${dark ? "bg-emerald-600/60 text-emerald-100" : "bg-emerald-100 text-emerald-700"}`}>{badge}</span>}
+        {sub && <p className={`text-xs font-semibold mt-1.5 ${dark ? "text-primary-light" : "text-text-muted"}`}>{sub}</p>}
+        {badge && <span className={`inline-block mt-2 px-3 py-0.5 rounded-full text-[0.65rem] font-bold ${
+          dark ? "bg-white/15 text-white" : "bg-primary-container text-primary-dark"}`}>{badge}</span>}
       </div>
     </div>
   );
@@ -252,13 +254,13 @@ function StatCard({ title, main, sub, badge, dark = false, children }) {
    SUBJECT COLORS
 ═══════════════════════════════════════════ */
 const SUBJECT_COLORS = {
-  "BEE":            "#006c49",
+  "BEE":            "#16A34A",
   "EM":             "#10b981",
   "ED":             "#6ee7b7",
   "EP":             "#34d399",
   "PCE":            "#a7f3d0",
-  "FEM":            "#047857",
-  "Autocad":        "#38a169",
+  "FEM":            "#15803D",
+  "Autocad":        "#22C55E",
   "Other":          "#bbcabf",
 };
 const COLOR_LIST = Object.values(SUBJECT_COLORS);
@@ -436,23 +438,23 @@ export default function AnalyticsPage() {
   const topBarContent = (
     <>
       {/* Filter Tabs */}
-      <div className="hidden md:flex bg-emerald-100/80 rounded-xl p-1 gap-1">
+      <div className="hidden md:flex bg-surface-container-high rounded-xl p-1 gap-1">
         {["daily","weekly","monthly"].map(r => (
           <button key={r} onClick={() => setFilterRange(r)}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${filterRange === r ? "bg-white text-emerald-800 shadow-sm" : "text-emerald-600/70 hover:text-emerald-800"}`}>
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${filterRange === r ? "bg-white text-on-surface shadow-sm" : "text-text-muted hover:text-on-surface"}`}>
             {r}
           </button>
         ))}
       </div>
       {/* Streak Badge */}
       <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold
-        ${streak >= 7 ? "bg-amber-100 text-amber-700 milestone-glow" : "bg-emerald-100 text-emerald-700"}
+        ${streak >= 7 ? "bg-warning-container text-warning-dark milestone-glow" : "bg-primary-container text-primary-dark"}
         ${streak > 0 ? "streak-badge" : ""}`}>
         <span>🔥</span> {streak}-day streak
       </div>
       {/* Export PDF */}
       <button onClick={handleExportPDF} disabled={exporting}
-        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-emerald-100 text-emerald-800 font-bold text-xs hover:bg-emerald-50 hover:border-emerald-200 transition-all shadow-sm disabled:opacity-50">
+        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-border-default text-on-surface font-bold text-xs hover:bg-surface-container-low transition-all shadow-sm disabled:opacity-50">
         <span className="material-symbols-outlined text-base">{exporting ? "hourglass_empty" : "picture_as_pdf"}</span>
         {exporting ? "Exporting…" : "Export PDF"}
       </button>
@@ -493,21 +495,21 @@ export default function AnalyticsPage() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8 stagger-children">
               <StatCard title="Study Time" sub={`+${pctChange}% vs last week`} badge="This period">
                 <div>
-                  <span className="text-4xl font-extrabold text-emerald-900 tracking-tight">{totalStudyHrs}</span>
-                  <span className="text-xl font-bold text-emerald-400 ml-1">hrs</span>
+                  <span className="text-4xl font-bold text-on-surface tracking-tight">{totalStudyHrs}</span>
+                  <span className="text-xl font-bold text-primary-light ml-1">hrs</span>
                 </div>
               </StatCard>
 
               <StatCard title="Sessions" sub={`${focusedToday > 0 ? Math.round(focusedToday / (focusPrefs.focusMins || 25)) : 0} today`}>
                 <div>
-                  <span className="text-4xl font-extrabold text-emerald-900 tracking-tight">{totalSessions}</span>
+                  <span className="text-4xl font-bold text-on-surface tracking-tight">{totalSessions}</span>
                 </div>
               </StatCard>
 
               <StatCard title="Focus Score" dark badge="High Consistency">
                 <div>
-                  <span className="text-4xl font-extrabold text-white tracking-tight">{focusScore}</span>
-                  <span className="text-xl font-bold text-emerald-300 ml-0.5">%</span>
+                  <span className="text-4xl font-bold text-white tracking-tight">{focusScore}</span>
+                  <span className="text-xl font-bold text-primary-light ml-0.5">%</span>
                 </div>
               </StatCard>
 
@@ -516,12 +518,12 @@ export default function AnalyticsPage() {
                   <div className="relative flex-shrink-0">
                     <CircularRing value={performanceRank} size={88} strokeWidth={8} />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-2xl font-extrabold text-emerald-900">{performanceRank}</span>
+                      <span className="text-2xl font-bold text-on-surface">{performanceRank}</span>
                     </div>
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-emerald-700">Global Rank</p>
-                    <p className="text-[0.65rem] text-emerald-500/70 leading-tight mt-1">
+                    <p className="text-xs font-bold text-on-surface">Global Rank</p>
+                    <p className="text-[0.65rem] text-text-muted leading-tight mt-1">
                       Top {100 - performanceRank}% of deep-focus students
                     </p>
                   </div>
@@ -536,15 +538,15 @@ export default function AnalyticsPage() {
               <div className="lg:col-span-8 flex flex-col gap-6">
 
                 {/* Subject Allocation Bar Chart */}
-                <div className="bg-white rounded-3xl p-7 shadow-sm border border-emerald-50 animate-fade-in">
+                <div className="card-static rounded-2xl p-6 animate-fade-in">
                   <div className="flex items-start justify-between mb-6">
                     <div>
-                      <h2 className="text-lg font-extrabold text-emerald-900">Subject Allocation</h2>
-                      <p className="text-xs text-emerald-500/70 mt-0.5">Time distribution across core curriculum</p>
+                      <h2 className="text-lg font-bold text-on-surface">Subject Allocation</h2>
+                      <p className="text-xs text-text-muted mt-0.5">Time distribution across core curriculum</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {subjectEntries.slice(0, 4).map(([s], i) => (
-                        <div key={s} className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700">
+                        <div key={s} className="flex items-center gap-1.5 text-xs font-semibold text-on-surface-variant">
                           <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: SUBJECT_COLORS[s] || COLOR_LIST[i] }} />
                           {s}
                         </div>
@@ -552,7 +554,7 @@ export default function AnalyticsPage() {
                     </div>
                   </div>
                   {subjectEntries.length === 0 ? (
-                    <div className="text-center text-emerald-400 py-8">
+                    <div className="text-center text-text-muted py-8">
                       <span className="material-symbols-outlined text-4xl mb-2 block opacity-40">bar_chart</span>
                       Complete tasks to see subject allocation
                     </div>
@@ -573,31 +575,31 @@ export default function AnalyticsPage() {
 
                 {/* 2-col: Pie Chart + Line Chart */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <div className="bg-white rounded-3xl p-7 shadow-sm border border-emerald-50 animate-fade-in">
-                    <h2 className="text-base font-extrabold text-emerald-900 mb-1">Time Distribution</h2>
-                    <p className="text-xs text-emerald-500/70 mb-5">% of study hours per subject</p>
+                  <div className="card-static rounded-2xl p-6 animate-fade-in">
+                    <h2 className="text-base font-bold text-on-surface mb-1">Time Distribution</h2>
+                    <p className="text-xs text-text-muted mb-5">% of study hours per subject</p>
                     {pieSlices.length > 0 ? (
                       <PieChart slices={pieSlices} />
                     ) : (
-                      <div className="text-center text-emerald-400 py-6 text-sm">No data yet</div>
+                      <div className="text-center text-text-muted py-6 text-sm">No data yet</div>
                     )}
                   </div>
 
-                  <div className="bg-white rounded-3xl p-7 shadow-sm border border-emerald-50 animate-fade-in">
-                    <h2 className="text-base font-extrabold text-emerald-900 mb-1">Weekly Study Trend</h2>
-                    <p className="text-xs text-emerald-500/70 mb-5">Study hours over the past 7 days</p>
+                  <div className="card-static rounded-2xl p-6 animate-fade-in">
+                    <h2 className="text-base font-bold text-on-surface mb-1">Weekly Study Trend</h2>
+                    <p className="text-xs text-text-muted mb-5">Study hours over the past 7 days</p>
                     <LineChart data={weeklyData} />
                   </div>
                 </div>
 
                 {/* Heatmap */}
-                <div className="bg-white rounded-3xl p-7 shadow-sm border border-emerald-50 animate-fade-in">
+                <div className="card-static rounded-2xl p-6 animate-fade-in">
                   <div className="flex items-start justify-between mb-5">
                     <div>
-                      <h2 className="text-base font-extrabold text-emerald-900">Focus Pattern Heatmap</h2>
-                      <p className="text-xs text-emerald-500/70 mt-0.5">Darker cells = more productive days</p>
+                      <h2 className="text-base font-bold text-on-surface">Focus Pattern Heatmap</h2>
+                      <p className="text-xs text-text-muted mt-0.5">Darker cells = more productive days</p>
                     </div>
-                    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${streak >= 7 ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}`}>
+                    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${streak >= 7 ? "bg-warning-container text-warning-dark" : "bg-primary-container text-primary-dark"}`}>
                       🔥 {streak} day{streak !== 1 ? "s" : ""} streak
                     </div>
                   </div>
@@ -605,15 +607,15 @@ export default function AnalyticsPage() {
                 </div>
 
                 {/* Task Completion Card */}
-                <div className="bg-white rounded-3xl p-7 shadow-sm border border-emerald-50 animate-fade-in">
+                <div className="card-static rounded-2xl p-6 animate-fade-in">
                   <div className="flex items-center justify-between mb-5">
                     <div>
-                      <h2 className="text-base font-extrabold text-emerald-900">Task Completion</h2>
-                      <p className="text-xs text-emerald-500/70 mt-0.5">{completedTasks} of {totalTasks} tasks complete</p>
+                      <h2 className="text-base font-bold text-on-surface">Task Completion</h2>
+                      <p className="text-xs text-text-muted mt-0.5">{completedTasks} of {totalTasks} tasks complete</p>
                     </div>
-                    <span className="text-2xl font-extrabold text-emerald-800">{completionRate}%</span>
+                    <span className="text-2xl font-bold text-on-surface">{completionRate}%</span>
                   </div>
-                  <div className="h-4 bg-emerald-50 rounded-full overflow-hidden">
+                  <div className="h-3 bg-surface-container-low rounded-full overflow-hidden">
                     <div
                       className="h-full signature-gradient rounded-full transition-all duration-1000"
                       style={{ width: `${completionRate}%` }}
@@ -621,13 +623,13 @@ export default function AnalyticsPage() {
                   </div>
                   <div className="grid grid-cols-3 gap-4 mt-6">
                     {[
-                      { label: "Total", value: totalTasks, color: "text-emerald-900" },
-                      { label: "Done", value: completedTasks, color: "text-emerald-600" },
-                      { label: "Pending", value: totalTasks - completedTasks, color: "text-amber-600" },
+                      { label: "Total", value: totalTasks, color: "text-on-surface" },
+                      { label: "Done", value: completedTasks, color: "text-primary" },
+                      { label: "Pending", value: totalTasks - completedTasks, color: "text-warning-dark" },
                     ].map(s => (
-                      <div key={s.label} className="text-center p-4 bg-emerald-50/50 rounded-2xl">
-                        <div className={`text-3xl font-extrabold ${s.color}`}>{s.value}</div>
-                        <div className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mt-1">{s.label}</div>
+                      <div key={s.label} className="text-center p-4 bg-surface-container-low rounded-xl">
+                        <div className={`text-3xl font-bold ${s.color}`}>{s.value}</div>
+                        <div className="type-caption text-text-muted mt-1">{s.label}</div>
                       </div>
                     ))}
                   </div>
@@ -638,34 +640,34 @@ export default function AnalyticsPage() {
               <div className="lg:col-span-4 flex flex-col gap-5">
 
                 {/* Performance Score Card */}
-                <div className="bg-white rounded-3xl p-7 shadow-sm border border-emerald-50 animate-fade-in">
-                  <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-4">Performance Score</h3>
+                <div className="card-static rounded-2xl p-6 animate-fade-in">
+                  <h3 className="type-caption text-text-muted mb-4">Performance Score</h3>
                   <div className="flex flex-col items-center gap-3">
                     <div className="relative">
                       <CircularRing value={focusScore} size={140} strokeWidth={12} />
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <span className="text-4xl font-extrabold text-emerald-900">{focusScore}</span>
-                        <span className="text-xs font-bold text-emerald-500">/100</span>
+                        <span className="text-4xl font-bold text-on-surface">{focusScore}</span>
+                        <span className="text-xs font-bold text-text-muted">/100</span>
                       </div>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm font-bold text-emerald-800">
+                      <p className="text-sm font-bold text-on-surface">
                         {focusScore >= 80 ? "🌟 Excellent Focus" : focusScore >= 60 ? "💪 Good Progress" : "🌱 Keep Building"}
                       </p>
-                      <p className="text-xs text-emerald-500/70 mt-1">Based on consistency, sessions & tasks</p>
+                      <p className="text-xs text-text-muted mt-1">Based on consistency, sessions & tasks</p>
                     </div>
                     <div className="w-full space-y-2">
                       {[
-                        { label: "Consistency", val: Math.min(((streak) / 30) * 100, 100), color: "#006c49" },
+                        { label: "Consistency", val: Math.min(((streak) / 30) * 100, 100), color: "#16A34A" },
                         { label: "Sessions",    val: Math.min((totalSessions / 20) * 100, 100), color: "#10b981" },
                         { label: "Task Completion", val: completionRate, color: "#6ee7b7" },
                       ].map(m => (
                         <div key={m.label}>
-                          <div className="flex justify-between text-[0.65rem] font-semibold text-emerald-700 mb-1">
+                          <div className="flex justify-between text-[0.65rem] font-semibold text-on-surface-variant mb-1">
                             <span>{m.label}</span>
                             <span>{Math.round(m.val)}%</span>
                           </div>
-                          <div className="h-1.5 bg-emerald-50 rounded-full overflow-hidden">
+                          <div className="h-1.5 bg-surface-container-low rounded-full overflow-hidden">
                             <div className="h-full rounded-full transition-all duration-1000"
                               style={{ width: `${m.val}%`, backgroundColor: m.color }} />
                           </div>
@@ -676,8 +678,8 @@ export default function AnalyticsPage() {
                 </div>
 
                 {/* Insight Cards */}
-                <div className="bg-white rounded-3xl p-6 shadow-sm border border-emerald-50 animate-fade-in">
-                  <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-4">Key Insights</h3>
+                <div className="card-static rounded-2xl p-5 animate-fade-in">
+                  <h3 className="type-caption text-text-muted mb-4">Key Insights</h3>
                   <div className="flex flex-col gap-3">
                     <InsightCard
                       icon="schedule" iconBg="bg-emerald-100" iconColor="text-emerald-700"
@@ -710,38 +712,39 @@ export default function AnalyticsPage() {
                 </div>
 
                 {/* 🔮 Predictive Suggestions */}
-                <div className="bg-white rounded-3xl p-6 shadow-sm border border-emerald-50 animate-fade-in">
+                <div className="card-static rounded-2xl p-5 animate-fade-in">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="w-7 h-7 rounded-lg signature-gradient flex items-center justify-center">
                       <span className="material-symbols-outlined text-white text-sm">auto_awesome</span>
                     </div>
-                    <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60">Predictive Suggestions</h3>
+                    <h3 className="type-caption text-text-muted">Predictive Suggestions</h3>
                   </div>
                   <div className="space-y-3">
-                    <div className="p-4 bg-emerald-50 rounded-2xl">
-                      <p className="text-xs font-bold text-emerald-800 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-sm text-emerald-600">lightbulb</span>
+                    <div className="p-4 bg-primary-container/40 rounded-xl">
+                      <p className="text-xs font-bold text-on-surface flex items-center gap-2">
+                        <span className="material-symbols-outlined text-sm text-primary">lightbulb</span>
                         Next Subject to Study
                       </p>
-                      <p className="text-sm font-extrabold text-emerald-900 mt-1">{leastStudiedSubject}</p>
-                      <p className="text-[0.65rem] text-emerald-500/70">Least time allocated this week</p>
+                      <p className="text-sm font-bold text-on-surface mt-1">{leastStudiedSubject}</p>
+                      <p className="text-[0.65rem] text-text-muted">Least time allocated this week</p>
                     </div>
-                    <div className="p-4 bg-emerald-50 rounded-2xl">
-                      <p className="text-xs font-bold text-emerald-800 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-sm text-emerald-600">schedule</span>
+                    <div className="p-4 bg-primary-container/40 rounded-xl">
+                      <p className="text-xs font-bold text-on-surface flex items-center gap-2">
+                        <span className="material-symbols-outlined text-sm text-primary">schedule</span>
                         Ideal Study Window
                       </p>
-                      <p className="text-sm font-extrabold text-emerald-900 mt-1">{productiveTime}</p>
-                      <p className="text-[0.65rem] text-emerald-500/70">Your historically peak zone</p>
+                      <p className="text-sm font-bold text-on-surface mt-1">{productiveTime}</p>
+                      <p className="text-[0.65rem] text-text-muted">Your historically peak zone</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Streak Milestone */}
-                <div className={`rounded-3xl p-6 shadow-sm border animate-fade-in text-center ${streak >= 7 ? "bg-gradient-to-br from-amber-50 to-orange-50 border-amber-100" : "bg-white border-emerald-50"}`}>
+                <div className={`rounded-2xl p-5 border animate-fade-in text-center ${
+                  streak >= 7 ? "bg-gradient-to-br from-warning-container to-orange-50 border-warning/20" : "card-static"}`}>
                   <div className="text-4xl mb-2">🔥</div>
-                  <p className="text-2xl font-extrabold text-emerald-900">{streak}-Day Streak</p>
-                  <p className="text-xs text-emerald-500/70 mt-1">
+                  <p className="text-2xl font-bold text-on-surface">{streak}-Day Streak</p>
+                  <p className="text-xs text-text-muted mt-1">
                     {streak === 0 && "Start studying today to begin your streak!"}
                     {streak > 0 && streak < 7 && `${7 - streak} more days for weekly milestone!`}
                     {streak >= 7 && streak < 30 && "🌟 Keep going — weekly milestone unlocked!"}
@@ -750,14 +753,14 @@ export default function AnalyticsPage() {
                   {streak > 0 && (
                     <div className="flex justify-center gap-1.5 mt-4">
                       {Array.from({ length: Math.min(streak, 7) }).map((_, i) => (
-                        <div key={i} className={`w-2.5 h-2.5 rounded-full ${i < streak ? "bg-amber-400" : "bg-amber-100"}`} />
+                        <div key={i} className={`w-2.5 h-2.5 rounded-full ${i < streak ? "bg-warning" : "bg-warning-container"}`} />
                       ))}
-                      {streak > 7 && <span className="text-xs text-amber-600 font-bold">+{streak - 7}</span>}
+                      {streak > 7 && <span className="text-xs text-warning-dark font-bold">+{streak - 7}</span>}
                     </div>
                   )}
                   <button
                     onClick={() => navigate("/focus")}
-                    className="mt-5 w-full py-2.5 rounded-xl signature-gradient text-white font-bold text-sm hover:opacity-90 active:scale-95 transition-all">
+                    className="mt-5 w-full py-2.5 rounded-xl signature-gradient text-white font-bold text-sm btn-interactive">
                     Continue Streak →
                   </button>
                 </div>
@@ -783,7 +786,7 @@ export default function AnalyticsPage() {
                     a.click(); URL.revokeObjectURL(url);
                     showToastMsg("📊 CSV exported!");
                   }}
-                  className="w-full py-3 rounded-2xl bg-white border border-emerald-100 text-emerald-700 font-bold text-sm hover:bg-emerald-50 transition-all shadow-sm flex items-center justify-center gap-2">
+                  className="w-full py-3 rounded-xl bg-white border border-border-default text-on-surface-variant font-bold text-sm hover:bg-surface-container-low transition-all shadow-sm flex items-center justify-center gap-2">
                   <span className="material-symbols-outlined text-base">download</span>
                   Export CSV
                 </button>
@@ -795,7 +798,7 @@ export default function AnalyticsPage() {
 
       {/* Toast */}
       {toast && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 bg-emerald-900 text-white px-6 py-3 rounded-2xl text-sm font-bold shadow-2xl animate-slide-up z-50">
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 toast toast-success text-white px-6 py-3 rounded-xl text-sm font-semibold shadow-modal z-50">
           {toast}
         </div>
       )}

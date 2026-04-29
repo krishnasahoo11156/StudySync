@@ -39,25 +39,25 @@ export default function LoginPage() {
   return (
     <div className="bg-background text-on-surface min-h-screen flex flex-col overflow-x-hidden">
       {/* ── TopAppBar ── */}
-      <header className="bg-emerald-50/70 dark:bg-emerald-950/70 backdrop-blur-xl text-emerald-800 dark:text-emerald-100 text-sm tracking-tight fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20">
-        <Link to="/" className="text-2xl font-bold tracking-tighter text-emerald-900 dark:text-emerald-50">
+      <header className="bg-surface-container-low/70 backdrop-blur-xl text-on-surface text-sm tracking-tight fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20">
+        <Link to="/" className="text-2xl font-bold tracking-tighter text-on-surface">
           StudySync
         </Link>
         <nav className="hidden md:flex items-center gap-8">
           <Link
-            className="text-emerald-700/60 dark:text-emerald-300/60 hover:text-emerald-900 dark:hover:text-emerald-50 transition-colors duration-200"
+            className="text-on-surface-variant hover:text-on-surface transition-colors duration-200"
             to="/"
           >
             Solutions
           </Link>
           <Link
-            className="text-emerald-700/60 dark:text-emerald-300/60 hover:text-emerald-900 dark:hover:text-emerald-50 transition-colors duration-200"
+            className="text-on-surface-variant hover:text-on-surface transition-colors duration-200"
             to="/"
           >
             Resources
           </Link>
           <Link
-            className="text-emerald-900 dark:text-emerald-50 font-semibold hover:text-emerald-900 dark:hover:text-emerald-50 transition-colors duration-200"
+            className="text-on-surface font-semibold transition-colors duration-200"
             to="/login"
           >
             Sign In
@@ -210,26 +210,26 @@ export default function LoginPage() {
         </section>
 
         {/* Floating Glass Hint */}
-        <aside className="fixed bottom-12 right-12 hidden lg:flex items-center gap-4 bg-emerald-50/70 glass-hint p-4 pr-8 rounded-full shadow-2xl z-20 transition-all hover:translate-y-[-4px]">
+        <aside className="fixed bottom-12 right-12 hidden lg:flex items-center gap-4 bg-surface-container-low/70 glass-hint p-4 pr-8 rounded-full shadow-card z-20 transition-all hover:translate-y-[-4px]">
           <div className="w-10 h-10 bg-primary-container rounded-full flex items-center justify-center text-on-primary-container">
             <span className="material-symbols-outlined text-[20px]">info</span>
           </div>
-          <p className="text-[0.875rem] font-medium text-emerald-900">
+          <p className="text-[0.875rem] font-medium text-on-surface">
             Enter your school email to get started
           </p>
         </aside>
       </main>
 
       {/* Footer */}
-      <footer className="bg-transparent w-full pb-8 flex flex-col items-center gap-4 text-emerald-800 dark:text-emerald-100 text-[10px] uppercase tracking-widest">
+      <footer className="bg-transparent w-full pb-8 flex flex-col items-center gap-4 text-on-surface text-[10px] uppercase tracking-widest">
         <div className="flex gap-6">
-          <a className="text-emerald-700/40 dark:text-emerald-400/40 hover:text-emerald-600 transition-all opacity-80 hover:opacity-100" href="#">
+          <a className="text-text-muted hover:text-on-surface transition-all opacity-80 hover:opacity-100" href="#">
             Privacy
           </a>
-          <a className="text-emerald-700/40 dark:text-emerald-400/40 hover:text-emerald-600 transition-all opacity-80 hover:opacity-100" href="#">
+          <a className="text-text-muted hover:text-on-surface transition-all opacity-80 hover:opacity-100" href="#">
             Terms
           </a>
-          <a className="text-emerald-700/40 dark:text-emerald-400/40 hover:text-emerald-600 transition-all opacity-80 hover:opacity-100" href="#">
+          <a className="text-text-muted hover:text-on-surface transition-all opacity-80 hover:opacity-100" href="#">
             Support
           </a>
         </div>

@@ -170,47 +170,60 @@ const SOUNDS = [
   { id: "cafe",    label: "Café Ambience",    icon: "local_cafe",   color: "text-orange-500",  bg: "bg-orange-50"  },
 ];
 
-const CIRCUMFERENCE = 2 * Math.PI * 110; // r=110
+const CIRCUMFERENCE = 2 * Math.PI * 120; // r=120
 
 /* ═══════════════════════════════════════════
-   CIRCULAR PROGRESS RING
+   CIRCULAR PROGRESS RING — Premium
 ═══════════════════════════════════════════ */
 function TimerRing({ progress, isRunning, mode, displayTime }) {
   const offset = CIRCUMFERENCE * (1 - progress);
+  const isFocus = mode === "focus";
   return (
     <div className="relative flex items-center justify-center" style={{ width: 280, height: 280 }}>
-      {/* Glow when running */}
+      {/* Ambient glow */}
       {isRunning && (
-        <div className={`absolute inset-0 rounded-full blur-2xl opacity-20 transition-all duration-1000 ${
-          mode === "focus" ? "bg-emerald-400" : "bg-blue-400"
+        <div className={`absolute inset-[-20px] rounded-full blur-3xl opacity-25 transition-all duration-1000 animate-glow-pulse ${
+          isFocus ? "bg-focus-glow" : "bg-accent"
         }`} />
       )}
-      <svg width="280" height="280" style={{ transform: "rotate(-90deg)" }}>
-        {/* Track */}
-        <circle cx="140" cy="140" r="110" fill="none" stroke="#d1fae5" strokeWidth="10" />
-        {/* Progress */}
+      <svg width="280" height="280" className={isRunning ? "timer-ring-glow" : ""} style={{ transform: "rotate(-90deg)" }}>
+        {/* Outer track */}
+        <circle cx="140" cy="140" r="120" fill="none" stroke="rgba(22,163,74,0.08)" strokeWidth="2" />
+        {/* Inner track */}
+        <circle cx="140" cy="140" r="120" fill="none" stroke={isFocus ? "#E4EDEA" : "#DBEAFE"} strokeWidth="8" />
+        {/* Progress arc */}
         <circle
-          cx="140" cy="140" r="110" fill="none"
-          stroke={mode === "focus" ? "#006c49" : "#0ea5e9"}
-          strokeWidth="10"
+          cx="140" cy="140" r="120" fill="none"
+          stroke={isFocus ? "#16A34A" : "#60A5FA"}
+          strokeWidth="8"
           strokeLinecap="round"
           strokeDasharray={CIRCUMFERENCE}
           strokeDashoffset={offset}
           style={{ transition: "stroke-dashoffset 1s linear, stroke 0.5s ease" }}
         />
+        {/* Progress tip dot */}
+        {progress > 0 && progress < 1 && (
+          <circle
+            cx={140 + 120 * Math.cos(-Math.PI / 2 + 2 * Math.PI * progress)}
+            cy={140 + 120 * Math.sin(-Math.PI / 2 + 2 * Math.PI * progress)}
+            r="5" fill="white"
+            stroke={isFocus ? "#16A34A" : "#60A5FA"}
+            strokeWidth="2"
+          />
+        )}
       </svg>
       {/* Center content */}
       <div className="absolute flex flex-col items-center gap-1">
-        <span className={`text-6xl font-extrabold tracking-tighter tabular-nums ${mode === "focus" ? "text-emerald-900" : "text-sky-700"}`}>
+        <span className={`text-5xl font-bold tracking-tighter tabular-nums ${isFocus ? "text-on-surface" : "text-accent-dark"}`}>
           {displayTime}
         </span>
-        <span className={`text-xs font-bold uppercase tracking-widest ${mode === "focus" ? "text-emerald-500" : "text-sky-400"}`}>
-          {mode === "focus" ? "Flow State" : "Rest & Recharge"}
+        <span className={`type-caption ${isFocus ? "text-primary" : "text-accent"}`}>
+          {isFocus ? "Flow State" : "Rest & Recharge"}
         </span>
         {isRunning && (
-          <span className="flex gap-1 mt-1">
+          <span className="flex gap-1 mt-2">
             {[0,1,2].map(i => (
-              <span key={i} className={`w-1.5 h-1.5 rounded-full ${mode === "focus" ? "bg-emerald-400" : "bg-sky-400"}`}
+              <span key={i} className={`w-1.5 h-1.5 rounded-full ${isFocus ? "bg-primary" : "bg-accent"}`}
                 style={{ animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite` }} />
             ))}
           </span>
@@ -226,18 +239,18 @@ function TimerRing({ progress, isRunning, mode, displayTime }) {
 function DurationControl({ label, value, onDec, onInc, unit = "min", min = 1, max = 120 }) {
   return (
     <div className="flex flex-col items-center gap-2">
-      <span className="text-[0.6rem] font-bold uppercase tracking-widest text-emerald-600/60">{label}</span>
+      <span className="type-caption text-text-muted">{label}</span>
       <div className="flex items-center gap-2">
         <button onClick={onDec} disabled={value <= min}
-          className="w-8 h-8 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold text-lg flex items-center justify-center disabled:opacity-30 transition-all active:scale-90">
+          className="w-8 h-8 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-bold text-lg flex items-center justify-center disabled:opacity-30 transition-all active:scale-90">
           −
         </button>
         <div className="w-14 text-center">
-          <span className="text-2xl font-extrabold text-emerald-900 tabular-nums">{value}</span>
-          <span className="text-xs text-emerald-500 ml-0.5">{unit}</span>
+          <span className="text-2xl font-bold text-on-surface tabular-nums">{value}</span>
+          <span className="text-xs text-text-muted ml-0.5">{unit}</span>
         </div>
         <button onClick={onInc} disabled={value >= max}
-          className="w-8 h-8 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold text-lg flex items-center justify-center disabled:opacity-30 transition-all active:scale-90">
+          className="w-8 h-8 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-bold text-lg flex items-center justify-center disabled:opacity-30 transition-all active:scale-90">
           +
         </button>
       </div>
@@ -251,20 +264,20 @@ function DurationControl({ label, value, onDec, onInc, unit = "min", min = 1, ma
 function SoundCard({ sound, active, onClick }) {
   return (
     <button onClick={() => onClick(sound.id)}
-      className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-200 w-full hover:-translate-y-0.5 ${
+      className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-200 w-full hover:-translate-y-0.5 ${
         active
-          ? "border-emerald-500 bg-emerald-50 shadow-md shadow-emerald-100"
-          : "border-transparent bg-white hover:border-emerald-200 hover:bg-emerald-50/50"
+          ? "border-primary bg-primary-container/40 shadow-raised"
+          : "border-border-default bg-white hover:border-primary/30 hover:bg-surface-container-low"
       }`}>
-      <div className={`w-10 h-10 rounded-xl ${sound.bg} flex items-center justify-center`}>
-        <span className={`material-symbols-outlined ${sound.color} text-xl`}>{sound.icon}</span>
+      <div className={`w-9 h-9 rounded-lg ${sound.bg} flex items-center justify-center`}>
+        <span className={`material-symbols-outlined ${sound.color} text-lg`}>{sound.icon}</span>
       </div>
-      <span className="text-xs font-semibold text-emerald-800 text-center leading-tight">{sound.label}</span>
+      <span className="text-[11px] font-semibold text-on-surface text-center leading-tight">{sound.label}</span>
       {active && (
         <div className="flex gap-0.5">
           {[0,1,2,3].map(i => (
-            <div key={i} className="w-0.5 bg-emerald-500 rounded-full"
-              style={{ height: 12, animation: `soundBar 0.8s ease-in-out ${i * 0.15}s infinite alternate` }} />
+            <div key={i} className="w-0.5 bg-primary rounded-full"
+              style={{ height: 10, animation: `soundBar 0.8s ease-in-out ${i * 0.15}s infinite alternate` }} />
           ))}
         </div>
       )}
@@ -280,8 +293,8 @@ function GoalRing({ progress }) {
   const offset = c * (1 - Math.min(progress, 1));
   return (
     <svg width="88" height="88" style={{ transform: "rotate(-90deg)" }}>
-      <circle cx="44" cy="44" r={r} fill="none" stroke="#d1fae5" strokeWidth="7" />
-      <circle cx="44" cy="44" r={r} fill="none" stroke="#006c49" strokeWidth="7"
+      <circle cx="44" cy="44" r={r} fill="none" stroke="#E4EDEA" strokeWidth="6" />
+      <circle cx="44" cy="44" r={r} fill="none" stroke="#16A34A" strokeWidth="6"
         strokeLinecap="round"
         strokeDasharray={c} strokeDashoffset={offset}
         style={{ transition: "stroke-dashoffset 0.6s ease" }} />
@@ -534,8 +547,8 @@ export default function FocusPage() {
           <div className="lg:col-span-3 flex flex-col gap-5">
 
             {/* Duration Controls */}
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-emerald-50">
-              <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-6">Session Settings</h3>
+            <div className="card-static rounded-2xl p-5">
+              <h3 className="type-caption text-text-muted mb-5">Session Settings</h3>
               <div className="flex flex-col gap-6">
                 <DurationControl label="Focus Time" value={focusMins}
                   onDec={handleFocusDec} onInc={handleFocusInc} max={120} />
@@ -549,21 +562,21 @@ export default function FocusPage() {
             </div>
 
             {/* Auto-start toggle */}
-            <div className="bg-white rounded-2xl px-5 py-4 shadow-sm border border-emerald-50 flex items-center justify-between">
+            <div className="card-static rounded-2xl px-5 py-3 flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-emerald-900">Auto-start</p>
-                <p className="text-xs text-emerald-500/70">Next session starts automatically</p>
+                <p className="text-sm font-semibold text-on-surface">Auto-start</p>
+                <p className="text-[11px] text-text-muted">Next session starts automatically</p>
               </div>
               <button
                 onClick={() => setAutoStart(a => !a)}
-                className={`relative w-11 h-6 rounded-full transition-colors ${autoStart ? "bg-emerald-600" : "bg-emerald-100"}`}>
-                <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${autoStart ? "translate-x-5" : "translate-x-0.5"}`} />
+                className={`relative w-11 h-6 rounded-full transition-colors ${autoStart ? "bg-primary" : "bg-outline-variant"}`}>
+                <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${autoStart ? "translate-x-5" : "translate-x-0.5"}`} />
               </button>
             </div>
 
             {/* Daily Goal */}
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-emerald-50">
-              <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-4">Daily Goal</h3>
+            <div className="card-static rounded-2xl p-5">
+              <h3 className="type-caption text-text-muted mb-4">Daily Goal</h3>
               <div className="flex items-center gap-4">
                 <div className="relative">
                   <GoalRing progress={goalProgress} />
@@ -802,7 +815,7 @@ export default function FocusPage() {
 
       {/* ══ Toast ══ */}
       {toast && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 bg-emerald-900 text-white px-6 py-3 rounded-2xl shadow-2xl text-sm font-medium animate-slide-up">
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 toast toast-success text-white px-6 py-3 rounded-xl shadow-modal text-sm font-semibold">
           {toast}
         </div>
       )}

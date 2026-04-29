@@ -1,159 +1,178 @@
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
-/* ═══════════════════════════════════════════
-   NAVIGATION ITEMS — single source of truth
-═══════════════════════════════════════════ */
-const NAV_ITEMS = [
-  { id: "sanctuary", icon: "home",          label: "Sanctuary", path: "/dashboard" },
-  { id: "library",   icon: "menu_book",     label: "Library",   path: "/library"   },
-  { id: "focus",     icon: "timer",         label: "Focus",     path: "/focus"     },
-  { id: "analytics", icon: "bar_chart",     label: "Analytics", path: "/analytics" },
-  { id: "calendar",  icon: "calendar_month",label: "Calendar",  path: "/calendar"  },
+/* ── Navigation items ── */
+const NAV = [
+  { to: "/dashboard",  icon: "dashboard",    label: "Sanctuary" },
+  { to: "/calendar",   icon: "calendar_month", label: "Calendar" },
+  { to: "/library",    icon: "folder_open",  label: "Library" },
+  { to: "/focus",      icon: "self_improvement", label: "Flow" },
+  { to: "/analytics",  icon: "insights",     label: "Insights" },
 ];
 
-export default function Sidebar({ activePage, sidebarOpen, setSidebarOpen }) {
-  const navigate = useNavigate();
+export default function Sidebar() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [expanded, setExpanded] = useState(false);
+  const [hoveredIdx, setHoveredIdx] = useState(-1);
 
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
-  const userName = user?.displayName || user?.email?.split("@")[0] || "Student";
-
+  /* ── Handle sign-out ── */
   const handleLogout = async () => {
-    await logout();
-    navigate("/");
+    try { await logout(); navigate("/"); }
+    catch (err) { console.error("Logout error:", err); }
   };
+
+  /* Close sidebar on route change (mobile) */
+  useEffect(() => { setExpanded(false); }, [location.pathname]);
+
+  /* Keyboard shortcut: Ctrl+B to toggle */
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "b") {
+        e.preventDefault();
+        setExpanded(v => !v);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
+  const isFocusMode = location.pathname === "/focus";
 
   return (
     <>
-      {/* Mobile backdrop */}
-      {sidebarOpen && (
+      {/* ── Mobile overlay ── */}
+      {expanded && (
         <div
-          className="fixed inset-0 bg-black/30 z-30 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setExpanded(false)}
         />
       )}
 
+      {/* ── Sidebar ── */}
       <aside
-        className={`
-          fixed left-0 top-0 h-screen w-72
-          flex flex-col z-40
-          transition-transform duration-300
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-          lg:translate-x-0
-        `}
-        style={{
-          background: "linear-gradient(180deg, #FFFFFF 0%, #F8FAF9 100%)",
-          borderRight: "1px solid #E4EDEA",
-          boxShadow: "4px 0 24px rgba(22, 163, 74, 0.06)",
-        }}
+        className={`sidebar-shell fixed top-0 left-0 h-full z-50 flex flex-col
+          bg-white/95 glass-nav border-r border-border-default
+          transition-all duration-300 ease-smooth
+          ${expanded ? "w-[220px]" : "w-[64px]"}
+          ${isFocusMode ? "lg:translate-x-0" : ""}
+          -translate-x-full lg:translate-x-0`}
+        onMouseEnter={() => setExpanded(true)}
+        onMouseLeave={() => { setExpanded(false); setHoveredIdx(-1); }}
       >
-        {/* ── Top accent stripe ── */}
-        <div className="h-1 w-full signature-gradient" />
-
-        <div className="flex flex-col flex-1 p-6 gap-4 overflow-y-auto">
-
-          {/* ── Logo ── */}
-          <div className="mb-2 px-1 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl signature-gradient flex items-center justify-center shadow-btn">
-                <span className="material-symbols-outlined text-white text-xl">school</span>
-              </div>
-              <div>
-                <span className="text-lg font-extrabold text-[#1A2621] leading-none tracking-tight">StudySync</span>
-                <p className="text-[0.6rem] font-bold uppercase tracking-widest text-[#8FA99F]">Deep Focus</p>
-              </div>
-            </div>
-            <button
-              className="lg:hidden text-[#3D524A] hover:bg-[#F1F5F4] p-1.5 rounded-xl transition-colors"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <span className="material-symbols-outlined">close</span>
-            </button>
+        {/* ── Brand ── */}
+        <div className={`flex items-center h-16 px-4 border-b border-border-default ${expanded ? "gap-3" : "justify-center"}`}>
+          <div className="w-8 h-8 rounded-lg signature-gradient flex items-center justify-center flex-shrink-0 shadow-sm">
+            <span className="material-symbols-outlined text-white text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
+              eco
+            </span>
           </div>
+          <div className={`overflow-hidden transition-all duration-300 ${expanded ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
+            <span className="text-sm font-bold text-on-surface whitespace-nowrap tracking-tight">StudySync</span>
+          </div>
+        </div>
 
-          {/* ── User Card ── */}
-          <div className="mb-2 rounded-2xl p-4" style={{ background: "#F5F1E8", border: "1px solid #D6C7AE" }}>
-            <div className="flex items-center gap-3">
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-white text-base font-bold flex-shrink-0"
-                style={{ background: "linear-gradient(135deg, #15803D, #16A34A)" }}
+        {/* ── Navigation ── */}
+        <nav className="flex-1 py-4 px-2 flex flex-col gap-1" role="navigation" aria-label="Main navigation">
+          {NAV.map((item, idx) => {
+            const isActive = location.pathname === item.to || location.pathname.startsWith(item.to + "/");
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                id={`nav-${item.label.toLowerCase()}`}
+                className={`group relative flex items-center rounded-xl transition-all duration-200
+                  ${expanded ? "px-3 py-2.5 gap-3" : "justify-center py-2.5"}
+                  ${isActive
+                    ? "text-primary bg-primary/[0.08]"
+                    : "text-text-muted hover:text-on-surface hover:bg-surface-container-high/60"
+                  }`}
+                onMouseEnter={() => setHoveredIdx(idx)}
+                onMouseLeave={() => setHoveredIdx(-1)}
               >
-                {userName.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <h3 className="text-[#1A2621] font-bold text-sm leading-tight">{greeting},</h3>
-                <p className="text-[#3D524A] text-xs font-semibold truncate max-w-[140px]">{userName}</p>
-              </div>
-            </div>
-          </div>
+                {/* Active indicator bar */}
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-primary transition-all duration-200" />
+                )}
 
-          {/* ── Navigation ── */}
-          <nav className="flex flex-col gap-1 flex-1">
-            {NAV_ITEMS.map(item => {
-              const isActive = item.id === activePage;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => { navigate(item.path); setSidebarOpen(false); }}
-                  className={`
-                    flex items-center gap-3.5 px-4 py-3 rounded-xl w-full text-left
-                    transition-all duration-200 group
-                    ${isActive
-                      ? "text-white shadow-btn"
-                      : "text-[#3D524A] hover:bg-[#F1F5F4] hover:text-[#1A2621]"
-                    }
-                  `}
-                  style={isActive ? {
-                    background: "linear-gradient(135deg, #15803D 0%, #16A34A 100%)",
-                  } : {}}
+                <span
+                  className={`material-symbols-outlined text-[20px] transition-all duration-200 flex-shrink-0
+                    ${isActive ? "text-primary" : "text-text-muted group-hover:text-on-surface"}`}
+                  style={{ fontVariationSettings: isActive ? "'FILL' 1, 'wght' 500" : "'FILL' 0, 'wght' 400" }}
                 >
-                  <span
-                    className="material-symbols-outlined text-xl transition-transform duration-200 group-hover:scale-110"
-                    style={isActive ? { fontVariationSettings: "'FILL' 1, 'wght' 500" } : {}}
-                  >
-                    {item.icon}
-                  </span>
-                  <span className="font-semibold tracking-wide text-sm">{item.label}</span>
-                  {isActive && (
-                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-white/70" />
-                  )}
-                </button>
-              );
-            })}
+                  {item.icon}
+                </span>
 
-            {/* Spacer */}
-            <div className="flex-1" />
+                {/* Label */}
+                <span className={`text-[13px] font-semibold whitespace-nowrap overflow-hidden transition-all duration-300
+                  ${expanded ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
+                  {item.label}
+                </span>
 
-            {/* ── CTA — Start Focus Session ── */}
-            <button
-              onClick={() => { navigate("/focus"); setSidebarOpen(false); }}
-              className="mx-0 my-2 py-3.5 px-4 rounded-2xl text-white font-bold text-sm
-                hover:opacity-90 active:scale-[0.97] transition-all
-                flex items-center justify-center gap-2 signature-gradient shadow-btn"
-            >
-              <span className="material-symbols-outlined text-base">bolt</span>
-              Start Focus Session
-            </button>
+                {/* Tooltip (collapsed state) */}
+                {!expanded && hoveredIdx === idx && (
+                  <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-on-surface text-white text-xs font-semibold rounded-lg whitespace-nowrap z-50 shadow-lg animate-scale-in pointer-events-none">
+                    {item.label}
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full w-0 h-0 border-y-4 border-y-transparent border-r-4 border-r-on-surface" />
+                  </div>
+                )}
+              </NavLink>
+            );
+          })}
+        </nav>
 
-            {/* ── Bottom Links ── */}
-            <div className="space-y-0.5 pt-1 border-t border-[#E4EDEA]">
-              <button className="flex items-center gap-3.5 px-4 py-2.5 text-[#8FA99F] hover:bg-[#F1F5F4] hover:text-[#3D524A] transition-all rounded-xl w-full text-left">
-                <span className="material-symbols-outlined text-xl">help_outline</span>
-                <span className="font-semibold tracking-wide text-sm">Help</span>
-              </button>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-3.5 px-4 py-2.5 text-[#8FA99F] hover:bg-[#FEE2E2] hover:text-[#EF4444] transition-all rounded-xl w-full text-left"
-              >
-                <span className="material-symbols-outlined text-xl">logout</span>
-                <span className="font-semibold tracking-wide text-sm">Sign Out</span>
-              </button>
+        {/* ── Bottom section ── */}
+        <div className={`px-2 pb-4 border-t border-border-default pt-3 flex flex-col gap-1`}>
+          {/* User avatar */}
+          <div className={`flex items-center rounded-xl px-2 py-2 ${expanded ? "gap-3" : "justify-center"}`}>
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 ring-2 ring-primary/20">
+              {user?.photoURL ? (
+                <img src={user.photoURL} alt="" className="w-full h-full rounded-full object-cover" />
+              ) : (
+                <span className="text-primary text-xs font-bold">
+                  {user?.displayName?.charAt(0) || user?.email?.charAt(0)?.toUpperCase() || "S"}
+                </span>
+              )}
             </div>
-          </nav>
+            <div className={`overflow-hidden transition-all duration-300 min-w-0 ${expanded ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
+              <p className="text-xs font-semibold text-on-surface truncate leading-tight">
+                {user?.displayName || "Student"}
+              </p>
+              <p className="text-[10px] text-text-muted truncate leading-tight">
+                {user?.email || ""}
+              </p>
+            </div>
+          </div>
+
+          {/* Sign out */}
+          <button
+            id="sidebar-logout"
+            onClick={handleLogout}
+            className={`group flex items-center rounded-xl text-text-muted hover:text-error-dark hover:bg-error-container/40 transition-all duration-200
+              ${expanded ? "px-3 py-2.5 gap-3" : "justify-center py-2.5"}`}
+          >
+            <span className="material-symbols-outlined text-[20px] flex-shrink-0">logout</span>
+            <span className={`text-[13px] font-semibold whitespace-nowrap overflow-hidden transition-all duration-300
+              ${expanded ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
+              Sign Out
+            </span>
+          </button>
         </div>
       </aside>
+
+      {/* ── Mobile hamburger ── */}
+      <button
+        id="mobile-menu-toggle"
+        className="fixed top-4 left-4 z-50 lg:hidden w-10 h-10 rounded-xl bg-white/90 glass-nav border border-border-default flex items-center justify-center shadow-raised"
+        onClick={() => setExpanded(v => !v)}
+        aria-label="Toggle navigation"
+      >
+        <span className="material-symbols-outlined text-on-surface text-xl">
+          {expanded ? "close" : "menu"}
+        </span>
+      </button>
     </>
   );
 }

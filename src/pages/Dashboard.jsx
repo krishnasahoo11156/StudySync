@@ -179,7 +179,7 @@ export default function Dashboard() {
   /* ══════════════════ Render ══════════════════ */
   return (
     <PageShell
-      activePage="sanctuary"
+      activePage="dashboard"
       title="Dashboard"
       subtitle={total > 0 ? `${completed}/${total} tasks completed` : "Your academic command center"}
     >
@@ -190,44 +190,41 @@ export default function Dashboard() {
       ) : (
         <div className="animate-page-enter max-w-7xl mx-auto">
           {/* Welcome Hero */}
-          <section
-            className="mb-10 p-8 lg:p-12 rounded-3xl relative overflow-hidden animate-fade-in"
-            style={{ background: "linear-gradient(135deg, #F0FDF4 0%, #F5F1E8 55%, #EFF6FF 100%)", border: "1px solid #E4EDEA" }}
-          >
+          <section className="mb-8 p-6 lg:p-10 rounded-2xl relative overflow-hidden animate-fade-in hero-gradient border border-border-default">
             <div className="relative z-10">
-              <h2 className="text-3xl lg:text-[3.5rem] font-extrabold tracking-tight leading-tight mb-4" style={{ color: "#1A2621" }}>
+              <h2 className="text-2xl lg:text-4xl font-bold tracking-tight leading-tight mb-3 text-on-surface">
                 {greeting}, {userName}
               </h2>
-              <p className="text-lg lg:text-xl max-w-lg" style={{ color: "#3D524A", opacity: 0.85 }}>
+              <p className="text-base lg:text-lg max-w-lg text-on-surface-variant">
                 {total === 0
                   ? "Let's add your first task and get started ✨"
                   : `You're on track — ${completed}/${total} completed ✨`}
               </p>
             </div>
-            <div className="absolute top-0 right-0 w-72 h-72 rounded-full -mr-24 -mt-24 blur-3xl opacity-20" style={{ background: "#16A34A" }} />
-            <div className="absolute bottom-0 left-1/3 w-48 h-48 rounded-full -mb-16 blur-3xl opacity-10" style={{ background: "#60A5FA" }} />
+            <div className="absolute top-0 right-0 w-64 h-64 rounded-full -mr-20 -mt-20 blur-3xl opacity-15 bg-primary" />
+            <div className="absolute bottom-0 left-1/3 w-40 h-40 rounded-full -mb-12 blur-3xl opacity-10 bg-accent" />
           </section>
 
           {/* 2-Column Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
             {/* ── Left Column ── */}
             <div className="lg:col-span-8">
               {/* Overview Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12 stagger-children">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10 stagger-children">
                 {/* Total */}
-                <div className="bg-white p-8 rounded-2xl flex flex-col justify-between h-40 animate-slide-up" style={{ border: "1px solid #E4EDEA", boxShadow: "0 2px 12px rgba(22,163,74,0.06)" }}>
-                  <span className="font-bold uppercase tracking-widest text-[0.7rem]" style={{ color: "#16A34A" }}>Total Tasks</span>
-                  <div className="text-4xl font-extrabold" style={{ color: "#1A2621" }}>{String(total).padStart(2, "0")}</div>
+                <div className="card-static p-6 rounded-2xl flex flex-col justify-between h-36 animate-slide-up">
+                  <span className="type-caption text-primary">Total Tasks</span>
+                  <div className="text-4xl font-extrabold text-on-surface animate-count-up">{String(total).padStart(2, "0")}</div>
                 </div>
                 {/* Completed */}
-                <div className="p-8 rounded-2xl flex flex-col justify-between h-40 sm:mt-6 animate-slide-up" style={{ background: "#DCFCE7", border: "1px solid #BBF7D0", boxShadow: "0 2px 12px rgba(22,163,74,0.08)" }}>
-                  <span className="font-bold uppercase tracking-widest text-[0.7rem]" style={{ color: "#15803D" }}>Completed</span>
-                  <div className="text-4xl font-extrabold" style={{ color: "#14532D" }}>{String(completed).padStart(2, "0")}</div>
+                <div className="p-6 rounded-2xl flex flex-col justify-between h-36 sm:mt-4 animate-slide-up bg-primary-container border border-primary/10 shadow-raised">
+                  <span className="type-caption text-primary-dark">Completed</span>
+                  <div className="text-4xl font-extrabold text-on-primary-container animate-count-up">{String(completed).padStart(2, "0")}</div>
                 </div>
                 {/* Pending */}
-                <div className="p-8 rounded-2xl flex flex-col justify-between h-40 animate-slide-up" style={{ background: "#F5F1E8", border: "1px solid #D6C7AE", boxShadow: "0 2px 8px rgba(214,199,174,0.2)" }}>
-                  <span className="font-bold uppercase tracking-widest text-[0.7rem]" style={{ color: "#F87171" }}>Pending</span>
-                  <div className="text-4xl font-extrabold" style={{ color: "#1A2621" }}>{String(pending).padStart(2, "0")}</div>
+                <div className="card-warm p-6 rounded-2xl flex flex-col justify-between h-36 animate-slide-up">
+                  <span className="type-caption text-error">Pending</span>
+                  <div className="text-4xl font-extrabold text-on-surface animate-count-up">{String(pending).padStart(2, "0")}</div>
                 </div>
               </div>
 
@@ -535,11 +532,12 @@ export default function Dashboard() {
 
       {/* ── FAB: Add Task ── */}
       <button
+        id="fab-add-task"
         onClick={handleOpenAdd}
-        className="fixed bottom-10 right-10 w-16 h-16 rounded-full signature-gradient text-white flex items-center justify-center shadow-2xl hover:scale-105 active:scale-95 transition-all z-50 group"
+        className="fixed bottom-8 right-8 w-14 h-14 rounded-2xl signature-gradient text-white flex items-center justify-center shadow-btn hover:shadow-floating hover:scale-105 active:scale-95 transition-all z-50 group btn-interactive"
       >
-        <span className="material-symbols-outlined text-3xl">add</span>
-        <span className="absolute right-full mr-4 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "#1A2621", color: "#F8FAF9" }}>
+        <span className="material-symbols-outlined text-2xl">add</span>
+        <span className="absolute right-full mr-3 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity bg-on-surface text-surface shadow-lg">
           Add New Task
         </span>
       </button>

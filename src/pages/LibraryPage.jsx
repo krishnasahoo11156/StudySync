@@ -75,7 +75,7 @@ function FolderCard({ folder, onOpen, onRename, onDelete }) {
 
   return (
     <div
-      className="bg-white rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 cursor-pointer group relative border border-emerald-50 animate-fade-in"
+      className="card-static rounded-2xl p-5 hover:-translate-y-1 transition-all duration-200 cursor-pointer group relative animate-fade-in"
       onClick={() => onOpen(folder)}
     >
       {/* Three-dot menu */}
@@ -87,14 +87,14 @@ function FolderCard({ folder, onOpen, onRename, onDelete }) {
         <button
           id={`folder-menu-${folder.id}`}
           onClick={() => setMenuOpen((v) => !v)}
-          className="w-7 h-7 rounded-lg flex items-center justify-center text-emerald-700/50 hover:bg-emerald-100 transition-colors"
+          className="w-7 h-7 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors"
         >
           <span className="material-symbols-outlined text-sm">more_vert</span>
         </button>
         {menuOpen && (
-          <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-xl border border-emerald-100 w-36 z-50 animate-scale-in overflow-hidden">
+          <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-modal border border-border-default w-36 z-50 animate-scale-in overflow-hidden">
             <button
-              className="w-full text-left px-4 py-2.5 text-sm text-on-surface hover:bg-emerald-50 flex items-center gap-2"
+              className="w-full text-left px-4 py-2.5 text-sm text-on-surface hover:bg-surface-container-low flex items-center gap-2"
               onClick={() => { setMenuOpen(false); onRename(folder); }}
             >
               <span className="material-symbols-outlined text-base">edit</span> Rename
@@ -110,15 +110,15 @@ function FolderCard({ folder, onOpen, onRename, onDelete }) {
       </div>
 
       {/* Folder icon */}
-      <div className="w-12 h-12 rounded-xl bg-emerald-700 flex items-center justify-center mb-4">
+      <div className="w-12 h-12 rounded-xl bg-primary-dark flex items-center justify-center mb-4">
         <span className="material-symbols-outlined text-white text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>folder</span>
       </div>
-      <h4 className="font-bold text-emerald-900 text-sm mb-1 truncate pr-4">{folder.name}</h4>
-      <p className="text-xs text-emerald-600/60">
+      <h4 className="font-bold text-on-surface text-sm mb-1 truncate pr-4">{folder.name}</h4>
+      <p className="text-xs text-text-muted">
         {folder.itemCount ?? 0} items • {fmtBytes(folder.totalSize ?? 0)}
       </p>
       {/* Progress bar */}
-      <div className="mt-3 h-1 w-full bg-emerald-100 rounded-full overflow-hidden">
+      <div className="mt-3 h-1 w-full bg-surface-container-high rounded-full overflow-hidden">
         <div
           className="h-full signature-gradient rounded-full transition-all duration-700"
           style={{ width: `${Math.min(((folder.itemCount ?? 0) / 20) * 100, 100)}%` }}
@@ -136,12 +136,12 @@ function NewFolderCard({ onClick }) {
     <button
       id="new-folder-btn"
       onClick={onClick}
-      className="bg-white rounded-2xl p-5 border-2 border-dashed border-emerald-200 hover:border-emerald-400 hover:bg-emerald-50/50 hover:-translate-y-1 transition-all duration-200 flex flex-col items-center justify-center gap-2 min-h-[148px] w-full animate-fade-in"
+      className="bg-white rounded-2xl p-5 border-2 border-dashed border-border-default hover:border-primary/40 hover:bg-surface-container-low hover:-translate-y-1 transition-all duration-200 flex flex-col items-center justify-center gap-2 min-h-[148px] w-full animate-fade-in"
     >
-      <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-        <span className="material-symbols-outlined text-emerald-600 text-xl">create_new_folder</span>
+      <div className="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center">
+        <span className="material-symbols-outlined text-primary text-xl">create_new_folder</span>
       </div>
-      <span className="text-xs font-bold uppercase tracking-widest text-emerald-600/60">New Folder</span>
+      <span className="type-caption text-text-muted">New Folder</span>
     </button>
   );
 }
@@ -163,7 +163,7 @@ function FileRow({ file, onDelete, onRename }) {
   }, []);
 
   return (
-    <div className="flex items-center gap-4 p-4 rounded-xl hover:bg-emerald-50 transition-colors group relative">
+    <div className="flex items-center gap-4 p-4 rounded-xl hover:bg-surface-container-low transition-colors group relative">
       {/* PDF icon */}
       <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
         <span className="material-symbols-outlined text-red-400 text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>picture_as_pdf</span>
@@ -175,7 +175,7 @@ function FileRow({ file, onDelete, onRename }) {
           href={file.downloadUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-semibold text-emerald-900 text-sm hover:text-emerald-700 truncate block"
+          className="font-semibold text-on-surface text-sm hover:text-primary truncate block"
           onClick={(e) => e.stopPropagation()}
         >
           {file.name}
@@ -184,7 +184,7 @@ function FileRow({ file, onDelete, onRename }) {
           <span className={`text-[0.6rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${tagColor.bg} ${tagColor.text}`}>
             {file.tag || "PDF"}
           </span>
-          <span className="text-xs text-emerald-600/50">
+          <span className="text-xs text-text-muted">
             Uploaded {fmtRelative(file.createdAt)} • {fmtBytes(file.size)}
           </span>
         </div>
@@ -200,14 +200,14 @@ function FileRow({ file, onDelete, onRename }) {
           href={file.downloadUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="p-1.5 rounded-lg hover:bg-emerald-100 text-emerald-600 transition-colors"
+          className="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors"
           title="Preview/Download"
         >
           <span className="material-symbols-outlined text-base">open_in_new</span>
         </a>
         <button
           onClick={() => onRename(file)}
-          className="p-1.5 rounded-lg hover:bg-emerald-100 text-emerald-600 transition-colors"
+          className="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors"
           title="Rename"
         >
           <span className="material-symbols-outlined text-base">edit</span>
@@ -230,17 +230,17 @@ function FileRow({ file, onDelete, onRename }) {
 function FileCard({ file, onDelete, onRename }) {
   const tagColor = getTagColor(file.tag);
   return (
-    <div className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 group border border-emerald-50 animate-fade-in">
+    <div className="card-static rounded-2xl p-4 hover:-translate-y-1 transition-all duration-200 group animate-fade-in">
       <div className="flex justify-between items-start mb-3">
         <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
           <span className="material-symbols-outlined text-red-400 text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>picture_as_pdf</span>
         </div>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <a href={file.downloadUrl} target="_blank" rel="noopener noreferrer"
-            className="p-1 rounded-lg hover:bg-emerald-100 text-emerald-600 transition-colors">
+            className="p-1 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors">
             <span className="material-symbols-outlined text-sm">open_in_new</span>
           </a>
-          <button onClick={() => onRename(file)} className="p-1 rounded-lg hover:bg-emerald-100 text-emerald-600 transition-colors">
+          <button onClick={() => onRename(file)} className="p-1 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors">
             <span className="material-symbols-outlined text-sm">edit</span>
           </button>
           <button onClick={() => onDelete(file)} className="p-1 rounded-lg hover:bg-red-50 text-red-400 transition-colors">
@@ -248,14 +248,14 @@ function FileCard({ file, onDelete, onRename }) {
           </button>
         </div>
       </div>
-      <p className="font-semibold text-emerald-900 text-sm truncate">{file.name}</p>
+      <p className="font-semibold text-on-surface text-sm truncate">{file.name}</p>
       <div className="flex items-center gap-2 mt-1">
         <span className={`text-[0.55rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${tagColor.bg} ${tagColor.text}`}>
           {file.tag || "PDF"}
         </span>
-        <span className="text-[0.65rem] text-emerald-600/50">{fmtBytes(file.size)}</span>
+        <span className="text-[0.65rem] text-text-muted">{fmtBytes(file.size)}</span>
       </div>
-      <p className="text-[0.65rem] text-emerald-600/40 mt-1">{fmtRelative(file.createdAt)}</p>
+      <p className="text-[0.65rem] text-text-muted mt-1">{fmtRelative(file.createdAt)}</p>
     </div>
   );
 }
@@ -484,14 +484,14 @@ export default function LibraryPage() {
     <>
       {/* Search bar */}
       <div className="relative flex-1 max-w-xl">
-        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 text-lg">search</span>
+        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-text-muted text-lg">search</span>
         <input
           id="library-search"
           type="text"
           placeholder="Search in Library..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-white border border-emerald-100 rounded-2xl pl-11 pr-5 py-2.5 text-sm text-emerald-900 placeholder:text-emerald-400/70 focus:outline-none focus:ring-2 focus:ring-emerald-300 transition-all shadow-sm"
+          className="w-full bg-white border border-border-default rounded-xl pl-11 pr-5 py-2.5 text-sm text-on-surface placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all shadow-sm"
         />
       </div>
 
@@ -506,11 +506,11 @@ export default function LibraryPage() {
           Add Material
         </button>
         {showAddMenu && (
-          <div className="absolute right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-emerald-100 w-48 z-50 animate-scale-in overflow-hidden">
+          <div className="absolute right-0 top-full mt-2 bg-white rounded-xl shadow-modal border border-border-default w-48 z-50 animate-scale-in overflow-hidden">
             <button
               id="upload-pdf-option"
               onClick={() => { setShowAddMenu(false); setShowUploadModal(true); }}
-              className="w-full text-left px-5 py-3.5 text-sm text-on-surface hover:bg-emerald-50 flex items-center gap-3"
+              className="w-full text-left px-5 py-3.5 text-sm text-on-surface hover:bg-surface-container-low flex items-center gap-3"
             >
               <span className="material-symbols-outlined text-red-400">picture_as_pdf</span>
               Upload PDF
@@ -518,9 +518,9 @@ export default function LibraryPage() {
             <button
               id="create-folder-option"
               onClick={() => { setShowAddMenu(false); setShowNewFolderModal(true); }}
-              className="w-full text-left px-5 py-3.5 text-sm text-on-surface hover:bg-emerald-50 flex items-center gap-3 border-t border-emerald-50"
+              className="w-full text-left px-5 py-3.5 text-sm text-on-surface hover:bg-surface-container-low flex items-center gap-3 border-t border-border-default"
             >
-              <span className="material-symbols-outlined text-emerald-600">create_new_folder</span>
+              <span className="material-symbols-outlined text-primary">create_new_folder</span>
               Create Folder
             </button>
           </div>
@@ -544,17 +544,17 @@ export default function LibraryPage() {
             {breadcrumb.map((crumb, idx) => (
               <span key={crumb.id ?? "root"} className="flex items-center gap-1">
                 {idx > 0 && (
-                  <span className="material-symbols-outlined text-emerald-400 text-sm">chevron_right</span>
+                  <span className="material-symbols-outlined text-text-muted text-sm">chevron_right</span>
                 )}
                 {idx < breadcrumb.length - 1 ? (
                   <button
                     onClick={() => navigateBreadcrumb(idx)}
-                    className="text-emerald-600 hover:text-emerald-800 font-medium transition-colors"
+                    className="text-primary hover:text-primary-dark font-medium transition-colors"
                   >
                     {crumb.name}
                   </button>
                 ) : (
-                  <span className="font-bold text-emerald-900">{crumb.name}</span>
+                  <span className="font-bold text-on-surface">{crumb.name}</span>
                 )}
               </span>
             ))}
@@ -565,7 +565,7 @@ export default function LibraryPage() {
             <button
               id="sort-last-modified"
               onClick={() => setSortMode((v) => (v === "modified" ? "name" : "modified"))}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-emerald-100 rounded-xl text-xs font-semibold text-emerald-700 hover:bg-emerald-50 transition-colors shadow-sm"
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-border-default rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container-low transition-colors shadow-sm"
             >
             <span className="material-symbols-outlined text-base">filter_list</span>
             {sortMode === "modified" ? "Last Modified" : "Name A–Z"}
@@ -573,14 +573,14 @@ export default function LibraryPage() {
             <button
               id="toggle-view-grid"
               onClick={() => setViewMode("grid")}
-              className={`p-2 rounded-xl border transition-colors ${viewMode === "grid" ? "bg-emerald-700 text-white border-emerald-700" : "bg-white border-emerald-100 text-emerald-600 hover:bg-emerald-50"}`}
+              className={`p-2 rounded-xl border transition-colors ${viewMode === "grid" ? "bg-primary text-white border-primary" : "bg-white border-border-default text-on-surface-variant hover:bg-surface-container-low"}`}
             >
               <span className="material-symbols-outlined text-base">grid_view</span>
             </button>
             <button
               id="toggle-view-list"
               onClick={() => setViewMode("list")}
-              className={`p-2 rounded-xl border transition-colors ${viewMode === "list" ? "bg-emerald-700 text-white border-emerald-700" : "bg-white border-emerald-100 text-emerald-600 hover:bg-emerald-50"}`}
+              className={`p-2 rounded-xl border transition-colors ${viewMode === "list" ? "bg-primary text-white border-primary" : "bg-white border-border-default text-on-surface-variant hover:bg-surface-container-low"}`}
             >
               <span className="material-symbols-outlined text-base">view_list</span>
             </button>
@@ -588,7 +588,7 @@ export default function LibraryPage() {
         </div>
 
         {/* ── Content Card ── */}
-        <div className="bg-white rounded-3xl shadow-sm p-6 lg:p-8 border border-emerald-50">
+        <div className="card-static rounded-2xl p-6 lg:p-8">
 
           {loading ? (
             <div className="flex items-center justify-center h-48">

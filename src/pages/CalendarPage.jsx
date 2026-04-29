@@ -313,25 +313,25 @@ export default function CalendarPage() {
   const topBarContent = (
     <>
       {/* View Toggle */}
-      <div className="hidden md:flex bg-emerald-100/80 rounded-xl p-1 gap-1">
+      <div className="hidden md:flex bg-surface-container-high rounded-xl p-1 gap-1">
         {["month", "week", "day"].map(v => (
           <button key={v} onClick={() => setView(v)}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${view === v ? "bg-white text-emerald-800 shadow-sm" : "text-emerald-600/70 hover:text-emerald-800"}`}>
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${view === v ? "bg-white text-on-surface shadow-sm" : "text-text-muted hover:text-on-surface"}`}>
             {v}
           </button>
         ))}
       </div>
       {/* Heatmap toggle */}
       <button onClick={() => setShowHeatmap(!showHeatmap)}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${showHeatmap ? "bg-emerald-100 border-emerald-300 text-emerald-800" : "bg-white border-emerald-100 text-emerald-600"}`}>
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${showHeatmap ? "bg-primary-container border-primary/20 text-primary-dark" : "bg-white border-border-default text-text-muted"}`}>
         <span className="material-symbols-outlined text-sm">grid_view</span>
         Heatmap
       </button>
       {/* Notification Bell */}
       <div className="relative">
         <button onClick={() => setShowNotifPanel(!showNotifPanel)}
-          className="relative p-2 rounded-xl bg-white border border-emerald-100 hover:bg-emerald-50 transition-all">
-          <span className="material-symbols-outlined text-emerald-700 text-xl">notifications</span>
+          className="relative p-2 rounded-xl bg-white border border-border-default hover:bg-surface-container-low transition-all">
+          <span className="material-symbols-outlined text-on-surface-variant text-xl">notifications</span>
           {notifications.length > 0 && (
             <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-rose-500 text-white text-[0.6rem] font-bold flex items-center justify-center">
               {notifications.length}
@@ -492,20 +492,20 @@ export default function CalendarPage() {
               });
               setShowAddModal(true);
             }}
-              className="w-full py-3.5 px-5 rounded-2xl signature-gradient text-white font-bold text-sm hover:opacity-90 active:scale-[0.97] transition-all shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2">
+              className="w-full py-3 px-5 rounded-xl signature-gradient text-white font-bold text-sm btn-interactive shadow-btn flex items-center justify-center gap-2">
               <span className="material-symbols-outlined text-lg">add</span>
               Schedule Study Session
             </button>
 
             {/* Smart Suggestion */}
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-emerald-50">
+            <div className="card-static rounded-2xl p-5">
               <div className="flex items-center gap-2 mb-3">
-                <span className="material-symbols-outlined text-emerald-600 text-lg">auto_awesome</span>
-                <h4 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-500">Smart Suggestion</h4>
+                <span className="material-symbols-outlined text-primary text-lg">auto_awesome</span>
+                <h4 className="type-caption text-text-muted">Smart Suggestion</h4>
               </div>
-              <h3 className="text-sm font-bold text-emerald-800 mb-1">Optimal Study Slot</h3>
-              <p className="text-3xl font-extrabold text-emerald-900">{smartSuggestion.time}</p>
-              <p className="text-xs text-emerald-500 mt-1">{smartSuggestion.endTime} (Today)</p>
+              <h3 className="text-sm font-semibold text-on-surface mb-1">Optimal Study Slot</h3>
+              <p className="text-3xl font-bold text-on-surface">{smartSuggestion.time}</p>
+              <p className="text-xs text-text-muted mt-1">{smartSuggestion.endTime} (Today)</p>
               <div className="w-12 h-1 rounded-full signature-gradient mt-3" />
             </div>
 
@@ -528,8 +528,8 @@ export default function CalendarPage() {
             )}
 
             {/* Upcoming Tasks */}
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-emerald-50">
-              <h4 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-500 mb-4">Upcoming</h4>
+            <div className="card-static rounded-2xl p-5">
+              <h4 className="type-caption text-text-muted mb-4">Upcoming</h4>
               {upcomingTasks.length === 0 ? (
                 <p className="text-sm text-emerald-400 text-center py-4">No upcoming tasks 🎉</p>
               ) : (
@@ -576,7 +576,7 @@ export default function CalendarPage() {
               <>
                 {/* ════════ MONTH VIEW ════════ */}
                 {view === "month" && (
-                  <div className="bg-white rounded-3xl shadow-sm border border-emerald-50 overflow-hidden">
+                  <div className="bg-white rounded-2xl shadow-raised border border-border-default overflow-hidden">
                     {/* Header */}
                     <div className="grid grid-cols-7 border-b border-emerald-50">
                       {DAY_NAMES.map(d => (
@@ -739,7 +739,7 @@ export default function CalendarPage() {
       {/* ══════════ FAB ══════════ */}
       <button
         onClick={() => { setNewTaskInitialData({ ...EMPTY_TASK, startDate: todayYMD, endDate: todayYMD }); setShowAddModal(true); }}
-        className="fixed bottom-10 right-10 w-14 h-14 rounded-full signature-gradient text-white flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 transition-all z-40">
+        className="fixed bottom-8 right-8 w-14 h-14 rounded-2xl signature-gradient text-white flex items-center justify-center shadow-btn btn-interactive z-40">
         <span className="material-symbols-outlined text-2xl">add</span>
       </button>
 
