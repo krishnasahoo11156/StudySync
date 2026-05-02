@@ -46,7 +46,7 @@ A comprehensive scheduling suite offering full visibility over your academic tim
 
 ### 3. 🗂️ Library (Cloud Storage)
 A complete, Google Drive-style file management system integrated directly into your workspace.
-- **Hierarchical Folders:** Create, rename, delete, and navigate infinite folder trees.
+- **Hierarchical Folders:** Create, Rename, Delete, and Navigate infinite folder trees.
 - **PDF Vault:** Upload and store your research and study materials.
 - **Smart Tech:** Uses a zero-CORS Base64-to-Firestore encoding strategy for instant, frictionless file storage.
 - **View Controls:** Toggle between List and Grid interfaces. Sort by Date Modified or Name. Tag files by subject.
