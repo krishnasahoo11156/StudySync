@@ -6,7 +6,7 @@ import { useProfilePanel } from "../contexts/ProfilePanelContext";
    Glass effect, slim 56px, seamless with sidebar
 ═══════════════════════════════════════════ */
 export default function TopBar({ title, subtitle, children }) {
-  const { user } = useAuth();
+  const { user, photoURL } = useAuth();
   const { toggle } = useProfilePanel();
   const userName = user?.displayName || user?.email?.split("@")[0] || "Student";
 
@@ -37,8 +37,8 @@ export default function TopBar({ title, subtitle, children }) {
         aria-label="Open profile panel"
         className="profile-avatar-trigger w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm signature-gradient flex-shrink-0 ring-2 ring-primary/10 hover:ring-primary/40 hover:scale-105 active:scale-95 transition-all duration-150"
       >
-        {user?.photoURL ? (
-          <img src={user.photoURL} alt="" className="w-full h-full rounded-full object-cover" />
+        {photoURL ? (
+          <img src={photoURL} alt="" className="w-full h-full rounded-full object-cover" />
         ) : (
           userName.charAt(0).toUpperCase()
         )}

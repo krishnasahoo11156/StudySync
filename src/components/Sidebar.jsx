@@ -13,7 +13,7 @@ const NAV = [
 ];
 
 export default function Sidebar() {
-  const { user, logout } = useAuth();
+  const { user, logout, photoURL } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toggle: togglePanel } = useProfilePanel();
@@ -137,8 +137,8 @@ export default function Sidebar() {
             }`}
           >
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all duration-150">
-              {user?.photoURL ? (
-                <img src={user.photoURL} alt="" className="w-full h-full rounded-full object-cover" />
+              {photoURL ? (
+                <img src={photoURL} alt="" className="w-full h-full rounded-full object-cover" />
               ) : (
                 <span className="text-primary text-xs font-bold">
                   {user?.displayName?.charAt(0) || user?.email?.charAt(0)?.toUpperCase() || "S"}
