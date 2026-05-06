@@ -1,4 +1,5 @@
 import { useAuth } from "../contexts/AuthContext";
+import { useProfilePanel } from "../contexts/ProfilePanelContext";
 
 /* ═══════════════════════════════════════════
    TOP BAR — unified header for every page
@@ -6,6 +7,7 @@ import { useAuth } from "../contexts/AuthContext";
 ═══════════════════════════════════════════ */
 export default function TopBar({ title, subtitle, children }) {
   const { user } = useAuth();
+  const { toggle } = useProfilePanel();
   const userName = user?.displayName || user?.email?.split("@")[0] || "Student";
 
   return (
@@ -28,14 +30,19 @@ export default function TopBar({ title, subtitle, children }) {
         {children}
       </div>
 
-      {/* User avatar */}
-      <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm signature-gradient flex-shrink-0 ring-2 ring-primary/10">
+      {/* User avatar — opens profile panel */}
+      <button
+        id="topbar-avatar-btn"
+        onClick={toggle}
+        aria-label="Open profile panel"
+        className="profile-avatar-trigger w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm signature-gradient flex-shrink-0 ring-2 ring-primary/10 hover:ring-primary/40 hover:scale-105 active:scale-95 transition-all duration-150"
+      >
         {user?.photoURL ? (
           <img src={user.photoURL} alt="" className="w-full h-full rounded-full object-cover" />
         ) : (
           userName.charAt(0).toUpperCase()
         )}
-      </div>
+      </button>
     </header>
   );
 }

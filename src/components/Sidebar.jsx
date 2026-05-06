@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useProfilePanel } from "../contexts/ProfilePanelContext";
 
 /* ── Navigation items ── */
 const NAV = [
@@ -15,6 +16,7 @@ export default function Sidebar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { toggle: togglePanel } = useProfilePanel();
   const [expanded, setExpanded] = useState(false);
   const [hoveredIdx, setHoveredIdx] = useState(-1);
 
@@ -125,9 +127,16 @@ export default function Sidebar() {
 
         {/* ── Bottom section ── */}
         <div className={`px-2 pb-4 border-t border-border-default pt-3 flex flex-col gap-1`}>
-          {/* User avatar */}
-          <div className={`flex items-center rounded-xl px-2 py-2 ${expanded ? "gap-3" : "justify-center"}`}>
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 ring-2 ring-primary/20">
+          {/* User avatar — opens profile panel */}
+          <button
+            id="sidebar-avatar-btn"
+            onClick={togglePanel}
+            aria-label="Open profile panel"
+            className={`group flex items-center rounded-xl px-2 py-2 hover:bg-surface-container-high/60 transition-all duration-150 ${
+              expanded ? "gap-3" : "justify-center"
+            }`}
+          >
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all duration-150">
               {user?.photoURL ? (
                 <img src={user.photoURL} alt="" className="w-full h-full rounded-full object-cover" />
               ) : (
@@ -144,7 +153,7 @@ export default function Sidebar() {
                 {user?.email || ""}
               </p>
             </div>
-          </div>
+          </button>
 
           {/* Sign out */}
           <button
