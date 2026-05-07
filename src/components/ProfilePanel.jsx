@@ -5,6 +5,7 @@ import { db, auth } from "../firebase/config";
 import { collection, query, where, onSnapshot, doc, setDoc } from "firebase/firestore";
 import { updateProfile } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { sendSecurityEmail } from "../services/emailService";
 
 /* ── Resize image to base64 (no Firebase Storage needed) ── */
 function resizeImageToBase64(file, maxPx = 200, quality = 0.72) {
@@ -95,6 +96,13 @@ export default function ProfilePanel() {
   const [tasks, setTasks]       = useState([]);
   const [userDoc, setUserDoc]   = useState({});
   const [prefs, setPrefs]       = useState({ dueDateReminders:true, focusAlerts:false, weeklySummary:true });
+  const [emailPrefs, setEmailPrefs] = useState({
+    taskComplete:     true,
+    overdueReminder:  true,
+    weeklyDigest:     true,
+    streakMilestone:  true,
+    securityAlerts:   true,   // always on — locked
+  });
 
   const [view, setView]                     = useState("menu");
   const [avatarColour, setAvatarColour]     = useState("green");
@@ -103,6 +111,7 @@ export default function ProfilePanel() {
   const [signingOut, setSigningOut]         = useState(false);
   const [toast, setToast]                   = useState(null);
   const [notifExpanded, setNotifExpanded]   = useState(false);
+  const [emailExpanded, setEmailExpanded]   = useState(false);
   const [changePassExpanded, setChangePassExpanded] = useState(false);
 
   /* ── Photo upload states ── */
@@ -129,7 +138,7 @@ export default function ProfilePanel() {
 
   useEffect(() => {
     if (!isOpen) {
-      const t = setTimeout(() => { setView("menu"); setNotifExpanded(false); setChangePassExpanded(false); }, 320);
+      const t = setTimeout(() => { setView("menu"); setNotifExpanded(false); setEmailExpanded(false); setChangePassExpanded(false); }, 320);
       return () => clearTimeout(t);
     }
   }, [isOpen]);
@@ -162,6 +171,7 @@ export default function ProfilePanel() {
       setAvatarColour(data.avatarColour || "green");
       setDisplayNameInput(user.displayName || "");
       if (data.preferences) setPrefs(p => ({ ...p, ...data.preferences }));
+      if (data.emailPrefs)  setEmailPrefs(p => ({ ...p, ...data.emailPrefs }));
     });
   }, [user]);
 
@@ -237,6 +247,14 @@ export default function ProfilePanel() {
     catch (err) { console.error(err); }
   }, [user, prefs]);
 
+  const saveEmailPref = useCallback(async (key, value) => {
+    if (!user || key === "securityAlerts") return; // securityAlerts is always on
+    const newPrefs = { ...emailPrefs, [key]: value };
+    setEmailPrefs(newPrefs);
+    try { await setDoc(doc(db, "users", user.uid), { emailPrefs: newPrefs }, { merge: true }); }
+    catch (err) { console.error(err); }
+  }, [user, emailPrefs]);
+
   const handleSignOut = async () => {
     setSigningOut(true);
     await new Promise(r => setTimeout(r, 2000));
@@ -302,6 +320,8 @@ export default function ProfilePanel() {
                 <button className="profile-btn-green" onClick={async () => {
                   const { sendPasswordResetEmail } = await import("firebase/auth");
                   await sendPasswordResetEmail(auth, email);
+                  // Always send security alert (pref is locked on)
+                  sendSecurityEmail(email).catch(console.error);
                   setToast("Reset email sent ✓"); setChangePassExpanded(false);
                 }}>Send Reset Email</button>
               </div>
@@ -317,6 +337,51 @@ export default function ProfilePanel() {
                 <div className="profile-toggle-row"><span style={{ fontSize:12, color:"#1a2e1a", fontWeight:500 }}>Due Date Reminders</span><Toggle checked={prefs.dueDateReminders} onChange={v=>savePref("dueDateReminders",v)} /></div>
                 <div className="profile-toggle-row"><span style={{ fontSize:12, color:"#1a2e1a", fontWeight:500 }}>Focus Session Alerts</span><Toggle checked={prefs.focusAlerts} onChange={v=>savePref("focusAlerts",v)} /></div>
                 <div className="profile-toggle-row"><span style={{ fontSize:12, color:"#1a2e1a", fontWeight:500 }}>Weekly Summary</span><Toggle checked={prefs.weeklySummary} onChange={v=>savePref("weeklySummary",v)} /></div>
+              </div>
+            )}
+
+            {/* ── Email Notifications ── */}
+            <MenuRow icon="mail" label="Email Notifications"
+              onClick={() => setEmailExpanded(v => !v)}
+              rightElement={<span className="material-symbols-outlined" style={{ fontSize:16, color:"#5a7a5a", opacity:0.6 }}>{emailExpanded?"expand_less":"expand_more"}</span>} />
+            {emailExpanded && (
+              <div className="profile-expand-section animate-fade-in">
+                <p style={{ fontSize:11, color:"#5a7a5a", marginBottom:10, lineHeight:1.5 }}>
+                  Choose which emails StudySync sends to <strong>{email}</strong>.
+                </p>
+
+                {/* Task completion digest */}
+                <div className="profile-toggle-row">
+                  <span style={{ fontSize:12, color:"#1a2e1a", fontWeight:500 }}>Task Completion Digest</span>
+                  <Toggle checked={emailPrefs.taskComplete} onChange={v => saveEmailPref("taskComplete", v)} />
+                </div>
+
+                {/* Overdue reminders */}
+                <div className="profile-toggle-row">
+                  <span style={{ fontSize:12, color:"#1a2e1a", fontWeight:500 }}>Overdue Reminders</span>
+                  <Toggle checked={emailPrefs.overdueReminder} onChange={v => saveEmailPref("overdueReminder", v)} />
+                </div>
+
+                {/* Weekly digest */}
+                <div className="profile-toggle-row">
+                  <span style={{ fontSize:12, color:"#1a2e1a", fontWeight:500 }}>Weekly Digest</span>
+                  <Toggle checked={emailPrefs.weeklyDigest} onChange={v => saveEmailPref("weeklyDigest", v)} />
+                </div>
+
+                {/* Streak milestones */}
+                <div className="profile-toggle-row">
+                  <span style={{ fontSize:12, color:"#1a2e1a", fontWeight:500 }}>Streak Milestones</span>
+                  <Toggle checked={emailPrefs.streakMilestone} onChange={v => saveEmailPref("streakMilestone", v)} />
+                </div>
+
+                {/* Security alerts — always on */}
+                <div className="profile-toggle-row" style={{ opacity:0.65 }}>
+                  <span style={{ fontSize:12, color:"#1a2e1a", fontWeight:500 }}>
+                    Security Alerts
+                    <span style={{ fontSize:10, color:"#5a7a5a", display:"block", fontWeight:400 }}>Always on for your safety</span>
+                  </span>
+                  <Toggle checked={true} onChange={() => {}} />
+                </div>
               </div>
             )}
 

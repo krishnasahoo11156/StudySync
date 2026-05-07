@@ -1,1 +1,12 @@
+# Dependencies
 node_modules
+server/node_modules
+
+# Build output
+dist
+
+# Environment files (secrets — never commit these)
+.env
+.env.local
+.env.production
+server/.env
