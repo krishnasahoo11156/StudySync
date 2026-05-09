@@ -1,30 +1,49 @@
 /* ═══════════════════════════════════════════════════════════
    StudySync — Email Notification Server
-   Uses: Express · Resend · node-cron · dotenv · cors
+   Uses: Express · Nodemailer (Gmail SMTP) · node-cron · dotenv · cors
 ═══════════════════════════════════════════════════════════ */
 
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import cron from "node-cron";
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
-const resend = new Resend(process.env.RESEND_API_KEY);
-const FROM   = process.env.FROM_EMAIL || "StudySync <onboarding@resend.dev>";
+
+// ── Nodemailer Gmail transporter ────────────────────────────
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+  },
+});
+
+// Verify connection on startup
+transporter.verify((err, success) => {
+  if (err) {
+    console.error(`[${new Date().toISOString()}] ❌ SMTP connection failed:`, err.message);
+  } else {
+    console.log(`[${new Date().toISOString()}] ✅ Gmail SMTP ready — connected as ${process.env.GMAIL_USER}`);
+  }
+});
+
+const FROM = `StudySync <${process.env.GMAIL_USER}>`;
 
 // ── Middleware ──────────────────────────────────────────────
-app.use(cors({ origin: process.env.FRONTEND_URL || "*" }));
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 
 // ── Health check ───────────────────────────────────────────
+app.get("/health", (_req, res) => res.json({ status: "ok" }));
 app.get("/", (_req, res) => res.json({ status: "StudySync email server running ✓" }));
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    SHARED LAYOUT HELPERS
-═══════════════════════════════════════════════ */
-function emailWrapper(headerColor, headerHtml, bodyHtml) {
+═══════════════════════════════════════════ */
+function emailWrapper(headerColor, headerHtml, bodyHtml, footerNote = "") {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,9 +59,7 @@ function emailWrapper(headerColor, headerHtml, bodyHtml) {
         <!-- HEADER -->
         <tr>
           <td style="background:${headerColor};border-radius:16px 16px 0 0;padding:32px 40px;">
-            <h1 style="margin:0;font-size:28px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">
-              🌿 StudySync
-            </h1>
+            <p style="margin:0;font-size:28px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">🌿 StudySync</p>
             ${headerHtml}
           </td>
         </tr>
@@ -58,7 +75,7 @@ function emailWrapper(headerColor, headerHtml, bodyHtml) {
         <tr>
           <td style="background:#f0f4f0;border-radius:0 0 16px 16px;padding:20px 40px;border-top:1px solid #e2e8e2;">
             <p style="margin:0;font-size:11px;color:#8a9e8a;text-align:center;line-height:1.6;">
-              You received this email because you have an account on StudySync.<br />
+              ${footerNote || "You received this email because you have an account on StudySync."}<br />
               <a href="#" style="color:#1a7a4a;text-decoration:underline;">Unsubscribe</a>
               &nbsp;·&nbsp;
               <a href="#" style="color:#1a7a4a;text-decoration:underline;">Manage preferences</a>
@@ -86,11 +103,16 @@ function statCard(value, label, color = "#1a7a4a") {
   </td>`;
 }
 
-/* ═══════════════════════════════════════════════
+/* Helper: send via Nodemailer */
+async function sendMail(to, subject, html) {
+  return transporter.sendMail({ from: FROM, to, subject, html });
+}
+
+/* ═══════════════════════════════════════════
    EMAIL 1 — WELCOME
    POST /send-email/welcome
    Body: { firstName, email }
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════ */
 app.post("/send-email/welcome", async (req, res) => {
   const { firstName = "Student", email } = req.body;
   if (!email) return res.status(400).json({ error: "email is required" });
@@ -121,23 +143,26 @@ app.post("/send-email/welcome", async (req, res) => {
          <td style="padding:8px 0;vertical-align:top;font-size:14px;color:#374a37;line-height:1.5;"><strong>Library</strong> — Store your notes, resources, and references.</td>
        </tr>
      </table>
-     ${ctaButton("Enter your sanctuary →", "https://studysync-11156.web.app/dashboard")}`
+     ${ctaButton("Enter your sanctuary →", "https://study-sync-eosin-seven.vercel.app/dashboard")}`,
+    `This email was sent to ${email} because you signed up for StudySync.`
   );
 
   try {
-    const data = await resend.emails.send({ from: FROM, to: email, subject: "Your StudySync sanctuary is ready 🌿", html });
-    res.json({ success: true, id: data.id });
+    console.log(`[${new Date().toISOString()}] Sending welcome email to ${email}...`);
+    await sendMail(email, "Your StudySync sanctuary is ready 🌿", html);
+    console.log(`[${new Date().toISOString()}] ✅ Welcome email sent to ${email}`);
+    res.json({ success: true });
   } catch (err) {
-    console.error("Welcome email error:", err);
+    console.error(`[${new Date().toISOString()}] ❌ Welcome email error for ${email}:`, err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    EMAIL 2 — TASK COMPLETE DIGEST
    POST /send-email/task-complete
    Body: { firstName, email, completedThisWeek, totalTasks, lastTaskName }
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════ */
 app.post("/send-email/task-complete", async (req, res) => {
   const { firstName = "Student", email, completedThisWeek = 0, totalTasks = 0, lastTaskName = "Untitled task" } = req.body;
   if (!email) return res.status(400).json({ error: "email is required" });
@@ -164,73 +189,65 @@ app.post("/send-email/task-complete", async (req, res) => {
      <p style="font-size:14px;color:#374a37;line-height:1.7;margin:8px 0 0;">
        Every task you complete is a step forward. Keep up the momentum — you've got this! 💪
      </p>
-     ${ctaButton("View all tasks →", "https://studysync-11156.web.app/dashboard")}`
+     ${ctaButton("View all tasks →", "https://study-sync-eosin-seven.vercel.app/dashboard")}`
   );
 
   try {
-    const data = await resend.emails.send({ from: FROM, to: email, subject: "You're making progress ✅", html });
-    res.json({ success: true, id: data.id });
+    console.log(`[${new Date().toISOString()}] Sending task-complete email to ${email}...`);
+    await sendMail(email, `You're making progress, ${firstName} ✅`, html);
+    console.log(`[${new Date().toISOString()}] ✅ Task-complete email sent to ${email}`);
+    res.json({ success: true });
   } catch (err) {
-    console.error("Task-complete email error:", err);
+    console.error(`[${new Date().toISOString()}] ❌ Task-complete email error for ${email}:`, err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    EMAIL 3 — OVERDUE REMINDER
    POST /send-email/overdue
-   Body: { firstName, email, overdueTasks: [{ name, daysOverdue }] }
-═══════════════════════════════════════════════ */
+   Body: { firstName, email, overdueTasks: [{ title, daysOverdue }] }
+═══════════════════════════════════════════ */
 app.post("/send-email/overdue", async (req, res) => {
   const { firstName = "Student", email, overdueTasks = [] } = req.body;
   if (!email) return res.status(400).json({ error: "email is required" });
 
-  const taskRows = overdueTasks.map(t => `
-    <tr>
-      <td style="padding:10px 14px;border-bottom:1px solid #fde8cc;">
-        <span style="font-size:14px;font-weight:600;color:#1a2e1a;">${t.name}</span>
-      </td>
-      <td style="padding:10px 14px;border-bottom:1px solid #fde8cc;text-align:right;">
-        <span style="font-size:13px;color:#b35c00;font-weight:700;">${t.daysOverdue} day${t.daysOverdue !== 1 ? "s" : ""} overdue</span>
-      </td>
-    </tr>`).join("");
+  const taskCards = overdueTasks.map(t => `
+    <div style="border:1px solid #fde8cc;border-left:4px solid #b35c00;border-radius:8px;padding:14px 18px;margin-bottom:12px;">
+      <p style="margin:0;font-size:15px;font-weight:700;color:#1a2e1a;">${t.title}</p>
+      <p style="margin:4px 0 0;font-size:13px;color:#b35c00;">Overdue by ${t.daysOverdue} day${t.daysOverdue !== 1 ? "s" : ""}</p>
+    </div>`).join("");
 
   const html = emailWrapper(
     "#b35c00",
     `<p style="margin:12px 0 0;font-size:16px;color:#fde8cc;font-weight:500;">Overdue Task Reminder</p>`,
-    `<p style="font-size:22px;font-weight:700;color:#1a2e1a;margin:0 0 10px;">Hey ${firstName}, a task needs your attention ⚠️</p>
+    `<p style="font-size:22px;font-weight:700;color:#1a2e1a;margin:0 0 10px;">Hey ${firstName}, don't let these slip!</p>
      <p style="font-size:15px;color:#374a37;line-height:1.7;margin:0 0 24px;">
        The following ${overdueTasks.length === 1 ? "task is" : "tasks are"} overdue by 3 or more days. A quick focus session can help you catch up!
      </p>
-
-     <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;border-radius:10px;overflow:hidden;border:1px solid #fde8cc;margin-bottom:24px;">
-       <tr style="background:#fff5e8;">
-         <th style="padding:10px 14px;text-align:left;font-size:12px;font-weight:700;color:#b35c00;text-transform:uppercase;letter-spacing:0.6px;">Task</th>
-         <th style="padding:10px 14px;text-align:right;font-size:12px;font-weight:700;color:#b35c00;text-transform:uppercase;letter-spacing:0.6px;">Overdue by</th>
-       </tr>
-       ${taskRows}
-     </table>
-
-     <p style="font-size:14px;color:#374a37;line-height:1.7;margin:0;">
+     ${taskCards}
+     <p style="font-size:14px;color:#374a37;line-height:1.7;margin:16px 0 0;">
        💡 <strong>Tip:</strong> Start a 25-minute Focus session — even a small dent in an overdue task helps ease the mental load.
      </p>
-     ${ctaButton("Start a focus session →", "https://studysync-11156.web.app/focus", "#b35c00")}`
+     ${ctaButton("Start a focus session →", "https://study-sync-eosin-seven.vercel.app/focus", "#b35c00")}`
   );
 
   try {
-    const data = await resend.emails.send({ from: FROM, to: email, subject: "⚠ A task needs your attention", html });
-    res.json({ success: true, id: data.id });
+    console.log(`[${new Date().toISOString()}] Sending overdue email to ${email}...`);
+    await sendMail(email, `⚠ A task needs your attention, ${firstName}`, html);
+    console.log(`[${new Date().toISOString()}] ✅ Overdue email sent to ${email}`);
+    res.json({ success: true });
   } catch (err) {
-    console.error("Overdue email error:", err);
+    console.error(`[${new Date().toISOString()}] ❌ Overdue email error for ${email}:`, err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    EMAIL 4 — SECURITY ALERT
    POST /send-email/security
    Body: { email, changeDateTime }
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════ */
 app.post("/send-email/security", async (req, res) => {
   const { email, changeDateTime = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }) } = req.body;
   if (!email) return res.status(400).json({ error: "email is required" });
@@ -240,7 +257,7 @@ app.post("/send-email/security", async (req, res) => {
     `<p style="margin:12px 0 0;font-size:16px;color:#fadadd;font-weight:500;">Security Alert</p>`,
     `<p style="font-size:22px;font-weight:700;color:#1a2e1a;margin:0 0 10px;">Your password was changed 🔐</p>
      <p style="font-size:15px;color:#374a37;line-height:1.7;margin:0 0 24px;">
-       A password change was made to your StudySync account on:
+       A password reset email was sent for your StudySync account on:
      </p>
      <div style="background:#f8f8f8;border:1px solid #e0e0e0;border-radius:10px;padding:16px 20px;margin-bottom:24px;text-align:center;">
        <p style="margin:0;font-size:16px;font-weight:700;color:#1a2e1a;">${changeDateTime}</p>
@@ -258,23 +275,26 @@ app.post("/send-email/security", async (req, res) => {
      <p style="font-size:14px;color:#374a37;line-height:1.7;margin:0;">
        If you made this change, no further action is needed. Your account is secure.
      </p>
-     ${ctaButton("Secure my account →", "https://studysync-11156.web.app/login", "#c0392b")}`
+     ${ctaButton("Secure my account →", "https://study-sync-eosin-seven.vercel.app/login", "#c0392b")}`,
+    "This is a mandatory security email and cannot be unsubscribed."
   );
 
   try {
-    const data = await resend.emails.send({ from: FROM, to: email, subject: "Your StudySync password was changed", html });
-    res.json({ success: true, id: data.id });
+    console.log(`[${new Date().toISOString()}] Sending security email to ${email}...`);
+    await sendMail(email, "Security alert: your StudySync password was changed", html);
+    console.log(`[${new Date().toISOString()}] ✅ Security email sent to ${email}`);
+    res.json({ success: true });
   } catch (err) {
-    console.error("Security email error:", err);
+    console.error(`[${new Date().toISOString()}] ❌ Security email error for ${email}:`, err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    EMAIL 5 — STREAK MILESTONE
    POST /send-email/streak
    Body: { firstName, email, streakDays, avgDailyHours, totalWeeklyHours }
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════ */
 app.post("/send-email/streak", async (req, res) => {
   const { firstName = "Student", email, streakDays = 7, avgDailyHours = 0, totalWeeklyHours = 0 } = req.body;
   if (!email) return res.status(400).json({ error: "email is required" });
@@ -300,23 +320,25 @@ app.post("/send-email/streak", async (req, res) => {
      <p style="font-size:14px;color:#374a37;line-height:1.7;margin:0;">
        🌟 Keep showing up every day — even 20 minutes of focused study compounds into remarkable results over time. You're building something extraordinary.
      </p>
-     ${ctaButton("Keep the streak going →", "https://studysync-11156.web.app/focus", "#6b21a8")}`
+     ${ctaButton("Keep the streak going →", "https://study-sync-eosin-seven.vercel.app/focus", "#6b21a8")}`
   );
 
   try {
-    const data = await resend.emails.send({ from: FROM, to: email, subject: `🔥 ${streakDays}-day streak! You're on fire`, html });
-    res.json({ success: true, id: data.id });
+    console.log(`[${new Date().toISOString()}] Sending streak email to ${email}...`);
+    await sendMail(email, `🔥 ${streakDays}-day streak! You're on fire, ${firstName}`, html);
+    console.log(`[${new Date().toISOString()}] ✅ Streak email sent to ${email}`);
+    res.json({ success: true });
   } catch (err) {
-    console.error("Streak email error:", err);
+    console.error(`[${new Date().toISOString()}] ❌ Streak email error for ${email}:`, err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    EMAIL 6 — WEEKLY DIGEST
    POST /send-email/weekly
    Body: { firstName, email, tasksDone, focusHours, streak, topSubject }
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════ */
 app.post("/send-email/weekly", async (req, res) => {
   const { firstName = "Student", email, tasksDone = 0, focusHours = 0, streak = 0, topSubject = "General" } = req.body;
   if (!email) return res.status(400).json({ error: "email is required" });
@@ -345,30 +367,31 @@ app.post("/send-email/weekly", async (req, res) => {
      <p style="font-size:14px;color:#374a37;line-height:1.7;margin:0;">
        A new week is a fresh start. Plan ahead, set clear goals, and watch how much you can achieve when you stay intentional. 🌱
      </p>
-     ${ctaButton("Plan next week →", "https://studysync-11156.web.app/calendar", "#006064")}`
+     ${ctaButton("Plan next week →", "https://study-sync-eosin-seven.vercel.app/calendar", "#006064")}`
   );
 
   try {
-    const data = await resend.emails.send({ from: FROM, to: email, subject: "Your StudySync week in review 📊", html });
-    res.json({ success: true, id: data.id });
+    console.log(`[${new Date().toISOString()}] Sending weekly digest email to ${email}...`);
+    await sendMail(email, "Your StudySync week in review 📊", html);
+    console.log(`[${new Date().toISOString()}] ✅ Weekly digest email sent to ${email}`);
+    res.json({ success: true });
   } catch (err) {
-    console.error("Weekly email error:", err);
+    console.error(`[${new Date().toISOString()}] ❌ Weekly digest email error for ${email}:`, err.message);
     res.status(500).json({ error: err.message });
   }
 });
 
-/* ═══════════════════════════════════════════════
-   WEEKLY CRON — every Monday at 8:00 AM
-   Logs a reminder (wire up to your user DB here)
-═══════════════════════════════════════════════ */
-cron.schedule("0 8 * * 1", () => {
-  console.log("[CRON] Monday 8 AM — trigger weekly digest emails from your user database here.");
-  // Example: fetch all users with emailPrefs.weeklyDigest === true from Firestore
-  // and POST to /send-email/weekly for each.
-  // You'll need to install firebase-admin and query Firestore here.
+/* ═══════════════════════════════════════════
+   WEEKLY CRON — every Monday at 8:00 AM IST
+   (UTC 02:30 = 8:00 AM IST)
+═══════════════════════════════════════════ */
+cron.schedule("0 2 * * 1", () => {
+  console.log(`[${new Date().toISOString()}] [CRON] Monday 8AM IST — wire up weekly digest to Firestore user collection here.`);
+  // TODO: fetch all users with emailPrefs.weeklyDigest === true from Firestore
+  // and POST to /send-email/weekly for each user.
 });
 
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════
    START
-═══════════════════════════════════════════════ */
-app.listen(PORT, () => console.log(`✅ StudySync email server running on port ${PORT}`));
+═══════════════════════════════════════════ */
+app.listen(PORT, () => console.log(`[${new Date().toISOString()}] ✅ StudySync email server running on port ${PORT}`));

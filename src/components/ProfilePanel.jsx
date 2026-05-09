@@ -320,8 +320,11 @@ export default function ProfilePanel() {
                 <button className="profile-btn-green" onClick={async () => {
                   const { sendPasswordResetEmail } = await import("firebase/auth");
                   await sendPasswordResetEmail(auth, email);
-                  // Always send security alert (pref is locked on)
-                  sendSecurityEmail(email).catch(console.error);
+                  // Trigger 4 — Security alert (always sent, cannot be disabled)
+                  sendSecurityEmail({
+                    email,
+                    changeDateTime: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
+                  });
                   setToast("Reset email sent ✓"); setChangePassExpanded(false);
                 }}>Send Reset Email</button>
               </div>

@@ -4,9 +4,10 @@ import { useAuth } from "../contexts/AuthContext";
 import { db } from "../firebase/config";
 import {
   collection, query, where, onSnapshot,
-  doc, getDoc, setDoc, updateDoc, serverTimestamp,
+  doc, getDoc, setDoc, updateDoc, arrayUnion, serverTimestamp,
 } from "firebase/firestore";
 import PageShell from "../components/PageShell";
+import { sendStreakEmail, STREAK_MILESTONES } from "../services/emailService";
 
 /* ═══════════════════════════════════════════
    WEB AUDIO AMBIENT SOUND ENGINE
@@ -411,6 +412,30 @@ export default function FocusPage() {
     if (mode === "focus") {
       setCompletedSessions(c => c + 1);
       showToastMsg("🎉 Focus session complete! Take a break.");
+
+      // Trigger 5 — Streak milestone email
+      if (user) {
+        (async () => {
+          try {
+            const prefRef = doc(db, "focus_prefs", user.uid);
+            const prefSnap = await getDoc(prefRef);
+            const prefData = prefSnap.exists() ? prefSnap.data() : {};
+            const streak = prefData.streak || 0;
+            const achievedMilestones = prefData.achievedMilestones || [];
+
+            if (STREAK_MILESTONES.has(streak) && !achievedMilestones.includes(streak)) {
+              const firstName = (user.displayName || user.email || "Student").split(" ")[0];
+              const totalWeeklyHours = Math.round((prefData.focusedToday || 0) / 60 * 10) / 10;
+              const avgDailyHours = Math.round(totalWeeklyHours / 7 * 10) / 10;
+              sendStreakEmail({ firstName, email: user.email, streakDays: streak, avgDailyHours, totalWeeklyHours });
+              await setDoc(prefRef, { achievedMilestones: arrayUnion(streak) }, { merge: true });
+            }
+          } catch (e) {
+            console.error("[FocusPage] Streak email check failed:", e.message);
+          }
+        })();
+      }
+
       if (currentLap < laps) {
         setMode("break");
         setSecsLeft(breakMins * 60);

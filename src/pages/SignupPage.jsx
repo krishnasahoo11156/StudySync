@@ -37,7 +37,7 @@ export default function SignupPage() {
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(cred.user, { displayName: name });
       // Send welcome email — non-blocking (won't stop navigation if server is down)
-      sendWelcomeEmail(name.split(" ")[0], email).catch(console.error);
+      sendWelcomeEmail({ firstName: name.split(" ")[0], email });
       navigate("/dashboard");
     } catch (err) {
       const code = err.code;

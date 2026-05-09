@@ -4,10 +4,11 @@ import { useAuth } from "../contexts/AuthContext";
 import { db } from "../firebase/config";
 import {
   collection, query, where, onSnapshot,
-  addDoc, updateDoc, deleteDoc, doc, serverTimestamp,
+  addDoc, updateDoc, deleteDoc, doc, getDoc, setDoc, getDocs, serverTimestamp,
 } from "firebase/firestore";
 import PageShell from "../components/PageShell";
 import TaskModal, { EMPTY_TASK } from "../components/TaskModal";
+import { sendTaskCompleteEmail, sendOverdueEmail } from "../services/emailService";
 
 /* ── Helper ── */
 function localYMD(d) {
@@ -53,6 +54,45 @@ export default function Dashboard() {
     });
     return unsub;
   }, [user]);
+
+  /* ══════════════════ Trigger 3 — Overdue Email (on mount) ══════════════════ */
+  useEffect(() => {
+    if (!user) return;
+    const checkOverdue = async () => {
+      try {
+        const threeDaysAgo = Date.now() - 3 * 24 * 60 * 60 * 1000;
+        const q = query(
+          collection(db, "tasks"),
+          where("userId", "==", user.uid),
+          where("status", "==", "pending")
+        );
+        const snap = await getDocs(q);
+        const overdueTasks = snap.docs
+          .map(d => d.data())
+          .filter(t => t.deadline && new Date(t.deadline + "T00:00:00").getTime() < threeDaysAgo)
+          .map(t => ({
+            title: t.title,
+            daysOverdue: Math.floor((Date.now() - new Date(t.deadline + "T00:00:00").getTime()) / 86400000),
+          }));
+
+        if (overdueTasks.length === 0) return;
+
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        const lastSent = userSnap.exists() ? userSnap.data()?.lastOverdueEmailSent : null;
+        const cooldownOk = !lastSent || (Date.now() - new Date(lastSent).getTime() > 24 * 60 * 60 * 1000);
+
+        if (cooldownOk) {
+          const firstName = (user.displayName || user.email || "Student").split(" ")[0];
+          sendOverdueEmail({ firstName, email: user.email, overdueTasks });
+          await setDoc(userRef, { lastOverdueEmailSent: new Date().toISOString() }, { merge: true });
+        }
+      } catch (e) {
+        console.error("[Dashboard] Overdue email check failed:", e.message);
+      }
+    };
+    checkOverdue();
+  }, [user]); // runs once on mount
 
   /* ══════════════════ Timer Effect ══════════════════ */
   useEffect(() => {
@@ -100,7 +140,46 @@ export default function Dashboard() {
       status: newStatus,
       ...(newStatus === "completed" ? { completedAt: new Date().toISOString() } : { completedAt: null }),
     });
-  }, []);
+
+    // Trigger 2 — Task Complete email (max once per 24h)
+    if (newStatus === "completed" && user) {
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        const userData = userSnap.exists() ? userSnap.data() : {};
+        const emailPrefsOk = userData?.emailPrefs?.taskComplete !== false;
+        const lastSent = userData?.lastCompletionEmailSent;
+        const cooldownOk = !lastSent || (Date.now() - new Date(lastSent).getTime() > 24 * 60 * 60 * 1000);
+
+        if (emailPrefsOk && cooldownOk) {
+          // Count weekly completed tasks from current tasks state
+          const now = new Date();
+          const weekStart = new Date(now);
+          weekStart.setDate(now.getDate() - ((now.getDay() + 6) % 7)); // Monday
+          weekStart.setHours(0, 0, 0, 0);
+
+          const allTasksSnap = await getDocs(query(collection(db, "tasks"), where("userId", "==", user.uid)));
+          const allTasks = allTasksSnap.docs.map(d => d.data());
+          const completedThisWeek = allTasks.filter(t =>
+            t.status === "completed" && t.completedAt && new Date(t.completedAt) >= weekStart
+          ).length;
+
+          const firstName = (user.displayName || user.email || "Student").split(" ")[0];
+          sendTaskCompleteEmail({
+            firstName,
+            email: user.email,
+            completedThisWeek,
+            totalTasks: allTasks.length,
+            lastTaskName: task.title,
+          });
+
+          await setDoc(userRef, { lastCompletionEmailSent: new Date().toISOString() }, { merge: true });
+        }
+      } catch (e) {
+        console.error("[Dashboard] Task-complete email check failed:", e.message);
+      }
+    }
+  }, [user]);
 
   // openEdit just sets the editingTask; the modal seeds its own state from initialData
   const openEdit = useCallback((task) => {
