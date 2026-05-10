@@ -1,38 +1,37 @@
 /* ═══════════════════════════════════════════════════════════
    StudySync — Email Notification Server
-   Uses: Express · Nodemailer (Brevo SMTP) · node-cron · dotenv · cors
+   Uses: Express · Brevo HTTP API · node-cron · dotenv · cors
 ═══════════════════════════════════════════════════════════ */
 
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import cron from "node-cron";
-import nodemailer from "nodemailer";
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
 
-// ── Nodemailer Brevo transporter ────────────────────────────
-const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.BREVO_USER,
-    pass: process.env.BREVO_SMTP_KEY
+// ── Brevo HTTP API helper ────────────────────────────────────
+async function sendEmail({ to, subject, html }) {
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'api-key': process.env.BREVO_API_KEY
+    },
+    body: JSON.stringify({
+      sender: { name: 'StudySync', email: process.env.BREVO_SENDER_EMAIL },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html
+    })
+  });
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(err);
   }
-});
-
-// Verify connection on startup
-transporter.verify((err, success) => {
-  if (err) {
-    console.error(`[${new Date().toISOString()}] ❌ SMTP connection failed:`, err.message);
-  } else {
-    console.log(`[${new Date().toISOString()}] ✅ Brevo SMTP ready — connected as ${process.env.BREVO_USER}`);
-  }
-});
-
-const FROM = `StudySync <${process.env.BREVO_USER}>`;
+  return response.json();
+}
 
 // ── Middleware ──────────────────────────────────────────────
 app.use(cors({ origin: "*" }));
@@ -105,11 +104,6 @@ function statCard(value, label, color = "#1a7a4a") {
   </td>`;
 }
 
-/* Helper: send via Nodemailer */
-async function sendMail(to, subject, html) {
-  return transporter.sendMail({ from: FROM, to, subject, html });
-}
-
 /* ═══════════════════════════════════════════
    EMAIL 1 — WELCOME
    POST /send-email/welcome
@@ -151,7 +145,7 @@ app.post("/send-email/welcome", async (req, res) => {
 
   try {
     console.log(`[${new Date().toISOString()}] Sending welcome email to ${email}...`);
-    await sendMail(email, "Your StudySync sanctuary is ready 🌿", html);
+    await sendEmail({ to: email, subject: "Your StudySync sanctuary is ready 🌿", html });
     console.log(`[${new Date().toISOString()}] ✅ Welcome email sent to ${email}`);
     res.json({ success: true });
   } catch (err) {
@@ -196,7 +190,7 @@ app.post("/send-email/task-complete", async (req, res) => {
 
   try {
     console.log(`[${new Date().toISOString()}] Sending task-complete email to ${email}...`);
-    await sendMail(email, `You're making progress, ${firstName} ✅`, html);
+    await sendEmail({ to: email, subject: `You're making progress, ${firstName} ✅`, html });
     console.log(`[${new Date().toISOString()}] ✅ Task-complete email sent to ${email}`);
     res.json({ success: true });
   } catch (err) {
@@ -236,7 +230,7 @@ app.post("/send-email/overdue", async (req, res) => {
 
   try {
     console.log(`[${new Date().toISOString()}] Sending overdue email to ${email}...`);
-    await sendMail(email, `⚠ A task needs your attention, ${firstName}`, html);
+    await sendEmail({ to: email, subject: `⚠ A task needs your attention, ${firstName}`, html });
     console.log(`[${new Date().toISOString()}] ✅ Overdue email sent to ${email}`);
     res.json({ success: true });
   } catch (err) {
@@ -283,7 +277,7 @@ app.post("/send-email/security", async (req, res) => {
 
   try {
     console.log(`[${new Date().toISOString()}] Sending security email to ${email}...`);
-    await sendMail(email, "Security alert: your StudySync password was changed", html);
+    await sendEmail({ to: email, subject: "Security alert: your StudySync password was changed", html });
     console.log(`[${new Date().toISOString()}] ✅ Security email sent to ${email}`);
     res.json({ success: true });
   } catch (err) {
@@ -327,7 +321,7 @@ app.post("/send-email/streak", async (req, res) => {
 
   try {
     console.log(`[${new Date().toISOString()}] Sending streak email to ${email}...`);
-    await sendMail(email, `🔥 ${streakDays}-day streak! You're on fire, ${firstName}`, html);
+    await sendEmail({ to: email, subject: `🔥 ${streakDays}-day streak! You're on fire, ${firstName}`, html });
     console.log(`[${new Date().toISOString()}] ✅ Streak email sent to ${email}`);
     res.json({ success: true });
   } catch (err) {
@@ -374,7 +368,7 @@ app.post("/send-email/weekly", async (req, res) => {
 
   try {
     console.log(`[${new Date().toISOString()}] Sending weekly digest email to ${email}...`);
-    await sendMail(email, "Your StudySync week in review 📊", html);
+    await sendEmail({ to: email, subject: "Your StudySync week in review 📊", html });
     console.log(`[${new Date().toISOString()}] ✅ Weekly digest email sent to ${email}`);
     res.json({ success: true });
   } catch (err) {
