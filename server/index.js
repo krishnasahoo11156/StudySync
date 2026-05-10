@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════
    StudySync — Email Notification Server
-   Uses: Express · Nodemailer (Gmail SMTP) · node-cron · dotenv · cors
+   Uses: Express · Nodemailer (Brevo SMTP) · node-cron · dotenv · cors
 ═══════════════════════════════════════════════════════════ */
 
 import "dotenv/config";
@@ -12,13 +12,15 @@ import nodemailer from "nodemailer";
 const app  = express();
 const PORT = process.env.PORT || 3001;
 
-// ── Nodemailer Gmail transporter ────────────────────────────
+// ── Nodemailer Brevo transporter ────────────────────────────
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: 'smtp-relay.brevo.com',
+  port: 587,
+  secure: false,
   auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
+    user: process.env.BREVO_USER,
+    pass: process.env.BREVO_SMTP_KEY
+  }
 });
 
 // Verify connection on startup
@@ -26,11 +28,11 @@ transporter.verify((err, success) => {
   if (err) {
     console.error(`[${new Date().toISOString()}] ❌ SMTP connection failed:`, err.message);
   } else {
-    console.log(`[${new Date().toISOString()}] ✅ Gmail SMTP ready — connected as ${process.env.GMAIL_USER}`);
+    console.log(`[${new Date().toISOString()}] ✅ Brevo SMTP ready — connected as ${process.env.BREVO_USER}`);
   }
 });
 
-const FROM = `StudySync <${process.env.GMAIL_USER}>`;
+const FROM = `StudySync <${process.env.BREVO_USER}>`;
 
 // ── Middleware ──────────────────────────────────────────────
 app.use(cors({ origin: "*" }));
