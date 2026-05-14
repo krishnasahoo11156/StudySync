@@ -177,9 +177,12 @@ const CIRCUMFERENCE = 2 * Math.PI * 120; // r=120
 /* ═══════════════════════════════════════════
    CIRCULAR PROGRESS RING — Premium
 ═══════════════════════════════════════════ */
-function TimerRing({ progress, isRunning, mode, displayTime }) {
+function TimerRing({ progress, isRunning, mode, displayTime, isDark }) {
   const offset = CIRCUMFERENCE * (1 - progress);
   const isFocus = mode === "focus";
+  const trackColor = isDark
+    ? (isFocus ? "#1e2e1e" : "#1a2a40")
+    : (isFocus ? "#E4EDEA" : "#DBEAFE");
   return (
     <div className="relative flex items-center justify-center" style={{ width: 280, height: 280 }}>
       {/* Ambient glow */}
@@ -192,7 +195,7 @@ function TimerRing({ progress, isRunning, mode, displayTime }) {
         {/* Outer track */}
         <circle cx="140" cy="140" r="120" fill="none" stroke="rgba(22,163,74,0.08)" strokeWidth="2" />
         {/* Inner track */}
-        <circle cx="140" cy="140" r="120" fill="none" stroke={isFocus ? "#E4EDEA" : "#DBEAFE"} strokeWidth="8" />
+        <circle cx="140" cy="140" r="120" fill="none" stroke={trackColor} strokeWidth="8" />
         {/* Progress arc */}
         <circle
           cx="140" cy="140" r="120" fill="none"
@@ -208,7 +211,7 @@ function TimerRing({ progress, isRunning, mode, displayTime }) {
           <circle
             cx={140 + 120 * Math.cos(-Math.PI / 2 + 2 * Math.PI * progress)}
             cy={140 + 120 * Math.sin(-Math.PI / 2 + 2 * Math.PI * progress)}
-            r="5" fill="white"
+            r="5" fill={isDark ? "#111a12" : "white"}
             stroke={isFocus ? "#16A34A" : "#60A5FA"}
             strokeWidth="2"
           />
@@ -216,7 +219,7 @@ function TimerRing({ progress, isRunning, mode, displayTime }) {
       </svg>
       {/* Center content */}
       <div className="absolute flex flex-col items-center gap-1">
-        <span className={`text-5xl font-bold tracking-tighter tabular-nums ${isFocus ? "text-on-surface" : "text-accent-dark"}`}>
+        <span className={`text-5xl font-bold tracking-tighter tabular-nums ${isFocus ? "text-on-surface dark:text-dm-text-primary" : "text-accent-dark"}`}>
           {displayTime}
         </span>
         <span className={`type-caption ${isFocus ? "text-primary" : "text-accent"}`}>
@@ -263,18 +266,18 @@ function DurationControl({ label, value, onDec, onInc, unit = "min", min = 1, ma
 /* ═══════════════════════════════════════════
    SOUND CARD
 ═══════════════════════════════════════════ */
-function SoundCard({ sound, active, onClick }) {
+function SoundCard({ sound, active, onClick, isDark }) {
   return (
     <button onClick={() => onClick(sound.id)}
       className={`flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-200 w-full hover:-translate-y-0.5 ${
         active
-          ? "border-primary bg-primary-container/40 shadow-raised"
-          : "border-border-default bg-white hover:border-primary/30 hover:bg-surface-container-low"
+          ? "border-primary bg-primary-container/40 dark:bg-dm-primary-bg/40 shadow-raised"
+          : "border-border-default dark:border-dm-border bg-white dark:bg-dm-bg hover:border-primary/30 hover:bg-surface-container-low dark:hover:border-primary/50 dark:hover:bg-dm-surface-hover"
       }`}>
-      <div className={`w-9 h-9 rounded-lg ${sound.bg} flex items-center justify-center`}>
+      <div className={`w-9 h-9 rounded-lg ${isDark ? "bg-dm-surface" : sound.bg} flex items-center justify-center`}>
         <span className={`material-symbols-outlined ${sound.color} text-lg`}>{sound.icon}</span>
       </div>
-      <span className="text-[11px] font-semibold text-on-surface text-center leading-tight">{sound.label}</span>
+      <span className="text-[11px] font-semibold text-on-surface dark:text-dm-text-secondary text-center leading-tight">{sound.label}</span>
       {active && (
         <div className="flex gap-0.5">
           {[0,1,2,3].map(i => (
@@ -290,12 +293,12 @@ function SoundCard({ sound, active, onClick }) {
 /* ═══════════════════════════════════════════
    CIRCULAR GOAL RING
 ═══════════════════════════════════════════ */
-function GoalRing({ progress }) {
+function GoalRing({ progress, isDark }) {
   const r = 36, c = 2 * Math.PI * r;
   const offset = c * (1 - Math.min(progress, 1));
   return (
     <svg width="88" height="88" style={{ transform: "rotate(-90deg)" }}>
-      <circle cx="44" cy="44" r={r} fill="none" stroke="#E4EDEA" strokeWidth="6" />
+      <circle cx="44" cy="44" r={r} fill="none" stroke={isDark ? "#1e2e1e" : "#E4EDEA"} strokeWidth="6" />
       <circle cx="44" cy="44" r={r} fill="none" stroke="#16A34A" strokeWidth="6"
         strokeLinecap="round"
         strokeDasharray={c} strokeDashoffset={offset}
@@ -309,6 +312,7 @@ function GoalRing({ progress }) {
 ═══════════════════════════════════════════ */
 export default function FocusPage() {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
 
   /* ── Timer settings (with defaults) ── */
@@ -605,9 +609,9 @@ export default function FocusPage() {
               <h3 className="type-caption text-text-muted mb-4">Daily Goal</h3>
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <GoalRing progress={goalProgress} />
+                  <GoalRing progress={goalProgress} isDark={isDark} />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xs font-bold text-emerald-800">{Math.round(goalProgress * 100)}%</span>
+                    <span className="text-xs font-bold text-emerald-800 dark:text-dm-text-green">{Math.round(goalProgress * 100)}%</span>
                   </div>
                 </div>
                 <div className="flex-1">
@@ -644,18 +648,20 @@ export default function FocusPage() {
           <div className="lg:col-span-6 flex flex-col items-center gap-6">
 
             {/* Timer card */}
-            <div className={`w-full bg-white rounded-[2.5rem] shadow-sm border transition-all duration-500 p-10 flex flex-col items-center gap-6 ${
-              isRunning && mode === "focus"
-                ? "border-emerald-200 shadow-emerald-100 shadow-lg"
-                : isRunning && mode === "break"
-                ? "border-sky-200 shadow-sky-100 shadow-lg"
-                : "border-emerald-50"
-            }`}>
+            <div className={`w-full rounded-[2.5rem] shadow-sm border transition-all duration-500 p-10 flex flex-col items-center gap-6
+              ${isDark ? "bg-dm-surface border-dm-border" : "bg-white"}
+              ${
+                isRunning && mode === "focus"
+                  ? isDark ? "shadow-emerald-900/30 shadow-lg" : "border-emerald-200 shadow-emerald-100 shadow-lg"
+                  : isRunning && mode === "break"
+                  ? isDark ? "shadow-sky-900/30 shadow-lg" : "border-sky-200 shadow-sky-100 shadow-lg"
+                  : isDark ? "" : "border-emerald-50"
+              }`}>
               {/* Mode badge */}
               <div className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors ${
                 mode === "focus"
-                  ? "bg-emerald-100 text-emerald-700"
-                  : "bg-sky-100 text-sky-700"
+                  ? isDark ? "bg-dm-primary-bg text-dm-text-green" : "bg-emerald-100 text-emerald-700"
+                  : isDark ? "bg-sky-900/40 text-sky-300" : "bg-sky-100 text-sky-700"
               }`}>
                 {mode === "focus" ? "🍅 Focus Session" : "☕ Break Time"}
               </div>
@@ -666,12 +672,17 @@ export default function FocusPage() {
                 isRunning={isRunning}
                 mode={mode}
                 displayTime={displayTime}
+                isDark={isDark}
               />
 
               {/* Controls */}
               <div className="flex items-center gap-4">
                 <button onClick={handleReset}
-                  className="w-12 h-12 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center transition-all active:scale-90">
+                  className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all active:scale-90 ${
+                    isDark
+                      ? "bg-dm-surface-hover text-dm-text-secondary hover:bg-dm-surface border border-dm-border"
+                      : "bg-emerald-50 hover:bg-emerald-100 text-emerald-700"
+                  }`}>
                   <span className="material-symbols-outlined">restart_alt</span>
                 </button>
                 <button
@@ -688,7 +699,11 @@ export default function FocusPage() {
                   {isRunning ? "Pause" : "Start Focus Session"}
                 </button>
                 <button onClick={() => { setMode(m => m === "focus" ? "break" : "focus"); setIsRunning(false); setSecsLeft(mode === "focus" ? breakMins * 60 : focusMins * 60); }}
-                  className="w-12 h-12 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 flex items-center justify-center transition-all active:scale-90"
+                  className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all active:scale-90 ${
+                    isDark
+                      ? "bg-dm-surface-hover text-dm-text-secondary hover:bg-dm-surface border border-dm-border"
+                      : "bg-emerald-50 hover:bg-emerald-100 text-emerald-700"
+                  }`}
                   title="Switch mode">
                   <span className="material-symbols-outlined">swap_horiz</span>
                 </button>
@@ -696,34 +711,40 @@ export default function FocusPage() {
             </div>
 
             {/* Task Tethering */}
-            <div className="w-full bg-white rounded-3xl p-6 shadow-sm border border-emerald-50">
+            <div className={`w-full rounded-3xl p-6 shadow-sm border ${
+              isDark ? "bg-dm-surface border-dm-border" : "bg-white border-emerald-50"
+            }`}>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60">Task Tethering</h3>
+                <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 dark:text-dm-text-tertiary">Task Tethering</h3>
                 <button onClick={() => setShowTaskPicker(true)}
-                  className="text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors flex items-center gap-1">
+                  className="text-xs font-bold text-emerald-600 dark:text-dm-text-green hover:text-emerald-800 dark:hover:text-primary transition-colors flex items-center gap-1">
                   <span className="material-symbols-outlined text-sm">swap_horiz</span>
                   Change Task
                 </button>
               </div>
               {selectedTask ? (
-                <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-2xl">
+                <div className={`flex items-center gap-3 p-3 rounded-2xl ${isDark ? "bg-dm-bg" : "bg-emerald-50"}`}>
                   <div className="w-9 h-9 rounded-xl signature-gradient flex items-center justify-center flex-shrink-0">
                     <span className="material-symbols-outlined text-white text-base">task_alt</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-emerald-900 text-sm truncate">{selectedTask.title}</p>
-                    <p className="text-xs text-emerald-500/70">{selectedTask.subject} • {selectedTask.deadline || "No deadline"}</p>
+                    <p className="font-semibold text-emerald-900 dark:text-dm-text-primary text-sm truncate">{selectedTask.title}</p>
+                    <p className="text-xs text-emerald-500/70 dark:text-dm-text-tertiary">{selectedTask.subject} • {selectedTask.deadline || "No deadline"}</p>
                   </div>
                   <button onClick={() => setSelectedTask(null)}
-                    className="p-1 rounded-lg hover:bg-emerald-100 text-emerald-500 transition-colors">
+                    className={`p-1 rounded-lg transition-colors ${isDark ? "hover:bg-dm-surface text-dm-text-tertiary" : "hover:bg-emerald-100 text-emerald-500"}`}>
                     <span className="material-symbols-outlined text-sm">close</span>
                   </button>
                 </div>
               ) : (
                 <button onClick={() => setShowTaskPicker(true)}
-                  className="w-full flex items-center gap-3 p-3 border-2 border-dashed border-emerald-200 rounded-2xl hover:border-emerald-400 hover:bg-emerald-50/50 transition-all group">
-                  <span className="material-symbols-outlined text-emerald-300 group-hover:text-emerald-500 transition-colors">add_circle</span>
-                  <span className="text-sm text-emerald-500 font-medium">Tether a task to this session</span>
+                  className={`w-full flex items-center gap-3 p-3 border-2 border-dashed rounded-2xl transition-all group ${
+                    isDark
+                      ? "border-dm-border hover:border-primary/50 hover:bg-dm-surface-hover text-dm-text-tertiary"
+                      : "border-emerald-200 hover:border-emerald-400 hover:bg-emerald-50/50"
+                  }`}>
+                  <span className="material-symbols-outlined text-emerald-300 dark:text-dm-text-tertiary group-hover:text-emerald-500 dark:group-hover:text-dm-text-green transition-colors">add_circle</span>
+                  <span className="text-sm text-emerald-500 dark:text-dm-text-secondary font-medium">Tether a task to this session</span>
                 </button>
               )}
             </div>
@@ -735,10 +756,12 @@ export default function FocusPage() {
                 { label: "Focused", value: `${focusedToday}m`, icon: "schedule" },
                 { label: "Current Lap", value: `${currentLap}/${laps}`, icon: "repeat" },
               ].map(stat => (
-                <div key={stat.label} className="bg-white rounded-2xl p-4 text-center shadow-sm border border-emerald-50">
+                <div key={stat.label} className={`rounded-2xl p-4 text-center shadow-sm border ${
+                  isDark ? "bg-dm-surface border-dm-border" : "bg-white border-emerald-50"
+                }`}>
                   <span className="material-symbols-outlined text-emerald-400 text-lg">{stat.icon}</span>
-                  <p className="text-xl font-extrabold text-emerald-900 mt-1">{stat.value}</p>
-                  <p className="text-[0.6rem] font-bold uppercase tracking-widest text-emerald-500/60">{stat.label}</p>
+                  <p className="text-xl font-extrabold text-emerald-900 dark:text-dm-text-primary mt-1">{stat.value}</p>
+                  <p className="text-[0.6rem] font-bold uppercase tracking-widest text-emerald-500/60 dark:text-dm-text-tertiary">{stat.label}</p>
                 </div>
               ))}
             </div>
@@ -748,21 +771,27 @@ export default function FocusPage() {
           <div className="lg:col-span-3 flex flex-col gap-5">
 
             {/* Ambient Sounds */}
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-emerald-50">
-              <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-1">Ambient Soundscapes</h3>
-              <p className="text-xs text-emerald-500/60 mb-5">Generated in-browser — no files needed</p>
+            <div className={`rounded-3xl p-6 shadow-sm border ${
+              isDark ? "bg-dm-surface border-dm-border" : "bg-white border-emerald-50"
+            }`}>
+              <h3 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 dark:text-dm-text-tertiary mb-1">Ambient Soundscapes</h3>
+              <p className="text-xs text-emerald-500/60 dark:text-dm-text-tertiary mb-5">Generated in-browser — no files needed</p>
               <div className="grid grid-cols-2 gap-2 mb-5">
                 {SOUNDS.map(s => (
-                  <SoundCard key={s.id} sound={s} active={activeSound === s.id} onClick={handleSound} />
+                  <SoundCard key={s.id} sound={s} active={activeSound === s.id} onClick={handleSound} isDark={isDark} />
                 ))}
                 {/* Stop button — takes last cell */}
                 {activeSound && (
                   <button onClick={() => { engine.stop(); setActiveSound(null); }}
-                    className="flex flex-col items-center gap-2 p-4 rounded-2xl border-2 border-red-100 bg-red-50 hover:border-red-200 transition-all w-full">
-                    <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center">
+                    className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all w-full ${
+                      isDark
+                        ? "border-red-900/40 bg-red-950/30 hover:border-red-800/60 text-red-400"
+                        : "border-red-100 bg-red-50 hover:border-red-200"
+                    }`}>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isDark ? "bg-red-950/50" : "bg-red-100"}`}>
                       <span className="material-symbols-outlined text-red-400 text-xl">stop_circle</span>
                     </div>
-                    <span className="text-xs font-semibold text-red-500">Stop</span>
+                    <span className="text-xs font-semibold text-red-500 dark:text-red-400">Stop</span>
                   </button>
                 )}
               </div>
@@ -770,8 +799,8 @@ export default function FocusPage() {
               {/* Volume slider */}
               <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-[0.6rem] font-bold uppercase tracking-widest text-emerald-600/60">Volume</span>
-                  <span className="text-xs font-bold text-emerald-700">{Math.round(volume * 100)}%</span>
+                  <span className="text-[0.6rem] font-bold uppercase tracking-widest text-emerald-600/60 dark:text-dm-text-tertiary">Volume</span>
+                  <span className="text-xs font-bold text-emerald-700 dark:text-dm-text-green">{Math.round(volume * 100)}%</span>
                 </div>
                 <input
                   type="range" min={0} max={1} step={0.02} value={volume}

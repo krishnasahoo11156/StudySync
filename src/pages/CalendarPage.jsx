@@ -468,22 +468,30 @@ export default function CalendarPage() {
           <div className="xl:col-span-3 space-y-5 order-2 xl:order-1">
 
             {/* Navigation Controls */}
-            <div className="bg-white rounded-3xl p-5 shadow-sm border border-emerald-50">
+            <div className={`rounded-3xl p-5 shadow-sm border ${
+              isDark ? "bg-dm-surface border-dm-border" : "bg-white border-emerald-50"
+            }`}>
               <div className="flex items-center justify-between">
-                <button onClick={goPrev} className="w-9 h-9 rounded-xl bg-emerald-50 hover:bg-emerald-100 flex items-center justify-center transition-all">
-                  <span className="material-symbols-outlined text-emerald-700 text-lg">chevron_left</span>
+                <button onClick={goPrev} className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                  isDark ? "bg-dm-bg hover:bg-dm-surface-hover" : "bg-emerald-50 hover:bg-emerald-100"
+                }`}>
+                  <span className="material-symbols-outlined text-emerald-700 dark:text-dm-text-green text-lg">chevron_left</span>
                 </button>
-                <button onClick={goToday} className="px-5 py-2 rounded-xl bg-emerald-100 text-emerald-800 font-bold text-xs hover:bg-emerald-200 transition-all">
+                <button onClick={goToday} className={`px-5 py-2 rounded-xl font-bold text-xs transition-all ${
+                  isDark ? "bg-dm-bg text-dm-text-green hover:bg-dm-surface-hover" : "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+                }`}>
                   Today
                 </button>
-                <button onClick={goNext} className="w-9 h-9 rounded-xl bg-emerald-50 hover:bg-emerald-100 flex items-center justify-center transition-all">
-                  <span className="material-symbols-outlined text-emerald-700 text-lg">chevron_right</span>
+                <button onClick={goNext} className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                  isDark ? "bg-dm-bg hover:bg-dm-surface-hover" : "bg-emerald-50 hover:bg-emerald-100"
+                }`}>
+                  <span className="material-symbols-outlined text-emerald-700 dark:text-dm-text-green text-lg">chevron_right</span>
                 </button>
               </div>
               {/* Mini month-year display */}
               <div className="text-center mt-4">
-                <h2 className="text-2xl font-extrabold text-emerald-900">{MONTH_NAMES[currentDate.getMonth()]}</h2>
-                <p className="text-emerald-500 text-sm font-semibold">{currentDate.getFullYear()}</p>
+                <h2 className="text-2xl font-extrabold text-emerald-900 dark:text-dm-text-primary">{MONTH_NAMES[currentDate.getMonth()]}</h2>
+                <p className="text-emerald-500 dark:text-dm-text-tertiary text-sm font-semibold">{currentDate.getFullYear()}</p>
               </div>
             </div>
 
@@ -584,11 +592,17 @@ export default function CalendarPage() {
               <>
                 {/* ════════ MONTH VIEW ════════ */}
                 {view === "month" && (
-                  <div className="bg-white rounded-2xl shadow-raised border border-border-default overflow-hidden">
+                  <div className={`rounded-2xl shadow-raised border overflow-hidden ${
+                    isDark ? "bg-dm-surface border-dm-border" : "bg-white border-border-default"
+                  }`}>
                     {/* Header */}
-                    <div className="grid grid-cols-7 border-b border-emerald-50">
+                    <div className={`grid grid-cols-7 border-b ${
+                      isDark ? "bg-dm-bg border-dm-border" : "border-emerald-50"
+                    }`}>
                       {DAY_NAMES.map(d => (
-                        <div key={d} className="py-3 text-center text-[0.65rem] font-bold uppercase tracking-widest text-emerald-500">{d}</div>
+                        <div key={d} className={`py-3 text-center text-[0.65rem] font-bold uppercase tracking-widest ${
+                          isDark ? "text-dm-text-tertiary" : "text-emerald-500"
+                        }`}>{d}</div>
                       ))}
                     </div>
                     {/* Grid */}
@@ -600,7 +614,11 @@ export default function CalendarPage() {
                         const heatVal = heatmapData[ymd] || 0;
                         return (
                           <div key={i}
-                            className={`min-h-[6rem] p-1.5 border-b border-r border-emerald-50/60 cursor-pointer transition-all hover:bg-emerald-50/50 relative ${!cell.current ? "bg-emerald-25/30" : ""}`}
+                            className={`min-h-[6rem] p-1.5 border-b border-r cursor-pointer transition-all relative ${
+                              isDark
+                                ? `border-dm-border ${!cell.current ? "bg-dm-bg" : "bg-dm-surface hover:bg-dm-surface-hover"}`
+                                : `border-emerald-50/60 ${!cell.current ? "bg-emerald-25/30" : "hover:bg-emerald-50/50"}`
+                            }`}
                             style={showHeatmap && heatVal > 0 ? { backgroundColor: `rgba(0,108,73,${Math.min(heatVal / maxHeat * 0.25, 0.25)})` } : {}}
                             onClick={() => { setSelectedDate(cell.date); openAddOnDate(ymd); }}
                             onDragOver={handleDragOver}
@@ -610,8 +628,8 @@ export default function CalendarPage() {
                               isToday
                                 ? "bg-emerald-600 text-white"
                                 : !cell.current
-                                ? "text-emerald-300"
-                                : "text-emerald-700"
+                                ? isDark ? "text-dm-text-tertiary" : "text-emerald-300"
+                                : isDark ? "text-dm-text-secondary" : "text-emerald-700"
                             }`}>
                               {cell.date.getDate()}
                             </span>
@@ -630,7 +648,9 @@ export default function CalendarPage() {
 
                 {/* ════════ WEEK VIEW ════════ */}
                 {view === "week" && (
-                  <div className="bg-white rounded-3xl shadow-sm border border-emerald-50 overflow-hidden">
+                  <div className={`rounded-3xl shadow-sm border overflow-hidden ${
+                    isDark ? "bg-dm-surface border-dm-border" : "bg-white border-emerald-50"
+                  }`}>
                     {/* Header */}
                     <div className="grid grid-cols-8 border-b border-emerald-50">
                       <div className="py-3 px-2 text-center text-[0.6rem] font-bold text-emerald-300"></div>
