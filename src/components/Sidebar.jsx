@@ -48,7 +48,7 @@ export default function Sidebar() {
       {/* ── Mobile overlay ── */}
       {expanded && (
         <div
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-black/20 dark:bg-black/60 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setExpanded(false)}
         />
       )}
@@ -56,7 +56,7 @@ export default function Sidebar() {
       {/* ── Sidebar ── */}
       <aside
         className={`sidebar-shell fixed top-0 left-0 h-full z-50 flex flex-col
-          bg-white/95 glass-nav border-r border-border-default
+          bg-white/95 dark:bg-dm-sidebar glass-nav border-r border-border-default dark:border-dm-border
           transition-all duration-300 ease-smooth
           ${expanded ? "w-[220px]" : "w-[64px]"}
           ${isFocusMode ? "lg:translate-x-0" : ""}
@@ -65,14 +65,14 @@ export default function Sidebar() {
         onMouseLeave={() => { setExpanded(false); setHoveredIdx(-1); }}
       >
         {/* ── Brand ── */}
-        <div className={`flex items-center h-16 px-4 border-b border-border-default ${expanded ? "gap-3" : "justify-center"}`}>
+        <div className={`flex items-center h-16 px-4 border-b border-border-default dark:border-dm-border ${expanded ? "gap-3" : "justify-center"}`}>
           <div className="w-8 h-8 rounded-lg signature-gradient flex items-center justify-center flex-shrink-0 shadow-sm">
             <span className="material-symbols-outlined text-white text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
               eco
             </span>
           </div>
           <div className={`overflow-hidden transition-all duration-300 ${expanded ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
-            <span className="text-sm font-bold text-on-surface whitespace-nowrap tracking-tight">StudySync</span>
+            <span className="text-sm font-bold text-on-surface dark:text-dm-text-primary whitespace-nowrap tracking-tight transition-colors duration-300">StudySync</span>
           </div>
         </div>
 
@@ -88,8 +88,8 @@ export default function Sidebar() {
                 className={`group relative flex items-center rounded-xl transition-all duration-200
                   ${expanded ? "px-3 py-2.5 gap-3" : "justify-center py-2.5"}
                   ${isActive
-                    ? "text-primary bg-primary/[0.08]"
-                    : "text-text-muted hover:text-on-surface hover:bg-surface-container-high/60"
+                    ? "text-primary bg-primary/[0.08] dark:bg-dm-primary-bg dark:text-dm-text-green"
+                    : "text-text-muted dark:text-dm-text-secondary hover:text-on-surface dark:hover:text-dm-text-primary hover:bg-surface-container-high/60 dark:hover:bg-dm-surface-hover"
                   }`}
                 onMouseEnter={() => setHoveredIdx(idx)}
                 onMouseLeave={() => setHoveredIdx(-1)}
@@ -101,7 +101,10 @@ export default function Sidebar() {
 
                 <span
                   className={`material-symbols-outlined text-[20px] transition-all duration-200 flex-shrink-0
-                    ${isActive ? "text-primary" : "text-text-muted group-hover:text-on-surface"}`}
+                    ${isActive
+                      ? "text-primary dark:text-dm-text-green"
+                      : "text-text-muted dark:text-dm-text-secondary group-hover:text-on-surface dark:group-hover:text-dm-text-primary"
+                    }`}
                   style={{ fontVariationSettings: isActive ? "'FILL' 1, 'wght' 500" : "'FILL' 0, 'wght' 400" }}
                 >
                   {item.icon}
@@ -115,9 +118,9 @@ export default function Sidebar() {
 
                 {/* Tooltip (collapsed state) */}
                 {!expanded && hoveredIdx === idx && (
-                  <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-on-surface text-white text-xs font-semibold rounded-lg whitespace-nowrap z-50 shadow-lg animate-scale-in pointer-events-none">
+                  <div className="absolute left-full ml-2 px-2.5 py-1.5 bg-on-surface dark:bg-dm-surface-elevated text-white dark:text-dm-text-primary text-xs font-semibold rounded-lg whitespace-nowrap z-50 shadow-lg animate-scale-in pointer-events-none">
                     {item.label}
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full w-0 h-0 border-y-4 border-y-transparent border-r-4 border-r-on-surface" />
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full w-0 h-0 border-y-4 border-y-transparent border-r-4 border-r-on-surface dark:border-r-dm-surface-elevated" />
                   </div>
                 )}
               </NavLink>
@@ -126,13 +129,13 @@ export default function Sidebar() {
         </nav>
 
         {/* ── Bottom section ── */}
-        <div className={`px-2 pb-4 border-t border-border-default pt-3 flex flex-col gap-1`}>
+        <div className={`px-2 pb-4 border-t border-border-default dark:border-dm-border pt-3 flex flex-col gap-1`}>
           {/* User avatar — opens profile panel */}
           <button
             id="sidebar-avatar-btn"
             onClick={togglePanel}
             aria-label="Open profile panel"
-            className={`group flex items-center rounded-xl px-2 py-2 hover:bg-surface-container-high/60 transition-all duration-150 ${
+            className={`group flex items-center rounded-xl px-2 py-2 hover:bg-surface-container-high/60 dark:hover:bg-dm-surface-hover transition-all duration-150 ${
               expanded ? "gap-3" : "justify-center"
             }`}
           >
@@ -146,10 +149,10 @@ export default function Sidebar() {
               )}
             </div>
             <div className={`overflow-hidden transition-all duration-300 min-w-0 ${expanded ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
-              <p className="text-xs font-semibold text-on-surface truncate leading-tight">
+              <p className="text-xs font-semibold text-on-surface dark:text-dm-text-primary truncate leading-tight transition-colors duration-300">
                 {user?.displayName || "Student"}
               </p>
-              <p className="text-[10px] text-text-muted truncate leading-tight">
+              <p className="text-[10px] text-text-muted dark:text-dm-text-secondary truncate leading-tight transition-colors duration-300">
                 {user?.email || ""}
               </p>
             </div>
@@ -159,7 +162,7 @@ export default function Sidebar() {
           <button
             id="sidebar-logout"
             onClick={handleLogout}
-            className={`group flex items-center rounded-xl text-text-muted hover:text-error-dark hover:bg-error-container/40 transition-all duration-200
+            className={`group flex items-center rounded-xl text-text-muted dark:text-dm-text-secondary hover:text-error-dark dark:hover:text-dm-error hover:bg-error-container/40 dark:hover:bg-dm-error-bg transition-all duration-200
               ${expanded ? "px-3 py-2.5 gap-3" : "justify-center py-2.5"}`}
           >
             <span className="material-symbols-outlined text-[20px] flex-shrink-0">logout</span>
@@ -174,11 +177,11 @@ export default function Sidebar() {
       {/* ── Mobile hamburger ── */}
       <button
         id="mobile-menu-toggle"
-        className="fixed top-4 left-4 z-50 lg:hidden w-10 h-10 rounded-xl bg-white/90 glass-nav border border-border-default flex items-center justify-center shadow-raised"
+        className="fixed top-4 left-4 z-50 lg:hidden w-10 h-10 rounded-xl bg-white/90 dark:bg-dm-surface glass-nav border border-border-default dark:border-dm-border flex items-center justify-center shadow-raised"
         onClick={() => setExpanded(v => !v)}
         aria-label="Toggle navigation"
       >
-        <span className="material-symbols-outlined text-on-surface text-xl">
+        <span className="material-symbols-outlined text-on-surface dark:text-dm-text-primary text-xl">
           {expanded ? "close" : "menu"}
         </span>
       </button>

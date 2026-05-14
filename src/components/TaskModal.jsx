@@ -35,38 +35,33 @@ export const EMPTY_TASK = {
 };
 
 /* ── Field components ── */
+const inputBase =
+  "w-full rounded-xl px-4 py-2.5 text-sm outline-none transition-all " +
+  "bg-surface-container-low dark:bg-dm-bg " +
+  "text-on-surface dark:text-dm-text-primary " +
+  "border border-border-default dark:border-dm-border " +
+  "placeholder:text-text-muted dark:placeholder:text-dm-text-tertiary " +
+  "focus:border-primary focus:ring-2 focus:ring-primary/20 " +
+  "dark:focus:border-primary dark:focus:ring-primary/20";
+
 const InputField = memo(({ label, value, onChange, ...rest }) => (
   <div className="space-y-1.5">
-    <label className="type-caption block text-text-muted">{label}</label>
-    <input
-      className="w-full rounded-xl px-4 py-2.5 text-sm bg-surface-container-low text-on-surface border border-border-default outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
-      value={value}
-      onChange={onChange}
-      {...rest}
-    />
+    <label className="type-caption block text-text-muted dark:text-dm-text-secondary">{label}</label>
+    <input className={inputBase} value={value} onChange={onChange} {...rest} />
   </div>
 ));
 
 const TextareaField = memo(({ label, value, onChange, ...rest }) => (
   <div className="space-y-1.5">
-    <label className="type-caption block text-text-muted">{label}</label>
-    <textarea
-      className="w-full rounded-xl px-4 py-2.5 text-sm bg-surface-container-low text-on-surface border border-border-default outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 resize-none"
-      value={value}
-      onChange={onChange}
-      {...rest}
-    />
+    <label className="type-caption block text-text-muted dark:text-dm-text-secondary">{label}</label>
+    <textarea className={`${inputBase} resize-none`} value={value} onChange={onChange} {...rest} />
   </div>
 ));
 
 const SelectField = memo(({ label, value, onChange, children }) => (
   <div className="space-y-1.5">
-    <label className="type-caption block text-text-muted">{label}</label>
-    <select
-      className="w-full rounded-xl px-4 py-2.5 text-sm bg-surface-container-low text-on-surface border border-border-default outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20"
-      value={value}
-      onChange={onChange}
-    >
+    <label className="type-caption block text-text-muted dark:text-dm-text-secondary">{label}</label>
+    <select className={inputBase} value={value} onChange={onChange}>
       {children}
     </select>
   </div>
@@ -98,25 +93,25 @@ const TaskModal = memo(function TaskModal({ isEdit, initialData, onSave, onClose
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop dark:bg-black/70 dark:backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl w-full max-w-lg shadow-modal animate-scale-in overflow-hidden"
+        className="bg-white dark:bg-dm-surface rounded-2xl w-full max-w-lg shadow-modal dark:shadow-[0_24px_64px_rgba(0,0,0,0.5)] animate-scale-in overflow-hidden border border-transparent dark:border-dm-border transition-colors duration-300"
         onClick={e => e.stopPropagation()}
       >
-        {/* Header with gradient accent */}
+        {/* Header gradient accent */}
         <div className="h-1 w-full signature-gradient" />
 
         <div className="p-7 max-h-[85vh] overflow-y-auto scroll-on-hover">
           {/* Title row */}
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-bold text-on-surface">
+            <h3 className="text-lg font-bold text-on-surface dark:text-dm-text-primary">
               {isEdit ? "Edit Task" : "New Task"}
             </h3>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted hover:text-on-surface hover:bg-surface-container-high transition-colors"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-text-muted dark:text-dm-text-secondary hover:text-on-surface dark:hover:text-dm-text-primary hover:bg-surface-container-high dark:hover:bg-dm-surface-hover transition-colors"
             >
               <span className="material-symbols-outlined text-lg">close</span>
             </button>
@@ -147,7 +142,7 @@ const TaskModal = memo(function TaskModal({ isEdit, initialData, onSave, onClose
 
             {/* Color Picker */}
             <div className="space-y-1.5">
-              <label className="type-caption block text-text-muted">Color</label>
+              <label className="type-caption block text-text-muted dark:text-dm-text-secondary">Color</label>
               <div className="flex gap-2 flex-wrap">
                 {TASK_COLORS.map(c => (
                   <button
@@ -158,7 +153,9 @@ const TaskModal = memo(function TaskModal({ isEdit, initialData, onSave, onClose
                     style={{
                       backgroundColor: c.hex,
                       transform: form.color === c.id ? "scale(1.15)" : undefined,
-                      boxShadow: form.color === c.id ? `0 0 0 2px white, 0 0 0 4px ${c.hex}` : undefined,
+                      boxShadow: form.color === c.id
+                        ? `0 0 0 2px #111a12, 0 0 0 4px ${c.hex}`
+                        : undefined,
                     }}
                   />
                 ))}
@@ -166,15 +163,15 @@ const TaskModal = memo(function TaskModal({ isEdit, initialData, onSave, onClose
             </div>
 
             {/* Important Toggle */}
-            <div className="flex items-center justify-between rounded-xl px-4 py-3 bg-sand border border-stone">
+            <div className="flex items-center justify-between rounded-xl px-4 py-3 bg-sand dark:bg-dm-bg border border-stone dark:border-dm-border transition-colors duration-300">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-lg text-warning">star</span>
-                <span className="text-sm font-semibold text-on-surface">Mark as Important</span>
+                <span className={`material-symbols-outlined text-lg ${form.important ? "text-warning dark:text-amber-400" : "text-text-muted dark:text-dm-text-tertiary"}`}>star</span>
+                <span className="text-sm font-semibold text-on-surface dark:text-dm-text-primary">Mark as Important</span>
               </div>
               <button
                 type="button"
                 onClick={toggleImportant}
-                className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none flex-shrink-0 ${form.important ? "bg-primary" : "bg-outline-variant"}`}
+                className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none flex-shrink-0 ${form.important ? "bg-primary" : "bg-outline-variant dark:bg-dm-surface-hover"}`}
               >
                 <span
                   className="absolute top-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200"
@@ -185,12 +182,12 @@ const TaskModal = memo(function TaskModal({ isEdit, initialData, onSave, onClose
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-between mt-6 pt-5 border-t border-border-default">
+          <div className="flex items-center justify-between mt-6 pt-5 border-t border-border-default dark:border-dm-border">
             {isEdit ? (
               <button
                 type="button"
                 onClick={onDelete}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-error-dark hover:bg-error-container transition-colors"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-error-dark dark:text-dm-error hover:bg-error-container dark:hover:bg-dm-error-bg transition-colors"
               >
                 <span className="material-symbols-outlined text-base">delete</span>
                 Delete
@@ -201,7 +198,7 @@ const TaskModal = memo(function TaskModal({ isEdit, initialData, onSave, onClose
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2.5 rounded-xl text-sm font-semibold text-on-surface-variant hover:bg-surface-container-high transition-colors"
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-surface-hover transition-colors"
               >
                 Cancel
               </button>

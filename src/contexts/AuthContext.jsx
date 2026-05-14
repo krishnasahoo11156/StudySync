@@ -25,11 +25,22 @@ export function AuthProvider({ children }) {
     return unsub;
   }, []);
 
-  /* ── Firestore user doc listener (for extended profile, e.g. base64 photoURL) ── */
+  /* ── Firestore user doc listener (for extended profile + dark mode pref) ── */
   useEffect(() => {
     if (!user) { setUserProfile(null); return; }
     const unsub = onSnapshot(doc(db, "users", user.uid), (snap) => {
-      setUserProfile(snap.exists() ? snap.data() : null);
+      const data = snap.exists() ? snap.data() : null;
+      setUserProfile(data);
+
+      /* Sync dark mode preference from Firestore → ThemeContext
+         We do this lazily via a CustomEvent so we don't create a circular
+         import between AuthContext and ThemeContext. */
+      const darkModePref = data?.preferences?.darkMode;
+      if (typeof darkModePref === "boolean") {
+        window.dispatchEvent(
+          new CustomEvent("studysync-theme-sync", { detail: { darkMode: darkModePref } })
+        );
+      }
     });
     return unsub;
   }, [user]);

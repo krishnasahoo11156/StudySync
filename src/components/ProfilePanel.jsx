@@ -6,6 +6,7 @@ import { collection, query, where, onSnapshot, doc, setDoc } from "firebase/fire
 import { updateProfile } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { sendSecurityEmail } from "../services/emailService";
+import DarkModeToggle from "./DarkModeToggle";
 
 /* ── Resize image to base64 (no Firebase Storage needed) ── */
 function resizeImageToBase64(file, maxPx = 200, quality = 0.72) {
@@ -329,6 +330,17 @@ export default function ProfilePanel() {
                 }}>Send Reset Email</button>
               </div>
             )}
+
+            <p className="profile-section-label" style={{ marginTop:8 }}>APPEARANCE</p>
+            <div className="profile-expand-section animate-fade-in" style={{ marginTop:0 }}>
+              <div className="profile-toggle-row">
+                <div>
+                  <span style={{ fontSize:12, color:"inherit", fontWeight:500 }}>Dark Mode</span>
+                  <span style={{ fontSize:10, display:"block", fontWeight:400, opacity:0.7, marginTop:1 }}>Synced across all your devices</span>
+                </div>
+                <DarkModeToggle />
+              </div>
+            </div>
 
             <p className="profile-section-label" style={{ marginTop:8 }}>PREFERENCES</p>
             <MenuRow icon="settings" label="Settings" onClick={() => { close(); navigate("/dashboard"); }} />

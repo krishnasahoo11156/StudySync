@@ -7,6 +7,7 @@
    "Luminous Organicism" — Premium Aesthetic
    Primary: #16A34A  |  Accent: #60A5FA
    Warm sand: #F5F1E8  |  Bg: #F8FAF9
+   Dark bg: #0a0f0a   |  Dark surface: #111a12
 ══════════════════════════════════════════════ */
 
 /* ── Base Typography ── */
@@ -20,7 +21,15 @@ body {
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 300ms ease, color 300ms ease;
 }
+
+/* ── Dark mode body ── */
+.dark body {
+  background-color: #0a0f0a;
+  color: #e8f5e9;
+}
+
 
 /* ════════════════════════════════════════════
    TYPOGRAPHY HIERARCHY (5-step scale)
@@ -993,3 +1002,207 @@ input:focus, textarea:focus, select:focus {
 .profile-photo-link-red { color: #dc2626; }
 .profile-photo-link-red:hover { color: #b91c1c; }
 
+/* ══════════════════════════════════════════════
+   ██████████  DARK MODE OVERRIDES  ██████████
+   All class-based styles that can't use Tailwind
+   dark: variants directly are handled here.
+══════════════════════════════════════════════ */
+
+/* ── Cards ── */
+.dark .card-flat,
+.dark .card,
+.dark .card-static,
+.dark .card-floating {
+  background: #111a12;
+  border-color: #1e2e1f;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+}
+.dark .card:hover {
+  box-shadow: 0 8px 28px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2);
+}
+.dark .card-floating:hover {
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.25);
+}
+.dark .card-warm {
+  background: #0d150e;
+  border-color: #1e2e1f;
+  box-shadow: none;
+}
+.dark .card-accent {
+  background: #0c1a2e;
+  border-color: #1e2f4a;
+}
+
+/* ── Glassmorphism ── */
+.dark .glass-nav {
+  background: rgba(13, 21, 14, 0.92);
+}
+.dark .glass-effect {
+  background: rgba(13, 21, 14, 0.88);
+}
+.dark .glass-panel {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.dark .glass-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ── Scrollbar ── */
+.dark ::-webkit-scrollbar-track { background: #0d150e; }
+.dark ::-webkit-scrollbar-thumb { background: #1e2e1e; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #253525; }
+.dark .scroll-on-hover:hover::-webkit-scrollbar-thumb { background: #1e2e1e; }
+
+/* ── Text selection ── */
+.dark ::selection {
+  background: #14532d;
+  color: #4ade80;
+}
+
+/* ── Shadow utilities ── */
+.dark .ambient-shadow {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.2);
+}
+.dark .card-shadow {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.35), 0 1px 4px rgba(0,0,0,0.2);
+}
+
+/* ── Modal backdrop ── */
+.dark .modal-backdrop {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ── Skeleton loaders ── */
+.dark .skeleton {
+  background: linear-gradient(90deg, #1e2e1e 25%, #253525 50%, #1e2e1e 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ── Glow pulse — dark mode variant ── */
+@keyframes glowPulseDark {
+  0%, 100% { box-shadow: 0 0 20px rgba(74, 222, 128, 0.15); }
+  50%      { box-shadow: 0 0 40px rgba(74, 222, 128, 0.3); }
+}
+@keyframes accentPulseDark {
+  0%, 100% { box-shadow: 0 0 20px rgba(96, 165, 250, 0.15); }
+  50%      { box-shadow: 0 0 40px rgba(96, 165, 250, 0.3); }
+}
+.dark .animate-glow-pulse  { animation-name: glowPulseDark; }
+.dark .animate-accent-pulse{ animation-name: accentPulseDark; }
+
+/* ── Task borders ── */
+.dark .task-border-urgent { border-left-color: #fbbf24; }
+.dark .task-border-normal { border-left-color: #7dd3fc; }
+.dark .task-completed .task-title::after { background: #4d6b4e; }
+
+/* ── Badges ── */
+.dark .badge-green  { background: #14532d; color: #4ade80; }
+.dark .badge-blue   { background: #0c1a2e; color: #7dd3fc; }
+.dark .badge-amber  { background: #292010; color: #fbbf24; }
+.dark .badge-red    { background: #2a1515; color: #f87171; }
+.dark .badge-stone  { background: #1e2e1e; color: #86a887; }
+
+/* ── Toasts ── */
+.dark .toast-success { background: linear-gradient(135deg, #0d1f0e, #14532d); }
+.dark .toast-warning { background: linear-gradient(135deg, #291508, #6b3a00); }
+.dark .toast-error   { background: linear-gradient(135deg, #2a0d0d, #7f1d1d); }
+.dark .toast-info    { background: linear-gradient(135deg, #0c1524, #1e3a5f); }
+
+/* ── Drag overlay ── */
+.dark .drag-overlay {
+  background: rgba(22, 163, 74, 0.06);
+  border-color: #16A34A;
+}
+
+/* ── Segmented control (Calendar view toggle) ── */
+.dark .segmented-control { background: rgba(22, 163, 74, 0.12); }
+.dark .segmented-indicator {
+  background: #1e2e1e;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+/* ── Calendar conflict stripes ── */
+.dark .conflict-stripes {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent, transparent 4px,
+    rgba(251, 191, 36, 0.06) 4px,
+    rgba(251, 191, 36, 0.06) 8px
+  );
+}
+
+/* ── Timer ring glow (Focus page) ── */
+.dark .timer-ring-glow {
+  filter: drop-shadow(0 0 12px rgba(74, 222, 128, 0.3));
+}
+
+/* ── Focus particles ── */
+.dark .focus-particle {
+  background: radial-gradient(circle, rgba(74,222,128,0.08), transparent 70%);
+}
+
+/* ══════════════════════════════════════════════
+   PROFILE PANEL — dark mode
+══════════════════════════════════════════════ */
+.dark .profile-panel {
+  background: #111a12;
+  border-color: #1e2e1f;
+  box-shadow: 0 16px 56px rgba(0,0,0,0.55), 0 4px 16px rgba(0,0,0,0.35);
+}
+.dark .profile-header {
+  background: linear-gradient(160deg, #0d1f0e 0%, #111a12 100%);
+  border-bottom-color: #1e2e1f;
+}
+.dark .profile-name  { color: #e8f5e9; }
+.dark .profile-email { color: #86a887; }
+.dark .profile-stats-row   { border-bottom-color: #1e2e1f; }
+.dark .profile-stat-num    { color: #4ade80; }
+.dark .profile-stat-label  { color: #86a887; }
+.dark .profile-stat-divider{ background: #1e2e1f; }
+.dark .profile-section-label { color: #4d6b4e; }
+.dark .profile-menu-row    { color: #e8f5e9; }
+.dark .profile-menu-row:hover { background: #1e2e1e; }
+.dark .profile-menu-label  { color: #e8f5e9; }
+.dark .profile-signout:hover { background: #2a1515 !important; }
+.dark .profile-divider     { background: #1e2e1f; }
+.dark .profile-expand-section {
+  background: #0a0f0a;
+  border-top-color: #1e2e1f;
+  border-bottom-color: #1e2e1f;
+}
+.dark .profile-back-btn {
+  border-color: #1e2e1f;
+  background: #182218;
+  color: #4ade80;
+}
+.dark .profile-back-btn:hover { background: #1e2e1e; }
+.dark .profile-field-label   { color: #86a887; }
+.dark .profile-input {
+  background: #0a0f0a;
+  border-color: #1e2e1f;
+  color: #e8f5e9;
+}
+.dark .profile-input::placeholder { color: #4d6b4e; }
+.dark .profile-input:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+}
+.dark .profile-btn-grey {
+  background: #1e2e1e;
+  color: #86a887;
+  border-color: #1e2e1f;
+}
+.dark .profile-btn-grey:hover:not(:disabled) { background: #253525; }
+.dark .profile-toast {
+  background: #182218;
+  color: #e8f5e9;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.5);
+}
+.dark .profile-photo-link       { color: #4ade80; }
+.dark .profile-photo-link:hover { color: #86efac; }
+.dark .profile-avatar-upload    { border-color: #182218; }

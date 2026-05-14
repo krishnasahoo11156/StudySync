@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { db } from "../firebase/config";
 import {
   collection, query, where, onSnapshot,
@@ -11,13 +12,13 @@ import PageShell from "../components/PageShell";
 /* ═══════════════════════════════════════════
    CIRCULAR PROGRESS RING (Performance Rank)
 ═══════════════════════════════════════════ */
-function CircularRing({ value, max = 100, size = 120, strokeWidth = 10, color = "#16A34A" }) {
+function CircularRing({ value, max = 100, size = 120, strokeWidth = 10, color = "#16A34A", isDark = false }) {
   const r = (size - strokeWidth) / 2;
   const c = 2 * Math.PI * r;
   const offset = c * (1 - Math.min(value / max, 1));
   return (
     <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#E4EDEA" strokeWidth={strokeWidth} />
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={isDark ? "#1e2e1e" : "#E4EDEA"} strokeWidth={strokeWidth} />
       <circle
         cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color}
         strokeWidth={strokeWidth} strokeLinecap="round"
@@ -31,7 +32,7 @@ function CircularRing({ value, max = 100, size = 120, strokeWidth = 10, color = 
 /* ═══════════════════════════════════════════
    ANIMATED BAR for Subject Allocation
 ═══════════════════════════════════════════ */
-function AnimatedBar({ pct, color, label, value }) {
+function AnimatedBar({ pct, color, label, value, isDark = false }) {
   const [width, setWidth] = useState(0);
   useEffect(() => {
     const t = setTimeout(() => setWidth(pct), 200);
@@ -39,11 +40,11 @@ function AnimatedBar({ pct, color, label, value }) {
   }, [pct]);
   return (
     <div className="mb-4">
-      <div className="flex justify-between text-xs font-semibold text-on-surface mb-1.5">
+      <div className="flex justify-between text-xs font-semibold text-on-surface dark:text-dm-text-primary mb-1.5">
         <span>{label}</span>
-        <span className="text-text-muted">{value}h</span>
+        <span className="text-text-muted dark:text-dm-text-tertiary">{value}h</span>
       </div>
-      <div className="h-2.5 bg-surface-container-low rounded-full overflow-hidden">
+      <div className={`h-2.5 rounded-full overflow-hidden ${isDark ? "bg-dm-bg" : "bg-surface-container-low"}`}>
         <div
           className="h-full rounded-full transition-all duration-1000 ease-out"
           style={{ width: `${width}%`, backgroundColor: color }}
@@ -90,7 +91,7 @@ function PieChart({ slices }) {
       </svg>
       <div className="flex flex-wrap justify-center gap-2">
         {paths.map((p, i) => (
-          <div key={i} className="flex items-center gap-1.5 text-xs font-medium text-on-surface">
+          <div key={i} className="flex items-center gap-1.5 text-xs font-medium text-on-surface dark:text-dm-text-primary">
             <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: p.color }} />
             {p.label} {p.pct}%
           </div>
@@ -103,7 +104,7 @@ function PieChart({ slices }) {
 /* ═══════════════════════════════════════════
    LINE CHART for Weekly Trend (SVG)
 ═══════════════════════════════════════════ */
-function LineChart({ data }) {
+function LineChart({ data, isDark = false }) {
   const W = 340, H = 120;
   const maxVal = Math.max(...data.map(d => d.hours), 1);
   const pts = data.map((d, i) => ({
@@ -114,6 +115,8 @@ function LineChart({ data }) {
   }));
   const pathD = pts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
   const areaD = `${pathD} L ${pts[pts.length - 1].x} ${H - 20} L ${pts[0].x} ${H - 20} Z`;
+  const gridColor = isDark ? "#1e2e1e" : "#E4EDEA";
+  const labelColor = isDark ? "#4d6b4e" : "#3D524A";
 
   return (
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} className="overflow-visible">
@@ -125,7 +128,7 @@ function LineChart({ data }) {
       </defs>
       {[0.25, 0.5, 0.75, 1].map(f => (
         <line key={f} x1={20} y1={H - 20 - f * (H - 40)} x2={W - 20} y2={H - 20 - f * (H - 40)}
-          stroke="#E4EDEA" strokeWidth="1" />
+          stroke={gridColor} strokeWidth="1" />
       ))}
       <path d={areaD} fill="url(#lineGrad)" />
       <path d={pathD} fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -133,7 +136,7 @@ function LineChart({ data }) {
         <g key={i}>
           <circle cx={p.x} cy={p.y} r="4" fill="#16A34A" />
           <circle cx={p.x} cy={p.y} r="7" fill="#16A34A" fillOpacity="0.15" />
-          <text x={p.x} y={H - 4} textAnchor="middle" fontSize="9" fill="#3D524A" fontWeight="600">{p.label}</text>
+          <text x={p.x} y={H - 4} textAnchor="middle" fontSize="9" fill={labelColor} fontWeight="600">{p.label}</text>
           {p.hours > 0 && (
             <text x={p.x} y={p.y - 10} textAnchor="middle" fontSize="8" fill="#16A34A" fontWeight="700">{p.hours}h</text>
           )}
@@ -157,10 +160,10 @@ function Heatmap({ logs }) {
   }
 
   const maxH = Math.max(...days.map(d => d.hours), 1);
-  const getColor = (h) => {
-    if (h === 0) return "#e8f5ec";
+  const getColor = (h, isDark = false) => {
+    if (h === 0) return isDark ? "#111a12" : "#e8f5ec";
     const intensity = Math.min(h / maxH, 1);
-    if (intensity < 0.25) return "#bbf7d0";
+    if (intensity < 0.25) return isDark ? "#14532d" : "#bbf7d0";
     if (intensity < 0.5)  return "#4ade80";
     if (intensity < 0.75) return "#16a34a";
     return "#006c49";
@@ -192,7 +195,7 @@ function Heatmap({ logs }) {
                 title={d ? `${d.date}: ${d.hours}h studied` : ""}
               >
                 {d && (
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-emerald-900 text-white text-[0.6rem] rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-emerald-900 dark:bg-dm-surface-elevated dark:border dark:border-dm-border text-white text-[0.6rem] rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10 pointer-events-none">
                     {d.date}: {d.hours}h
                   </div>
                 )}
@@ -202,11 +205,11 @@ function Heatmap({ logs }) {
         ))}
       </div>
       <div className="flex items-center gap-1 mt-3">
-        <span className="text-[0.6rem] text-text-muted mr-1">Less</span>
+        <span className="text-[0.6rem] text-text-muted dark:text-dm-text-tertiary mr-1">Less</span>
         {["#E4EDEA","#bbf7d0","#4ade80","#16a34a","#15803D"].map(c => (
           <div key={c} className="w-3 h-3 rounded-sm" style={{ backgroundColor: c }} />
         ))}
-        <span className="text-[0.6rem] text-text-muted ml-1">More</span>
+        <span className="text-[0.6rem] text-text-muted dark:text-dm-text-tertiary ml-1">More</span>
       </div>
     </div>
   );
@@ -217,14 +220,15 @@ function Heatmap({ logs }) {
 ═══════════════════════════════════════════ */
 function InsightCard({ icon, iconBg, iconColor, title, value, sub, accent = false }) {
   return (
-    <div className={`p-5 rounded-2xl flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:shadow-card ${accent ? "bg-error-container border border-error/10" : "card-static"}`}>
+    <div className={`p-5 rounded-2xl flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:shadow-card ${
+      accent ? "bg-error-container dark:bg-dm-error-bg border border-error/10 dark:border-dm-error/20" : "card-static"}`}>
       <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${iconBg}`}>
         <span className={`material-symbols-outlined text-lg ${iconColor}`}>{icon}</span>
       </div>
       <div>
-        <p className="type-caption text-text-muted">{title}</p>
-        <p className={`text-base font-bold ${accent ? "text-error-dark" : "text-on-surface"}`}>{value}</p>
-        {sub && <p className="text-xs text-text-muted">{sub}</p>}
+        <p className="type-caption text-text-muted dark:text-dm-text-tertiary">{title}</p>
+        <p className={`text-base font-bold ${accent ? "text-error-dark dark:text-dm-error" : "text-on-surface dark:text-dm-text-primary"}`}>{value}</p>
+        {sub && <p className="text-xs text-text-muted dark:text-dm-text-tertiary">{sub}</p>}
       </div>
     </div>
   );
@@ -237,14 +241,14 @@ function StatCard({ title, main, sub, badge, dark = false, children }) {
   return (
     <div className={`rounded-2xl p-6 flex flex-col justify-between min-h-[10rem] border transition-all hover:-translate-y-1 hover:shadow-card ${
       dark ? "bg-primary-dark border-primary text-white" : "card-static"}`}>
-      <span className={`type-caption ${dark ? "text-white/60" : "text-text-muted"}`}>{title}</span>
+      <span className={`type-caption ${dark ? "text-white/60" : "text-text-muted dark:text-dm-text-tertiary"}`}>{title}</span>
       <div>
         {children || (
-          <div className={`text-4xl font-bold tracking-tight ${dark ? "text-white" : "text-on-surface"}`}>{main}</div>
+          <div className={`text-4xl font-bold tracking-tight ${dark ? "text-white" : "text-on-surface dark:text-dm-text-primary"}`}>{main}</div>
         )}
-        {sub && <p className={`text-xs font-semibold mt-1.5 ${dark ? "text-primary-light" : "text-text-muted"}`}>{sub}</p>}
+        {sub && <p className={`text-xs font-semibold mt-1.5 ${dark ? "text-primary-light" : "text-text-muted dark:text-dm-text-tertiary"}`}>{sub}</p>}
         {badge && <span className={`inline-block mt-2 px-3 py-0.5 rounded-full text-[0.65rem] font-bold ${
-          dark ? "bg-white/15 text-white" : "bg-primary-container text-primary-dark"}`}>{badge}</span>}
+          dark ? "bg-white/15 text-white" : "bg-primary-container dark:bg-dm-primary-bg text-primary-dark dark:text-dm-text-green"}`}>{badge}</span>}
       </div>
     </div>
   );
@@ -270,6 +274,7 @@ const COLOR_LIST = Object.values(SUBJECT_COLORS);
 ═══════════════════════════════════════════ */
 export default function AnalyticsPage() {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
   const exportRef = useRef(null);
 
@@ -438,10 +443,13 @@ export default function AnalyticsPage() {
   const topBarContent = (
     <>
       {/* Filter Tabs */}
-      <div className="hidden md:flex bg-surface-container-high rounded-xl p-1 gap-1">
+      <div className="hidden md:flex bg-surface-container-high dark:bg-dm-surface rounded-xl p-1 gap-1">
         {["daily","weekly","monthly"].map(r => (
           <button key={r} onClick={() => setFilterRange(r)}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${filterRange === r ? "bg-white text-on-surface shadow-sm" : "text-text-muted hover:text-on-surface"}`}>
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${
+              filterRange === r
+                ? isDark ? "bg-dm-surface-elevated text-dm-text-primary shadow-sm" : "bg-white text-on-surface shadow-sm"
+                : "text-text-muted dark:text-dm-text-secondary hover:text-on-surface dark:hover:text-dm-text-primary"}`}>
             {r}
           </button>
         ))}
@@ -454,7 +462,7 @@ export default function AnalyticsPage() {
       </div>
       {/* Export PDF */}
       <button onClick={handleExportPDF} disabled={exporting}
-        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-border-default text-on-surface font-bold text-xs hover:bg-surface-container-low transition-all shadow-sm disabled:opacity-50">
+        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white dark:bg-dm-surface border border-border-default dark:border-dm-border text-on-surface dark:text-dm-text-primary font-bold text-xs hover:bg-surface-container-low dark:hover:bg-dm-surface-hover transition-all shadow-sm disabled:opacity-50">
         <span className="material-symbols-outlined text-base">{exporting ? "hourglass_empty" : "picture_as_pdf"}</span>
         {exporting ? "Exporting…" : "Export PDF"}
       </button>
@@ -516,14 +524,14 @@ export default function AnalyticsPage() {
               <StatCard title="Performance Rank">
                 <div className="flex items-center gap-4">
                   <div className="relative flex-shrink-0">
-                    <CircularRing value={performanceRank} size={88} strokeWidth={8} />
+                    <CircularRing value={performanceRank} size={88} strokeWidth={8} isDark={isDark} />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-2xl font-bold text-on-surface">{performanceRank}</span>
+                      <span className="text-2xl font-bold text-on-surface dark:text-dm-text-primary">{performanceRank}</span>
                     </div>
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-on-surface">Global Rank</p>
-                    <p className="text-[0.65rem] text-text-muted leading-tight mt-1">
+                    <p className="text-xs font-bold text-on-surface dark:text-dm-text-primary">Global Rank</p>
+                    <p className="text-[0.65rem] text-text-muted dark:text-dm-text-tertiary leading-tight mt-1">
                       Top {100 - performanceRank}% of deep-focus students
                     </p>
                   </div>
@@ -541,8 +549,8 @@ export default function AnalyticsPage() {
                 <div className="card-static rounded-2xl p-6 animate-fade-in">
                   <div className="flex items-start justify-between mb-6">
                     <div>
-                      <h2 className="text-lg font-bold text-on-surface">Subject Allocation</h2>
-                      <p className="text-xs text-text-muted mt-0.5">Time distribution across core curriculum</p>
+                      <h2 className="text-lg font-bold text-on-surface dark:text-dm-text-primary">Subject Allocation</h2>
+                      <p className="text-xs text-text-muted dark:text-dm-text-tertiary mt-0.5">Time distribution across core curriculum</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {subjectEntries.slice(0, 4).map(([s], i) => (
@@ -567,6 +575,7 @@ export default function AnalyticsPage() {
                           value={parseFloat(h.toFixed(1))}
                           pct={Math.round((h / maxSubjectHrs) * 100)}
                           color={SUBJECT_COLORS[s] || COLOR_LIST[i % COLOR_LIST.length]}
+                          isDark={isDark}
                         />
                       ))}
                     </div>
@@ -576,19 +585,19 @@ export default function AnalyticsPage() {
                 {/* 2-col: Pie Chart + Line Chart */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="card-static rounded-2xl p-6 animate-fade-in">
-                    <h2 className="text-base font-bold text-on-surface mb-1">Time Distribution</h2>
-                    <p className="text-xs text-text-muted mb-5">% of study hours per subject</p>
+                    <h2 className="text-base font-bold text-on-surface dark:text-dm-text-primary mb-1">Time Distribution</h2>
+                    <p className="text-xs text-text-muted dark:text-dm-text-tertiary mb-5">% of study hours per subject</p>
                     {pieSlices.length > 0 ? (
                       <PieChart slices={pieSlices} />
                     ) : (
-                      <div className="text-center text-text-muted py-6 text-sm">No data yet</div>
+                      <div className="text-center text-text-muted dark:text-dm-text-tertiary py-6 text-sm">No data yet</div>
                     )}
                   </div>
 
                   <div className="card-static rounded-2xl p-6 animate-fade-in">
-                    <h2 className="text-base font-bold text-on-surface mb-1">Weekly Study Trend</h2>
-                    <p className="text-xs text-text-muted mb-5">Study hours over the past 7 days</p>
-                    <LineChart data={weeklyData} />
+                    <h2 className="text-base font-bold text-on-surface dark:text-dm-text-primary mb-1">Weekly Study Trend</h2>
+                    <p className="text-xs text-text-muted dark:text-dm-text-tertiary mb-5">Study hours over the past 7 days</p>
+                    <LineChart data={weeklyData} isDark={isDark} />
                   </div>
                 </div>
 
@@ -596,10 +605,13 @@ export default function AnalyticsPage() {
                 <div className="card-static rounded-2xl p-6 animate-fade-in">
                   <div className="flex items-start justify-between mb-5">
                     <div>
-                      <h2 className="text-base font-bold text-on-surface">Focus Pattern Heatmap</h2>
-                      <p className="text-xs text-text-muted mt-0.5">Darker cells = more productive days</p>
+                      <h2 className="text-base font-bold text-on-surface dark:text-dm-text-primary">Focus Pattern Heatmap</h2>
+                      <p className="text-xs text-text-muted dark:text-dm-text-tertiary mt-0.5">Darker cells = more productive days</p>
                     </div>
-                    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${streak >= 7 ? "bg-warning-container text-warning-dark" : "bg-primary-container text-primary-dark"}`}>
+                    <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                      streak >= 7
+                        ? "bg-warning-container text-warning-dark"
+                        : isDark ? "bg-dm-primary-bg text-dm-text-green" : "bg-primary-container text-primary-dark"}`}>
                       🔥 {streak} day{streak !== 1 ? "s" : ""} streak
                     </div>
                   </div>
@@ -610,12 +622,12 @@ export default function AnalyticsPage() {
                 <div className="card-static rounded-2xl p-6 animate-fade-in">
                   <div className="flex items-center justify-between mb-5">
                     <div>
-                      <h2 className="text-base font-bold text-on-surface">Task Completion</h2>
-                      <p className="text-xs text-text-muted mt-0.5">{completedTasks} of {totalTasks} tasks complete</p>
+                      <h2 className="text-base font-bold text-on-surface dark:text-dm-text-primary">Task Completion</h2>
+                      <p className="text-xs text-text-muted dark:text-dm-text-tertiary mt-0.5">{completedTasks} of {totalTasks} tasks complete</p>
                     </div>
-                    <span className="text-2xl font-bold text-on-surface">{completionRate}%</span>
+                    <span className="text-2xl font-bold text-on-surface dark:text-dm-text-primary">{completionRate}%</span>
                   </div>
-                  <div className="h-3 bg-surface-container-low rounded-full overflow-hidden">
+                  <div className={`h-3 rounded-full overflow-hidden ${isDark ? "bg-dm-bg" : "bg-surface-container-low"}`}>
                     <div
                       className="h-full signature-gradient rounded-full transition-all duration-1000"
                       style={{ width: `${completionRate}%` }}
@@ -623,13 +635,13 @@ export default function AnalyticsPage() {
                   </div>
                   <div className="grid grid-cols-3 gap-4 mt-6">
                     {[
-                      { label: "Total", value: totalTasks, color: "text-on-surface" },
+                      { label: "Total", value: totalTasks, color: "text-on-surface dark:text-dm-text-primary" },
                       { label: "Done", value: completedTasks, color: "text-primary" },
-                      { label: "Pending", value: totalTasks - completedTasks, color: "text-warning-dark" },
+                      { label: "Pending", value: totalTasks - completedTasks, color: "text-warning-dark dark:text-dm-warning" },
                     ].map(s => (
-                      <div key={s.label} className="text-center p-4 bg-surface-container-low rounded-xl">
+                      <div key={s.label} className={`text-center p-4 rounded-xl ${isDark ? "bg-dm-bg" : "bg-surface-container-low"}`}>
                         <div className={`text-3xl font-bold ${s.color}`}>{s.value}</div>
-                        <div className="type-caption text-text-muted mt-1">{s.label}</div>
+                        <div className="type-caption text-text-muted dark:text-dm-text-tertiary mt-1">{s.label}</div>
                       </div>
                     ))}
                   </div>
@@ -679,7 +691,7 @@ export default function AnalyticsPage() {
 
                 {/* Insight Cards */}
                 <div className="card-static rounded-2xl p-5 animate-fade-in">
-                  <h3 className="type-caption text-text-muted mb-4">Key Insights</h3>
+                  <h3 className="type-caption text-text-muted dark:text-dm-text-tertiary mb-4">Key Insights</h3>
                   <div className="flex flex-col gap-3">
                     <InsightCard
                       icon="schedule" iconBg="bg-emerald-100" iconColor="text-emerald-700"

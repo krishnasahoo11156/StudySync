@@ -37,29 +37,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="bg-background text-on-surface min-h-screen flex flex-col overflow-x-hidden">
+    <div className="bg-background dark:bg-dm-bg text-on-surface dark:text-dm-text-primary min-h-screen flex flex-col overflow-x-hidden transition-colors duration-300">
       {/* ── TopAppBar ── */}
-      <header className="bg-surface-container-low/70 backdrop-blur-xl text-on-surface text-sm tracking-tight fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20">
-        <Link to="/" className="text-2xl font-bold tracking-tighter text-on-surface">
+      <header className="bg-surface-container-low/70 dark:bg-dm-sidebar/90 backdrop-blur-xl text-on-surface text-sm tracking-tight fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20 border-b border-transparent dark:border-dm-border transition-colors duration-300">
+        <Link to="/" className="text-2xl font-bold tracking-tighter text-on-surface dark:text-dm-text-primary">
           StudySync
         </Link>
         <nav className="hidden md:flex items-center gap-8">
-          <Link
-            className="text-on-surface-variant hover:text-on-surface transition-colors duration-200"
-            to="/"
-          >
+          <Link className="text-on-surface-variant dark:text-dm-text-secondary hover:text-on-surface dark:hover:text-dm-text-primary transition-colors duration-200" to="/">
             Solutions
           </Link>
-          <Link
-            className="text-on-surface-variant hover:text-on-surface transition-colors duration-200"
-            to="/"
-          >
+          <Link className="text-on-surface-variant dark:text-dm-text-secondary hover:text-on-surface dark:hover:text-dm-text-primary transition-colors duration-200" to="/">
             Resources
           </Link>
-          <Link
-            className="text-on-surface font-semibold transition-colors duration-200"
-            to="/login"
-          >
+          <Link className="text-on-surface dark:text-dm-text-primary font-semibold transition-colors duration-200" to="/login">
             Sign In
           </Link>
         </nav>
@@ -99,20 +90,20 @@ export default function LoginPage() {
 
           {/* Login Card */}
           <div className="md:col-span-7 flex justify-center animate-slide-up">
-            <div className="bg-surface-container-lowest ambient-shadow p-10 md:p-16 rounded-[2.5rem] w-full max-w-[540px]">
+            <div className="bg-surface-container-lowest dark:bg-dm-surface ambient-shadow dark:shadow-[0_24px_64px_rgba(0,0,0,0.4)] p-10 md:p-16 rounded-[2.5rem] w-full max-w-[540px] border border-transparent dark:border-dm-border transition-colors duration-300">
               <div className="mb-12">
                 <span className="text-primary font-bold tracking-tighter text-2xl">StudySync</span>
-                <h2 className="text-[2.75rem] font-bold tracking-[-0.02em] leading-tight mt-4 text-on-surface">
+                <h2 className="text-[2.75rem] font-bold tracking-[-0.02em] leading-tight mt-4 text-on-surface dark:text-dm-text-primary">
                   Log in to your account
                 </h2>
-                <p className="text-on-surface-variant mt-2 opacity-70">
+                <p className="text-on-surface-variant dark:text-dm-text-secondary mt-2 opacity-70">
                   Welcome back to your verdant sanctuary.
                 </p>
               </div>
 
               {/* Error Message */}
               {error && (
-                <div className="mb-6 p-4 rounded-xl bg-error-container text-on-error-container text-sm font-medium animate-scale-in">
+                <div className="mb-6 p-4 rounded-xl bg-error-container dark:bg-dm-error-bg text-on-error-container dark:text-dm-error text-sm font-medium animate-scale-in">
                   {error}
                 </div>
               )}
@@ -120,11 +111,11 @@ export default function LoginPage() {
               <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Email */}
                 <div className="space-y-2">
-                  <label className="text-[0.75rem] font-bold uppercase tracking-[0.05em] text-on-surface-variant block ml-1">
+                  <label className="text-[0.75rem] font-bold uppercase tracking-[0.05em] text-on-surface-variant dark:text-dm-text-secondary block ml-1">
                     Email Address
                   </label>
                   <input
-                    className="w-full bg-surface-container-highest border-none rounded-xl py-4 px-6 text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest transition-all"
+                    className="w-full bg-surface-container-highest dark:bg-dm-bg border border-transparent dark:border-dm-border rounded-xl py-4 px-6 text-on-surface dark:text-dm-text-primary placeholder:text-on-surface-variant/40 dark:placeholder:text-dm-text-tertiary focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest dark:focus:bg-dm-surface transition-all"
                     placeholder="alex@university.edu"
                     type="email"
                     value={email}
@@ -135,12 +126,12 @@ export default function LoginPage() {
 
                 {/* Password */}
                 <div className="space-y-2">
-                  <label className="text-[0.75rem] font-bold uppercase tracking-[0.05em] text-on-surface-variant block ml-1">
+                  <label className="text-[0.75rem] font-bold uppercase tracking-[0.05em] text-on-surface-variant dark:text-dm-text-secondary block ml-1">
                     Password
                   </label>
                   <div className="relative">
                     <input
-                      className="w-full bg-surface-container-highest border-none rounded-xl py-4 px-6 text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest transition-all"
+                      className="w-full bg-surface-container-highest dark:bg-dm-bg border border-transparent dark:border-dm-border rounded-xl py-4 px-6 text-on-surface dark:text-dm-text-primary placeholder:text-on-surface-variant/40 dark:placeholder:text-dm-text-tertiary focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest dark:focus:bg-dm-surface transition-all"
                       placeholder="••••••••"
                       type={showPassword ? "text" : "password"}
                       value={password}
@@ -148,7 +139,7 @@ export default function LoginPage() {
                       required
                     />
                     <button
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/60 hover:text-primary transition-colors"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/60 dark:text-dm-text-tertiary hover:text-primary transition-colors"
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                     >
@@ -164,14 +155,14 @@ export default function LoginPage() {
                   <label className="flex items-center gap-3 cursor-pointer group">
                     <div className="relative flex items-center">
                       <input
-                        className="peer appearance-none w-5 h-5 bg-surface-container-high rounded-md checked:bg-primary transition-all cursor-pointer"
+                        className="peer appearance-none w-5 h-5 bg-surface-container-high dark:bg-dm-surface-hover rounded-md checked:bg-primary transition-all cursor-pointer"
                         type="checkbox"
                       />
                       <span className="material-symbols-outlined absolute text-[14px] text-on-primary opacity-0 peer-checked:opacity-100 left-1/2 -translate-x-1/2 pointer-events-none">
                         check
                       </span>
                     </div>
-                    <span className="text-on-surface-variant group-hover:text-on-surface transition-colors">
+                    <span className="text-on-surface-variant dark:text-dm-text-secondary group-hover:text-on-surface dark:group-hover:text-dm-text-primary transition-colors">
                       Remember me
                     </span>
                   </label>
@@ -200,7 +191,7 @@ export default function LoginPage() {
               </form>
 
               <div className="mt-12 flex items-center justify-center gap-2 text-sm">
-                <span className="text-on-surface-variant">Don't have an account?</span>
+                <span className="text-on-surface-variant dark:text-dm-text-secondary">Don't have an account?</span>
                 <Link className="text-primary font-bold hover:underline underline-offset-4" to="/signup">
                   Sign up
                 </Link>
@@ -210,11 +201,11 @@ export default function LoginPage() {
         </section>
 
         {/* Floating Glass Hint */}
-        <aside className="fixed bottom-12 right-12 hidden lg:flex items-center gap-4 bg-surface-container-low/70 glass-hint p-4 pr-8 rounded-full shadow-card z-20 transition-all hover:translate-y-[-4px]">
-          <div className="w-10 h-10 bg-primary-container rounded-full flex items-center justify-center text-on-primary-container">
+        <aside className="fixed bottom-12 right-12 hidden lg:flex items-center gap-4 bg-surface-container-low/70 dark:bg-dm-surface-elevated/90 glass-hint p-4 pr-8 rounded-full shadow-card dark:shadow-[0_8px_24px_rgba(0,0,0,0.4)] z-20 transition-all hover:translate-y-[-4px] border border-transparent dark:border-dm-border">
+          <div className="w-10 h-10 bg-primary-container dark:bg-dm-primary-bg rounded-full flex items-center justify-center text-on-primary-container dark:text-dm-text-green">
             <span className="material-symbols-outlined text-[20px]">info</span>
           </div>
-          <p className="text-[0.875rem] font-medium text-on-surface">
+          <p className="text-[0.875rem] font-medium text-on-surface dark:text-dm-text-primary">
             Enter your school email to get started
           </p>
         </aside>

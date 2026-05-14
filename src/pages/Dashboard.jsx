@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { db } from "../firebase/config";
 import {
   collection, query, where, onSnapshot,
@@ -23,6 +24,7 @@ function fmtDate(iso) {
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
 
   /* ── Task state ── */
@@ -269,12 +271,16 @@ export default function Dashboard() {
       ) : (
         <div className="animate-page-enter max-w-7xl mx-auto">
           {/* Welcome Hero */}
-          <section className="mb-8 p-6 lg:p-10 rounded-2xl relative overflow-hidden animate-fade-in hero-gradient border border-border-default">
+          <section className={`mb-8 p-6 lg:p-10 rounded-2xl relative overflow-hidden animate-fade-in border
+            ${isDark
+              ? "bg-gradient-to-r from-[#0d1f0e] to-[#0a1a10] border-dm-border"
+              : "hero-gradient border-border-default"
+            }`}>
             <div className="relative z-10">
-              <h2 className="text-2xl lg:text-4xl font-bold tracking-tight leading-tight mb-3 text-on-surface">
+              <h2 className="text-2xl lg:text-4xl font-bold tracking-tight leading-tight mb-3 text-on-surface dark:text-dm-text-primary">
                 {greeting}, {userName}
               </h2>
-              <p className="text-base lg:text-lg max-w-lg text-on-surface-variant">
+              <p className="text-base lg:text-lg max-w-lg text-on-surface-variant dark:text-dm-text-secondary">
                 {total === 0
                   ? "Let's add your first task and get started ✨"
                   : `You're on track — ${completed}/${total} completed ✨`}
@@ -293,28 +299,30 @@ export default function Dashboard() {
                 {/* Total */}
                 <div className="card-static p-6 rounded-2xl flex flex-col justify-between h-36 animate-slide-up">
                   <span className="type-caption text-primary">Total Tasks</span>
-                  <div className="text-4xl font-extrabold text-on-surface animate-count-up">{String(total).padStart(2, "0")}</div>
+                  <div className="text-4xl font-extrabold text-on-surface dark:text-dm-text-primary animate-count-up">{String(total).padStart(2, "00")}</div>
                 </div>
                 {/* Completed */}
-                <div className="p-6 rounded-2xl flex flex-col justify-between h-36 sm:mt-4 animate-slide-up bg-primary-container border border-primary/10 shadow-raised">
-                  <span className="type-caption text-primary-dark">Completed</span>
-                  <div className="text-4xl font-extrabold text-on-primary-container animate-count-up">{String(completed).padStart(2, "0")}</div>
+                <div className={`p-6 rounded-2xl flex flex-col justify-between h-36 sm:mt-4 animate-slide-up shadow-raised border
+                  ${isDark ? "bg-dm-primary-bg border-primary/20" : "bg-primary-container border-primary/10"}`}>
+                  <span className="type-caption text-primary">Completed</span>
+                  <div className={`text-4xl font-extrabold animate-count-up ${isDark ? "text-dm-text-green" : "text-on-primary-container"}`}>{String(completed).padStart(2, "00")}</div>
                 </div>
                 {/* Pending */}
                 <div className="card-warm p-6 rounded-2xl flex flex-col justify-between h-36 animate-slide-up">
-                  <span className="type-caption text-error">Pending</span>
-                  <div className="text-4xl font-extrabold text-on-surface animate-count-up">{String(pending).padStart(2, "0")}</div>
+                  <span className="type-caption text-error dark:text-dm-error">Pending</span>
+                  <div className="text-4xl font-extrabold text-on-surface dark:text-dm-warning animate-count-up">{String(pending).padStart(2, "00")}</div>
                 </div>
               </div>
 
               {/* Today's Focus */}
               <div className="mb-10">
                 <div className="flex justify-between items-center mb-8">
-                  <h3 className="text-2xl font-bold text-on-surface">Today's Focus</h3>
+                  <h3 className="text-2xl font-bold text-on-surface dark:text-dm-text-primary">Today's Focus</h3>
                   <span className="text-primary font-bold text-sm">{todayTasks.length} tasks</span>
                 </div>
                 {todayTasks.length === 0 ? (
-                  <div className="p-8 rounded-2xl text-center" style={{ background: "#F5F1E8", border: "1px solid #D6C7AE", color: "#78634A" }}>
+                  <div className={`p-8 rounded-2xl text-center ${isDark ? "bg-dm-surface border border-dm-border text-dm-text-secondary" : ""}`}
+                    style={isDark ? {} : { background: "#F5F1E8", border: "1px solid #D6C7AE", color: "#78634A" }}>
                     <span className="material-symbols-outlined text-4xl mb-2 block" style={{ opacity: 0.5 }}>task_alt</span>
                     No tasks due today — enjoy the calm 🌿
                   </div>
@@ -323,8 +331,9 @@ export default function Dashboard() {
                     {todayTasks.map((task) => (
                       <div
                         key={task.id}
-                        className="bg-white p-6 rounded-2xl relative overflow-hidden group hover:-translate-y-0.5 transition-all duration-300 animate-slide-up"
-                        style={{ border: "1px solid #E4EDEA", boxShadow: "0 2px 12px rgba(22,163,74,0.06)" }}
+                        className={`p-6 rounded-2xl relative overflow-hidden group hover:-translate-y-0.5 transition-all duration-300 animate-slide-up
+                          ${isDark ? "bg-dm-surface border border-dm-border" : "bg-white"}`}
+                        style={isDark ? {} : { border: "1px solid #E4EDEA", boxShadow: "0 2px 12px rgba(22,163,74,0.06)" }}
                       >
                         <div className="flex justify-between items-start mb-4">
                           <div className="flex items-start gap-4">
@@ -338,14 +347,18 @@ export default function Dashboard() {
                               )}
                             </button>
                             <div>
-                              <h4 className={`text-lg font-bold mb-2 ${task.status === "completed" ? "line-through opacity-50" : ""}`} style={{ color: "#1A2621" }}>
+                              <h4 className={`text-lg font-bold mb-2 ${task.status === "completed" ? "line-through opacity-50" : ""}`}
+                                style={{ color: isDark ? "#e8f5e9" : "#1A2621" }}>
                                 {task.important && <span className="text-amber-400 mr-1">⭐</span>}{task.title}
                               </h4>
                               <div className="flex items-center gap-3">
-                                <span className="text-[0.65rem] font-bold uppercase tracking-wider px-3 py-1 rounded-full" style={{ background: "#F5F1E8", color: "#78634A" }}>
+                                <span className="text-[0.65rem] font-bold uppercase tracking-wider px-3 py-1 rounded-full"
+                                  style={isDark
+                                    ? { background: "#1e2e1e", color: "#86a887" }
+                                    : { background: "#F5F1E8", color: "#78634A" }}>
                                   {task.subject}
                                 </span>
-                                <div className="flex items-center gap-1 text-xs" style={{ color: "#8FA99F" }}>
+                                <div className="flex items-center gap-1 text-xs" style={{ color: isDark ? "#4d6b4e" : "#8FA99F" }}>
                                   <span className="material-symbols-outlined text-[1rem]">schedule</span>
                                   <span>{fmtDate(task.deadline) || "No deadline"}</span>
                                 </div>
@@ -354,25 +367,44 @@ export default function Dashboard() {
                           </div>
                           <div className="flex items-center gap-2">
                             {task.priority === "urgent" && (
-                              <span className="text-[0.65rem] font-bold uppercase px-3 py-1 rounded-full" style={{ background: "#FEE2E2", color: "#EF4444" }}>Urgent</span>
+                              <span
+                                className="text-[0.65rem] font-bold uppercase px-3 py-1 rounded-full"
+                                style={isDark
+                                  ? { background: "#2a1515", color: "#f87171" }
+                                  : { background: "#FEE2E2", color: "#EF4444" }}>
+                                Urgent
+                              </span>
                             )}
-                            <button onClick={() => openEdit(task)} className="opacity-0 group-hover:opacity-100 transition-all p-1 rounded-lg hover:bg-[#DCFCE7]" style={{ color: "#16A34A" }}>
+                            <button
+                              onClick={() => openEdit(task)}
+                              className="opacity-0 group-hover:opacity-100 transition-all p-1 rounded-lg"
+                              style={{ color: "#16A34A" }}
+                              onMouseEnter={e => e.currentTarget.style.background = isDark ? "#14532d" : "#DCFCE7"}
+                              onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
                               <span className="material-symbols-outlined text-xl">edit</span>
                             </button>
-                            <button onClick={() => setDeleteConfirmId(task.id)} className="opacity-0 group-hover:opacity-100 transition-all p-1 rounded-lg hover:bg-[#FEE2E2]" style={{ color: "#F87171" }}>
+                            <button
+                              onClick={() => setDeleteConfirmId(task.id)}
+                              className="opacity-0 group-hover:opacity-100 transition-all p-1 rounded-lg"
+                              style={{ color: isDark ? "#f87171" : "#F87171" }}
+                              onMouseEnter={e => e.currentTarget.style.background = isDark ? "#2a1515" : "#FEE2E2"}
+                              onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
                               <span className="material-symbols-outlined text-xl">delete</span>
                             </button>
                           </div>
                         </div>
                         {task.description && (
-                          <p className="text-xs mb-3 pl-10" style={{ color: "#8FA99F" }}>{task.description}</p>
+                          <p className="text-xs mb-3 pl-10" style={{ color: isDark ? "#4d6b4e" : "#8FA99F" }}>{task.description}</p>
                         )}
                         <div className="w-20 h-1 rounded-full signature-gradient" />
                         {deleteConfirmId === task.id && (
-                          <div className="absolute inset-0 backdrop-blur-sm flex items-center justify-center gap-4 rounded-2xl animate-scale-in z-10" style={{ background: "rgba(255,255,255,0.95)" }}>
-                            <p className="text-sm font-medium" style={{ color: "#1A2621" }}>Delete this task?</p>
+                          <div
+                            className="absolute inset-0 backdrop-blur-sm flex items-center justify-center gap-4 rounded-2xl animate-scale-in z-10"
+                            style={{ background: isDark ? "rgba(17,26,18,0.97)" : "rgba(255,255,255,0.95)" }}>
+                            <p className="text-sm font-medium" style={{ color: isDark ? "#e8f5e9" : "#1A2621" }}>Delete this task?</p>
                             <button onClick={() => removeTask(task.id)} className="px-4 py-2 rounded-lg text-white text-xs font-bold" style={{ background: "#EF4444" }}>Yes, Delete</button>
-                            <button onClick={() => setDeleteConfirmId(null)} className="px-4 py-2 rounded-lg text-xs font-bold" style={{ background: "#F1F5F4", color: "#3D524A" }}>Cancel</button>
+                            <button onClick={() => setDeleteConfirmId(null)} className="px-4 py-2 rounded-lg text-xs font-bold"
+                              style={isDark ? { background: "#1e2e1e", color: "#86a887" } : { background: "#F1F5F4", color: "#3D524A" }}>Cancel</button>
                           </div>
                         )}
                       </div>
@@ -384,13 +416,13 @@ export default function Dashboard() {
               {/* All Tasks & Filters */}
               <div>
                 <div className="flex flex-wrap items-center gap-3 mb-8">
-                  <h3 className="text-2xl font-bold mr-4" style={{ color: "#1A2621" }}>All Tasks</h3>
+                  <h3 className="text-2xl font-bold mr-4 text-on-surface dark:text-dm-text-primary">All Tasks</h3>
                   <button
                     onClick={() => setActiveFilter("All")}
                     className="px-5 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all"
                     style={activeFilter === "All"
                       ? { background: "#16A34A", color: "#FFFFFF" }
-                      : { background: "#F1F5F4", color: "#3D524A" }}
+                      : isDark ? { background: "#1e2e1e", color: "#86a887" } : { background: "#F1F5F4", color: "#3D524A" }}
                   >
                     All
                   </button>
@@ -401,7 +433,7 @@ export default function Dashboard() {
                       className="px-5 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all"
                       style={activeFilter === s
                         ? { background: "#16A34A", color: "#FFFFFF" }
-                        : { background: "#F1F5F4", color: "#3D524A" }}
+                        : isDark ? { background: "#1e2e1e", color: "#86a887" } : { background: "#F1F5F4", color: "#3D524A" }}
                     >
                       {s}
                     </button>
@@ -409,7 +441,8 @@ export default function Dashboard() {
                 </div>
 
                 {filteredTasks.length === 0 ? (
-                  <div className="p-8 rounded-2xl text-center" style={{ background: "#F1F5F4", color: "#8FA99F" }}>
+                  <div className={`p-8 rounded-2xl text-center ${isDark ? "bg-dm-surface text-dm-text-secondary" : ""}`}
+                    style={isDark ? {} : { background: "#F1F5F4", color: "#8FA99F" }}>
                     No tasks yet — click the + button to add one!
                   </div>
                 ) : (
@@ -419,8 +452,11 @@ export default function Dashboard() {
                       return (
                         <div
                           key={task.id}
-                          className="bg-white p-5 rounded-2xl flex flex-wrap items-center justify-between group hover:shadow-md transition-all animate-slide-up relative"
-                          style={{ border: "1px solid #E4EDEA", borderLeft: `4px solid ${taskColorHex}` }}
+                          className={`p-5 rounded-2xl flex flex-wrap items-center justify-between group hover:shadow-md transition-all animate-slide-up relative
+                            ${isDark ? "bg-dm-surface dark:hover:bg-dm-surface-hover" : "bg-white"}`}
+                          style={isDark
+                            ? { border: `1px solid #1e2e1f`, borderLeft: `4px solid ${taskColorHex}` }
+                            : { border: "1px solid #E4EDEA", borderLeft: `4px solid ${taskColorHex}` }}
                         >
                           <div className="flex items-center gap-3">
                             <button
@@ -435,11 +471,12 @@ export default function Dashboard() {
                               )}
                             </button>
                             <div>
-                              <span className={`font-semibold text-sm ${task.status === "completed" ? "line-through opacity-50" : ""}`} style={{ color: "#1A2621" }}>
+                              <span className={`font-semibold text-sm ${task.status === "completed" ? "line-through opacity-50" : ""}`}
+                                style={{ color: isDark ? "#e8f5e9" : "#1A2621" }}>
                                 {task.important && <span className="text-amber-400 mr-1">⭐</span>}{task.title}
                               </span>
                               {task.description && (
-                                <p className="text-xs mt-0.5 line-clamp-1" style={{ color: "#8FA99F" }}>{task.description}</p>
+                                <p className="text-xs mt-0.5 line-clamp-1" style={{ color: isDark ? "#4d6b4e" : "#8FA99F" }}>{task.description}</p>
                               )}
                             </div>
                             {task.priority === "urgent" && (
@@ -447,8 +484,8 @@ export default function Dashboard() {
                             )}
                           </div>
                           <div className="flex items-center gap-4 lg:gap-6 mt-1">
-                            <span className="text-xs font-bold uppercase tracking-widest hidden sm:inline" style={{ color: "#8FA99F" }}>{task.subject}</span>
-                            <span className="text-xs hidden sm:inline" style={{ color: "#8FA99F" }}>{fmtDate(task.deadline)}</span>
+                            <span className="text-xs font-bold uppercase tracking-widest hidden sm:inline" style={{ color: isDark ? "#4d6b4e" : "#8FA99F" }}>{task.subject}</span>
+                            <span className="text-xs hidden sm:inline" style={{ color: isDark ? "#4d6b4e" : "#8FA99F" }}>{fmtDate(task.deadline)}</span>
                             <div className="flex items-center gap-1">
                               <button onClick={() => openEdit(task)} className="opacity-0 group-hover:opacity-100 transition-all p-1 rounded-lg hover:bg-[#DCFCE7]" style={{ color: "#16A34A" }}>
                                 <span className="material-symbols-outlined text-xl">edit</span>
@@ -459,10 +496,12 @@ export default function Dashboard() {
                             </div>
                           </div>
                           {deleteConfirmId === task.id && (
-                            <div className="absolute inset-0 backdrop-blur-sm flex items-center justify-center gap-4 rounded-2xl animate-scale-in z-10" style={{ background: "rgba(255,255,255,0.95)" }}>
-                              <p className="text-sm font-medium" style={{ color: "#1A2621" }}>Delete?</p>
+                            <div className="absolute inset-0 backdrop-blur-sm flex items-center justify-center gap-4 rounded-2xl animate-scale-in z-10"
+                              style={{ background: isDark ? "rgba(17,26,18,0.97)" : "rgba(255,255,255,0.95)" }}>
+                              <p className="text-sm font-medium" style={{ color: isDark ? "#e8f5e9" : "#1A2621" }}>Delete?</p>
                               <button onClick={() => removeTask(task.id)} className="px-4 py-1.5 rounded-lg text-white text-xs font-bold" style={{ background: "#EF4444" }}>Yes</button>
-                              <button onClick={() => setDeleteConfirmId(null)} className="px-4 py-1.5 rounded-lg text-xs font-bold" style={{ background: "#F1F5F4", color: "#3D524A" }}>No</button>
+                              <button onClick={() => setDeleteConfirmId(null)} className="px-4 py-1.5 rounded-lg text-xs font-bold"
+                                style={isDark ? { background: "#1e2e1e", color: "#86a887" } : { background: "#F1F5F4", color: "#3D524A" }}>No</button>
                             </div>
                           )}
                         </div>
@@ -476,10 +515,10 @@ export default function Dashboard() {
             {/* ── Right Column: Insights & Stats ── */}
             <div className="lg:col-span-4 space-y-8">
               {/* Weekly Progress */}
-              <div className="bg-surface-container-lowest p-8 rounded-2xl ambient-shadow animate-fade-in">
+              <div className="bg-surface-container-lowest dark:bg-dm-surface p-8 rounded-2xl ambient-shadow animate-fade-in">
                 <div className="flex items-center justify-between mb-6">
-                  <h4 className="text-lg font-bold text-on-surface">Weekly Progress</h4>
-                  <span className="text-xs font-semibold text-on-surface-variant/50">
+                  <h4 className="text-lg font-bold text-on-surface dark:text-dm-text-primary">Weekly Progress</h4>
+                  <span className="text-xs font-semibold text-on-surface-variant/50 dark:text-dm-text-tertiary">
                     Mon – Sun
                   </span>
                 </div>
@@ -495,10 +534,10 @@ export default function Dashboard() {
                           <div
                             className={`w-full rounded-t-xl relative overflow-hidden transition-all duration-700 ${
                               d.isFuture
-                                ? "border-2 border-dashed border-emerald-100 bg-transparent"
+                                ? isDark ? "border-2 border-dashed border-dm-border bg-transparent" : "border-2 border-dashed border-emerald-100 bg-transparent"
                                 : d.isToday
-                                ? "bg-emerald-100 ring-2 ring-emerald-400 ring-offset-1"
-                                : "bg-surface-container-low"
+                                ? isDark ? "bg-dm-primary-bg ring-2 ring-emerald-400 ring-offset-1 ring-offset-dm-surface" : "bg-emerald-100 ring-2 ring-emerald-400 ring-offset-1"
+                                : isDark ? "bg-dm-bg" : "bg-surface-container-low"
                             }`}
                             style={{ height: d.isFuture ? "16px" : `${barHeightPct}%` }}
                           >
@@ -511,7 +550,8 @@ export default function Dashboard() {
                             )}
                             {/* Tooltip */}
                             {!d.isFuture && (
-                              <div className="absolute -top-9 left-1/2 -translate-x-1/2 bg-emerald-900 text-white text-[0.6rem] px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+                              <div className={`absolute -top-9 left-1/2 -translate-x-1/2 text-white text-[0.6rem] px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none
+                                ${isDark ? "bg-dm-surface-elevated border border-dm-border text-dm-text-primary" : "bg-emerald-900"}`}>
                                 {d.done} done · {d.due} due
                               </div>
                             )}
@@ -535,16 +575,16 @@ export default function Dashboard() {
                   })}
                 </div>
                 {/* Legend */}
-                <div className="flex items-center gap-4 mt-5 pt-4 border-t border-surface-container-low">
-                  <div className="flex items-center gap-1.5 text-[0.65rem] font-semibold text-on-surface-variant/60">
+                <div className="flex items-center gap-4 mt-5 pt-4 border-t border-surface-container-low dark:border-dm-border">
+                  <div className="flex items-center gap-1.5 text-[0.65rem] font-semibold text-on-surface-variant/60 dark:text-dm-text-tertiary">
                     <div className="w-2.5 h-2.5 rounded-sm signature-gradient" />
                     Completed
                   </div>
-                  <div className="flex items-center gap-1.5 text-[0.65rem] font-semibold text-on-surface-variant/60">
-                    <div className="w-2.5 h-2.5 rounded-sm bg-emerald-100" />
+                  <div className="flex items-center gap-1.5 text-[0.65rem] font-semibold text-on-surface-variant/60 dark:text-dm-text-tertiary">
+                    <div className={`w-2.5 h-2.5 rounded-sm ${isDark ? "bg-dm-primary-bg" : "bg-emerald-100"}`} />
                     Due
                   </div>
-                  <div className="ml-auto flex items-center gap-1.5 text-[0.65rem] font-semibold text-emerald-600">
+                  <div className="ml-auto flex items-center gap-1.5 text-[0.65rem] font-semibold text-emerald-600 dark:text-dm-text-green">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                     Today
                   </div>
@@ -552,23 +592,23 @@ export default function Dashboard() {
               </div>
 
               {/* Daily Insight */}
-              <div className="bg-surface-container-lowest p-8 rounded-2xl ambient-shadow animate-fade-in">
+              <div className="bg-surface-container-lowest dark:bg-dm-surface p-8 rounded-2xl ambient-shadow animate-fade-in">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-tertiary-container/20 flex items-center justify-center text-tertiary">
+                  <div className="w-12 h-12 rounded-2xl bg-tertiary-container/20 dark:bg-dm-primary-bg/50 flex items-center justify-center text-tertiary dark:text-dm-text-green">
                     <span className="material-symbols-outlined">auto_awesome</span>
                   </div>
-                  <h4 className="font-bold text-on-surface">Daily Insight</h4>
+                  <h4 className="font-bold text-on-surface dark:text-dm-text-primary">Daily Insight</h4>
                 </div>
                 <p
-                  className="text-on-surface-variant leading-relaxed text-sm"
+                  className="text-on-surface-variant dark:text-dm-text-secondary leading-relaxed text-sm"
                   dangerouslySetInnerHTML={{ __html: insightText }}
                 />
               </div>
 
               {/* Focus Session Timer */}
-              <div className="bg-surface-container-lowest p-8 rounded-2xl ambient-shadow text-center relative overflow-hidden group animate-fade-in">
+              <div className="bg-surface-container-lowest dark:bg-dm-surface p-8 rounded-2xl ambient-shadow text-center relative overflow-hidden group animate-fade-in">
                 <div className="relative z-10">
-                  <h4 className="text-sm font-bold uppercase tracking-widest text-on-surface-variant/60 mb-8">
+                  <h4 className="text-sm font-bold uppercase tracking-widest text-on-surface-variant/60 dark:text-dm-text-tertiary mb-8">
                     Focus Session
                   </h4>
                   <div className={`w-40 h-40 mx-auto rounded-full signature-gradient flex items-center justify-center ambient-shadow mb-6 relative ${timerRunning ? "animate-glow-pulse" : ""}`}>
@@ -582,7 +622,7 @@ export default function Dashboard() {
                   <div className="flex justify-center gap-3">
                     <button
                       onClick={() => setTimerRunning(!timerRunning)}
-                      className="bg-on-surface text-surface py-3 px-8 rounded-xl font-bold text-sm hover:bg-primary transition-colors"
+                      className="bg-on-surface dark:bg-dm-surface-elevated text-surface dark:text-dm-text-primary py-3 px-8 rounded-xl font-bold text-sm hover:bg-primary dark:hover:bg-primary dark:hover:text-white transition-colors"
                     >
                       {timerRunning ? "Pause" : timerSeconds < 25 * 60 ? "Resume" : "Start Session"}
                     </button>
@@ -592,7 +632,7 @@ export default function Dashboard() {
                           setTimerRunning(false);
                           setTimerSeconds(25 * 60);
                         }}
-                        className="bg-surface-container-high text-on-surface-variant py-3 px-6 rounded-xl font-bold text-sm hover:bg-surface-container-highest transition-colors"
+                        className="bg-surface-container-high dark:bg-dm-bg text-on-surface-variant dark:text-dm-text-secondary py-3 px-6 rounded-xl font-bold text-sm hover:bg-surface-container-highest dark:hover:bg-dm-surface-hover transition-colors"
                       >
                         Reset
                       </button>

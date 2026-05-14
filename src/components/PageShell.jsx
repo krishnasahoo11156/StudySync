@@ -10,9 +10,9 @@ import { ProfilePanelProvider } from "../contexts/ProfilePanelContext";
 export default function PageShell({ activePage, title, subtitle, topBarChildren, children }) {
   return (
     <ProfilePanelProvider>
-      <div className="min-h-screen bg-surface text-on-surface">
+      <div className="min-h-screen bg-surface dark:bg-dm-bg text-on-surface dark:text-dm-text-primary transition-colors duration-300">
         <Sidebar activePage={activePage} />
-        <main className="lg:ml-[64px] min-h-screen relative">
+        <main className="lg:ml-[64px] min-h-screen relative dark:bg-dm-bg transition-colors duration-300">
           <TopBar title={title} subtitle={subtitle}>
             {topBarChildren}
           </TopBar>

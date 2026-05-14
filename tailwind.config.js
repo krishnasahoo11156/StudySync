@@ -81,6 +81,35 @@ export default {
         "focus-deep":             "#0D1F1A",
         "focus-teal":             "#0A1A2E",
         "focus-glow":             "#4ADE80",
+
+        /* ══════════════════════════════════════
+           DARK MODE TOKENS  (prefix: dm-)
+           Use as: dark:bg-dm-surface etc.
+        ══════════════════════════════════════ */
+        /* Backgrounds */
+        "dm-bg":               "#0a0f0a",   /* page background */
+        "dm-surface":          "#111a12",   /* card surfaces */
+        "dm-surface-elevated": "#182218",   /* modals, dropdowns */
+        "dm-surface-hover":    "#1e2e1e",   /* hover state */
+        "dm-sidebar":          "#0d150e",   /* sidebar / topbar bg */
+
+        /* Text */
+        "dm-text-primary":   "#e8f5e9",    /* main text */
+        "dm-text-secondary": "#86a887",    /* muted text */
+        "dm-text-tertiary":  "#4d6b4e",    /* very muted */
+        "dm-text-green":     "#4ade80",    /* accent green text */
+
+        /* Primary (unchanged green, context-aware bg) */
+        "dm-primary-bg":     "#14532d",    /* tinted bg for green elements */
+
+        /* Borders */
+        "dm-border":         "#1e2e1f",    /* default border */
+        "dm-border-subtle":  "#162417",    /* very subtle border */
+
+        /* Alerts */
+        "dm-error":          "#f87171",    /* red (lightened) */
+        "dm-warning":        "#fbbf24",    /* amber (unchanged) */
+        "dm-error-bg":       "#2a1515",    /* dark red bg */
       },
       borderRadius: {
         DEFAULT: "0.25rem",

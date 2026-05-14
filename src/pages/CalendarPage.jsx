@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { db } from "../firebase/config";
 import {
   collection, query, where, onSnapshot,
@@ -60,6 +61,7 @@ function getWeekStart(d) {
 ═══════════════════════════════════════════ */
 export default function CalendarPage() {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const navigate = useNavigate();
 
   /* ── State ── */
@@ -313,25 +315,31 @@ export default function CalendarPage() {
   const topBarContent = (
     <>
       {/* View Toggle */}
-      <div className="hidden md:flex bg-surface-container-high rounded-xl p-1 gap-1">
+      <div className="hidden md:flex bg-surface-container-high dark:bg-dm-surface rounded-xl p-1 gap-1">
         {["month", "week", "day"].map(v => (
           <button key={v} onClick={() => setView(v)}
-            className={`px-4 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${view === v ? "bg-white text-on-surface shadow-sm" : "text-text-muted hover:text-on-surface"}`}>
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${
+              view === v
+                ? isDark ? "bg-dm-surface-elevated text-dm-text-primary shadow-sm" : "bg-white text-on-surface shadow-sm"
+                : "text-text-muted dark:text-dm-text-secondary hover:text-on-surface dark:hover:text-dm-text-primary"}`}>
             {v}
           </button>
         ))}
       </div>
       {/* Heatmap toggle */}
       <button onClick={() => setShowHeatmap(!showHeatmap)}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${showHeatmap ? "bg-primary-container border-primary/20 text-primary-dark" : "bg-white border-border-default text-text-muted"}`}>
+        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+          showHeatmap
+            ? isDark ? "bg-dm-primary-bg border-primary/30 text-dm-text-green" : "bg-primary-container border-primary/20 text-primary-dark"
+            : isDark ? "bg-dm-surface border-dm-border text-dm-text-secondary" : "bg-white border-border-default text-text-muted"}`}>
         <span className="material-symbols-outlined text-sm">grid_view</span>
         Heatmap
       </button>
       {/* Notification Bell */}
       <div className="relative">
         <button onClick={() => setShowNotifPanel(!showNotifPanel)}
-          className="relative p-2 rounded-xl bg-white border border-border-default hover:bg-surface-container-low transition-all">
-          <span className="material-symbols-outlined text-on-surface-variant text-xl">notifications</span>
+          className="relative p-2 rounded-xl bg-white dark:bg-dm-surface border border-border-default dark:border-dm-border hover:bg-surface-container-low dark:hover:bg-dm-surface-hover transition-all">
+          <span className="material-symbols-outlined text-on-surface-variant dark:text-dm-text-secondary text-xl">notifications</span>
           {notifications.length > 0 && (
             <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-rose-500 text-white text-[0.6rem] font-bold flex items-center justify-center">
               {notifications.length}
@@ -340,23 +348,23 @@ export default function CalendarPage() {
         </button>
         {/* Dropdown */}
         {showNotifPanel && (
-          <div className="absolute right-0 top-12 w-80 bg-white rounded-2xl shadow-2xl border border-emerald-100 z-50 overflow-hidden animate-scale-in">
-            <div className="px-5 py-3 border-b border-emerald-50 flex items-center justify-between">
-              <h4 className="text-sm font-bold text-emerald-900">Notifications</h4>
-              <span className="text-xs text-emerald-500">{notifications.length} alerts</span>
+          <div className="absolute right-0 top-12 w-80 bg-white dark:bg-dm-surface-elevated rounded-2xl shadow-2xl border border-emerald-100 dark:border-dm-border z-50 overflow-hidden animate-scale-in">
+            <div className="px-5 py-3 border-b border-emerald-50 dark:border-dm-border flex items-center justify-between">
+              <h4 className="text-sm font-bold text-emerald-900 dark:text-dm-text-primary">Notifications</h4>
+              <span className="text-xs text-emerald-500 dark:text-dm-text-green">{notifications.length} alerts</span>
             </div>
             <div className="max-h-64 overflow-y-auto">
               {notifications.length === 0 ? (
-                <div className="p-6 text-center text-emerald-400 text-sm">All clear! 🎉</div>
+                <div className="p-6 text-center text-emerald-400 dark:text-dm-text-tertiary text-sm">All clear! 🎉</div>
               ) : notifications.map(n => (
-                <div key={n.id} className="px-5 py-3 border-b border-emerald-50/50 hover:bg-emerald-50/50 transition-colors">
+                <div key={n.id} className="px-5 py-3 border-b border-emerald-50/50 dark:border-dm-border/50 hover:bg-emerald-50/50 dark:hover:bg-dm-surface-hover transition-colors">
                   <div className="flex items-center gap-2">
                     <span className={`material-symbols-outlined text-sm ${n.type === "conflict" ? "text-rose-500" : n.type === "important" ? "text-amber-500" : "text-emerald-500"}`}>
                       {n.type === "conflict" ? "warning" : n.type === "important" ? "priority_high" : "schedule"}
                     </span>
-                    <span className="text-xs font-bold text-emerald-900">{n.title}</span>
+                    <span className="text-xs font-bold text-emerald-900 dark:text-dm-text-primary">{n.title}</span>
                   </div>
-                  <p className="text-[0.65rem] text-emerald-600/70 mt-0.5 pl-6">{n.message}</p>
+                  <p className="text-[0.65rem] text-emerald-600/70 dark:text-dm-text-tertiary mt-0.5 pl-6">{n.message}</p>
                 </div>
               ))}
             </div>
