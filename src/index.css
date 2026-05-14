@@ -579,14 +579,28 @@ input:focus, textarea:focus, select:focus {
   top: 60px;
   right: 12px;
   width: 300px;
+  max-height: calc(100vh - 80px);
   background: #ffffff;
   border: 1px solid #e0ede0;
   border-radius: 16px;
   box-shadow: 0 16px 56px rgba(22, 163, 74, 0.14), 0 4px 16px rgba(0,0,0,0.06);
   z-index: 200;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   /* transform & opacity driven by inline styles for animation */
 }
+
+/* Body — scrollable region */
+.profile-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+.profile-body::-webkit-scrollbar { width: 4px; }
+.profile-body::-webkit-scrollbar-track { background: transparent; }
+.profile-body::-webkit-scrollbar-thumb { background: #c6dfc6; border-radius: 4px; }
 
 /* Header */
 .profile-header {
@@ -1154,6 +1168,7 @@ input:focus, textarea:focus, select:focus {
   border-color: #1e2e1f;
   box-shadow: 0 16px 56px rgba(0,0,0,0.55), 0 4px 16px rgba(0,0,0,0.35);
 }
+.dark .profile-body::-webkit-scrollbar-thumb { background: #1e2e1f; }
 .dark .profile-header {
   background: linear-gradient(160deg, #0d1f0e 0%, #111a12 100%);
   border-bottom-color: #1e2e1f;
