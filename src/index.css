@@ -2,6 +2,201 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ════════════════════════════════════════════
+   CSS CUSTOM PROPERTIES — PUBLIC PAGES THEME
+   Light mode default · Dark mode via [data-theme="dark"]
+════════════════════════════════════════════ */
+:root {
+  --nav-bg: #1a3c2e;
+  --nav-text: #a8c5b0;
+  --nav-text-active: #ffffff;
+  --page-bg: #f5f9f5;
+  --page-bg-alt: #edf4ee;
+  --card-bg: #ffffff;
+  --card-bg-tinted: #e8f2ea;
+  --card-bg-accent: #2d8c4e;
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a5568;
+  --text-on-accent: #ffffff;
+  --accent: #2d8c4e;
+  --accent-hover: #236e3d;
+  --btn-outline-border: #2d8c4e;
+  --btn-outline-text: #2d8c4e;
+  --badge-pill-bg: #e8f2ea;
+  --badge-pill-text: #1a3c2e;
+  --focus-card-bg: #ffffff;
+  --focus-card-text: #1a1a1a;
+  --input-bg: #ffffff;
+  --input-border: #c8dac9;
+  --input-placeholder: #9ab09c;
+  --divider: rgba(0,0,0,0.08);
+}
+
+[data-theme="dark"] {
+  --nav-bg: #0d1f17;
+  --nav-text: #6b9978;
+  --nav-text-active: #e8f0e9;
+  --page-bg: #0f1a14;
+  --page-bg-alt: #121f17;
+  --card-bg: #1a2b20;
+  --card-bg-tinted: #1e2f22;
+  --card-bg-accent: #1e5c35;
+  --text-primary: #e8f0e9;
+  --text-secondary: #8aab90;
+  --text-on-accent: #ffffff;
+  --accent: #3db56a;
+  --accent-hover: #34a05e;
+  --btn-outline-border: #3db56a;
+  --btn-outline-text: #3db56a;
+  --badge-pill-bg: #1a3825;
+  --badge-pill-text: #7ecf96;
+  --focus-card-bg: #1a2b20;
+  --focus-card-text: #e8f0e9;
+  --input-bg: #1a2b20;
+  --input-border: #2d5a3a;
+  --input-placeholder: #6b8f72;
+  --divider: rgba(255,255,255,0.08);
+}
+
+/* ── Smooth transitions – html itself must NOT transition (prevents flash) ── */
+html { transition: none; }
+body, .card, input, button, nav {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* ── Theme Toggle Button ── */
+.theme-toggle-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--btn-outline-border);
+  background: transparent;
+  color: var(--nav-text-active);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.theme-toggle-btn:hover {
+  background: rgba(45, 140, 78, 0.15);
+}
+[data-theme="dark"] .theme-toggle-btn:hover {
+  background: rgba(61, 181, 106, 0.15);
+}
+.theme-toggle-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ════ PUBLIC PAGE — SHARED UTILITY CLASSES ════ */
+
+/* Nav */
+.ss-nav { background: var(--nav-bg); }
+.ss-nav-logo { color: var(--nav-text-active) !important; }
+.ss-nav-link {
+  color: var(--nav-text) !important;
+  transition: color 0.2s ease;
+}
+.ss-nav-link:hover { color: var(--nav-text-active) !important; }
+.ss-nav-link-active { color: var(--nav-text-active) !important; }
+
+/* Page backgrounds */
+.ss-page { background: var(--page-bg); transition: background-color 0.2s ease; }
+.ss-page-alt { background: var(--page-bg-alt); transition: background-color 0.2s ease; }
+
+/* Typography */
+.ss-text-primary { color: var(--text-primary); transition: color 0.2s ease; }
+.ss-text-secondary { color: var(--text-secondary); transition: color 0.2s ease; }
+.ss-text-accent { color: var(--accent); transition: color 0.2s ease; }
+.ss-text-on-accent { color: var(--text-on-accent); }
+
+/* Pill / Badge */
+.ss-badge {
+  background: var(--badge-pill-bg);
+  color: var(--badge-pill-text);
+  border: 1px solid var(--divider);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Buttons */
+.ss-btn-primary {
+  background: var(--accent);
+  color: var(--text-on-accent);
+  transition: background-color 0.2s ease;
+}
+.ss-btn-primary:hover { background: var(--accent-hover); }
+
+.ss-btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--btn-outline-border);
+  color: var(--btn-outline-text);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.ss-btn-outline:hover { background: rgba(45, 140, 78, 0.08); }
+[data-theme="dark"] .ss-btn-outline:hover { background: rgba(61, 181, 106, 0.08); }
+
+/* Cards */
+.ss-card {
+  background: var(--card-bg);
+  border: 1px solid var(--divider);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.ss-card-tinted {
+  background: var(--card-bg-tinted);
+  transition: background-color 0.2s ease;
+}
+.ss-card-accent-bg {
+  background: var(--card-bg-accent);
+  transition: background-color 0.2s ease;
+}
+.ss-focus-card {
+  background: var(--focus-card-bg);
+  color: var(--focus-card-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Inputs */
+.ss-input {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.ss-input::placeholder { color: var(--input-placeholder); }
+.ss-input:focus {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px var(--accent), 0 0 0 5px rgba(61, 181, 106, 0.2);
+  outline: none;
+}
+
+/* Divider */
+.ss-divider { background: var(--divider); height: 1px; }
+
+/* Auth card */
+.ss-auth-card {
+  background: var(--card-bg);
+  border: 1px solid var(--divider);
+  border-radius: 16px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Progress bar */
+.ss-progress-fill { background: var(--accent); }
+.ss-progress-track { background: var(--card-bg-tinted); }
+
+/* Icon accent */
+.ss-icon-accent { color: var(--accent); transition: color 0.2s ease; }
+
+/* Placeholder blocks (Library card) */
+.ss-placeholder { background: var(--card-bg-tinted); transition: background-color 0.2s ease; }
+
+/* Footer – public pages */
+.ss-footer { background: var(--nav-bg); transition: background-color 0.2s ease; }
+
 /* ══════════════════════════════════════════════
    STUDYSYNC DESIGN SYSTEM v3
    "Luminous Organicism" — Premium Aesthetic

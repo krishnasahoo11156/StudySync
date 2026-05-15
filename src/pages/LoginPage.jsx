@@ -10,10 +10,26 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
     document.title = "StudySync - Login";
+    setIsDark(document.documentElement.getAttribute("data-theme") === "dark");
   }, []);
+
+  const toggleTheme = () => {
+    const next = !isDark;
+    setIsDark(next);
+    if (next) {
+      document.documentElement.setAttribute("data-theme", "dark");
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("ss-theme", "dark");
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("ss-theme", "light");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,46 +53,56 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="bg-background dark:bg-dm-bg text-on-surface dark:text-dm-text-primary min-h-screen flex flex-col overflow-x-hidden transition-colors duration-300">
-      {/* ── TopAppBar ── */}
-      <header className="bg-surface-container-low/70 dark:bg-dm-sidebar/90 backdrop-blur-xl text-on-surface text-sm tracking-tight fixed top-0 w-full z-50 flex justify-between items-center px-8 h-20 border-b border-transparent dark:border-dm-border transition-colors duration-300">
-        <Link to="/" className="text-2xl font-bold tracking-tighter text-on-surface dark:text-dm-text-primary">
-          StudySync
-        </Link>
-        <nav className="hidden md:flex items-center gap-8">
-          <Link className="text-on-surface-variant dark:text-dm-text-secondary hover:text-on-surface dark:hover:text-dm-text-primary transition-colors duration-200" to="/">
-            Solutions
+    <div className="ss-page min-h-screen flex flex-col overflow-x-hidden">
+      {/* ── Navbar ── */}
+      <header className="ss-nav fixed top-0 w-full z-50 backdrop-blur-xl shadow-sm">
+        <nav className="flex justify-between items-center max-w-7xl mx-auto px-8 h-20">
+          <Link to="/" className="text-2xl font-bold tracking-tighter ss-nav-logo">
+            StudySync
           </Link>
-          <Link className="text-on-surface-variant dark:text-dm-text-secondary hover:text-on-surface dark:hover:text-dm-text-primary transition-colors duration-200" to="/">
-            Resources
-          </Link>
-          <Link className="text-on-surface dark:text-dm-text-primary font-semibold transition-colors duration-200" to="/login">
-            Sign In
-          </Link>
+
+          <div className="hidden md:flex items-center gap-8">
+            <Link className="ss-nav-link font-medium" to="/">Solutions</Link>
+            <Link className="ss-nav-link font-medium" to="/">Resources</Link>
+            <Link className="ss-nav-link-active font-semibold" to="/login" style={{ color: "var(--nav-text-active)" }}>
+              Sign In
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Theme toggle */}
+            <button
+              className="theme-toggle-btn"
+              onClick={toggleTheme}
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {isDark ? "☀️" : "🌙"}
+            </button>
+            <button
+              onClick={() => navigate("/signup")}
+              className="ss-btn-primary px-6 py-2.5 rounded-xl font-medium transition-all hover:opacity-90 active:scale-95"
+            >
+              Get Started
+            </button>
+          </div>
         </nav>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate("/signup")}
-            className="bg-primary text-on-primary px-6 py-2.5 rounded-xl font-medium transition-all hover:opacity-90 active:scale-95"
-          >
-            Get Started
-          </button>
-        </div>
       </header>
 
       <main className="flex-grow flex items-center justify-center pt-24 pb-12 px-6 relative">
-        {/* Background decorative elements */}
-        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-1/4 -right-20 w-[500px] h-[500px] bg-secondary-container/10 rounded-full blur-[120px] pointer-events-none" />
+        {/* Background decorative blobs */}
+        <div className="absolute top-1/4 -left-20 w-96 h-96 rounded-full blur-[100px] pointer-events-none"
+          style={{ background: "var(--accent)", opacity: 0.05 }} />
+        <div className="absolute bottom-1/4 -right-20 w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none"
+          style={{ background: "var(--card-bg-tinted)", opacity: 0.3 }} />
 
         <section className="w-full max-w-[1100px] grid md:grid-cols-12 items-center gap-12 z-10">
-          {/* Left Branding Side (Desktop) */}
+          {/* Left branding (desktop) */}
           <div className="hidden md:flex md:col-span-5 flex-col gap-6 pr-8 animate-fade-in">
-            <h1 className="text-[3.5rem] font-extrabold leading-[1.1] tracking-[-0.03em] text-on-surface">
+            <h1 className="text-[3.5rem] font-extrabold leading-[1.1] tracking-[-0.03em] ss-text-primary">
               Your focus <br />
-              <span className="text-primary">evolved.</span>
+              <span className="ss-text-accent">evolved.</span>
             </h1>
-            <p className="text-[1.125rem] text-on-surface-variant leading-relaxed max-w-sm">
+            <p className="text-[1.125rem] ss-text-secondary leading-relaxed max-w-sm">
               Re-enter your sanctuary of study. Where calm meets peak productivity.
             </p>
             <div className="mt-8">
@@ -90,20 +116,24 @@ export default function LoginPage() {
 
           {/* Login Card */}
           <div className="md:col-span-7 flex justify-center animate-slide-up">
-            <div className="bg-surface-container-lowest dark:bg-dm-surface ambient-shadow dark:shadow-[0_24px_64px_rgba(0,0,0,0.4)] p-10 md:p-16 rounded-[2.5rem] w-full max-w-[540px] border border-transparent dark:border-dm-border transition-colors duration-300">
+            <div
+              className="ss-auth-card ambient-shadow p-10 md:p-16 w-full max-w-[540px]"
+              style={{ borderRadius: "2.5rem" }}
+            >
               <div className="mb-12">
-                <span className="text-primary font-bold tracking-tighter text-2xl">StudySync</span>
-                <h2 className="text-[2.75rem] font-bold tracking-[-0.02em] leading-tight mt-4 text-on-surface dark:text-dm-text-primary">
+                <span className="ss-text-accent font-bold tracking-tighter text-2xl">StudySync</span>
+                <h2 className="text-[2.75rem] font-bold tracking-[-0.02em] leading-tight mt-4 ss-text-primary">
                   Log in to your account
                 </h2>
-                <p className="text-on-surface-variant dark:text-dm-text-secondary mt-2 opacity-70">
+                <p className="ss-text-secondary mt-2 opacity-70">
                   Welcome back to your verdant sanctuary.
                 </p>
               </div>
 
-              {/* Error Message */}
+              {/* Error */}
               {error && (
-                <div className="mb-6 p-4 rounded-xl bg-error-container dark:bg-dm-error-bg text-on-error-container dark:text-dm-error text-sm font-medium animate-scale-in">
+                <div className="mb-6 p-4 rounded-xl text-sm font-medium animate-scale-in"
+                  style={{ background: "#fde8e8", color: "#991b1b" }}>
                   {error}
                 </div>
               )}
@@ -111,11 +141,11 @@ export default function LoginPage() {
               <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Email */}
                 <div className="space-y-2">
-                  <label className="text-[0.75rem] font-bold uppercase tracking-[0.05em] text-on-surface-variant dark:text-dm-text-secondary block ml-1">
+                  <label className="text-[0.75rem] font-bold uppercase tracking-[0.05em] ss-text-secondary block ml-1">
                     Email Address
                   </label>
                   <input
-                    className="w-full bg-surface-container-highest dark:bg-dm-bg border border-transparent dark:border-dm-border rounded-xl py-4 px-6 text-on-surface dark:text-dm-text-primary placeholder:text-on-surface-variant/40 dark:placeholder:text-dm-text-tertiary focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest dark:focus:bg-dm-surface transition-all"
+                    className="ss-input w-full rounded-xl py-4 px-6"
                     placeholder="alex@university.edu"
                     type="email"
                     value={email}
@@ -126,12 +156,12 @@ export default function LoginPage() {
 
                 {/* Password */}
                 <div className="space-y-2">
-                  <label className="text-[0.75rem] font-bold uppercase tracking-[0.05em] text-on-surface-variant dark:text-dm-text-secondary block ml-1">
+                  <label className="text-[0.75rem] font-bold uppercase tracking-[0.05em] ss-text-secondary block ml-1">
                     Password
                   </label>
                   <div className="relative">
                     <input
-                      className="w-full bg-surface-container-highest dark:bg-dm-bg border border-transparent dark:border-dm-border rounded-xl py-4 px-6 text-on-surface dark:text-dm-text-primary placeholder:text-on-surface-variant/40 dark:placeholder:text-dm-text-tertiary focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest dark:focus:bg-dm-surface transition-all"
+                      className="ss-input w-full rounded-xl py-4 px-6 pr-14"
                       placeholder="••••••••"
                       type={showPassword ? "text" : "password"}
                       value={password}
@@ -139,7 +169,7 @@ export default function LoginPage() {
                       required
                     />
                     <button
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant/60 dark:text-dm-text-tertiary hover:text-primary transition-colors"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 ss-text-secondary hover:ss-text-accent transition-colors"
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                     >
@@ -155,26 +185,25 @@ export default function LoginPage() {
                   <label className="flex items-center gap-3 cursor-pointer group">
                     <div className="relative flex items-center">
                       <input
-                        className="peer appearance-none w-5 h-5 bg-surface-container-high dark:bg-dm-surface-hover rounded-md checked:bg-primary transition-all cursor-pointer"
+                        className="peer appearance-none w-5 h-5 rounded-md checked:bg-green-600 transition-all cursor-pointer"
+                        style={{ background: "var(--card-bg-tinted)", border: "1px solid var(--input-border)" }}
                         type="checkbox"
                       />
-                      <span className="material-symbols-outlined absolute text-[14px] text-on-primary opacity-0 peer-checked:opacity-100 left-1/2 -translate-x-1/2 pointer-events-none">
+                      <span className="material-symbols-outlined absolute text-[14px] text-white opacity-0 peer-checked:opacity-100 left-1/2 -translate-x-1/2 pointer-events-none">
                         check
                       </span>
                     </div>
-                    <span className="text-on-surface-variant dark:text-dm-text-secondary group-hover:text-on-surface dark:group-hover:text-dm-text-primary transition-colors">
-                      Remember me
-                    </span>
+                    <span className="ss-text-secondary">Remember me</span>
                   </label>
-                  <a className="text-primary font-semibold hover:opacity-70 transition-opacity" href="#">
+                  <a className="ss-text-accent font-semibold hover:opacity-70 transition-opacity" href="#">
                     Forgot password?
                   </a>
                 </div>
 
-                {/* Login Button */}
+                {/* Submit */}
                 <div className="flex justify-end pt-4">
                   <button
-                    className="signature-gradient text-on-primary text-[1.125rem] font-bold py-4 px-12 rounded-xl ambient-shadow hover:scale-[1.02] active:scale-95 transition-all w-full md:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="ss-btn-primary text-[1.125rem] font-bold py-4 px-12 rounded-xl ambient-shadow hover:scale-[1.02] active:scale-95 transition-all w-full md:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
                     type="submit"
                     disabled={loading}
                   >
@@ -190,9 +219,12 @@ export default function LoginPage() {
                 </div>
               </form>
 
-              <div className="mt-12 flex items-center justify-center gap-2 text-sm">
-                <span className="text-on-surface-variant dark:text-dm-text-secondary">Don't have an account?</span>
-                <Link className="text-primary font-bold hover:underline underline-offset-4" to="/signup">
+              {/* Divider */}
+              <div className="ss-divider my-8" />
+
+              <div className="flex items-center justify-center gap-2 text-sm">
+                <span className="ss-text-secondary">Don't have an account?</span>
+                <Link className="ss-text-accent font-bold hover:underline underline-offset-4" to="/signup">
                   Sign up
                 </Link>
               </div>
@@ -201,28 +233,26 @@ export default function LoginPage() {
         </section>
 
         {/* Floating Glass Hint */}
-        <aside className="fixed bottom-12 right-12 hidden lg:flex items-center gap-4 bg-surface-container-low/70 dark:bg-dm-surface-elevated/90 glass-hint p-4 pr-8 rounded-full shadow-card dark:shadow-[0_8px_24px_rgba(0,0,0,0.4)] z-20 transition-all hover:translate-y-[-4px] border border-transparent dark:border-dm-border">
-          <div className="w-10 h-10 bg-primary-container dark:bg-dm-primary-bg rounded-full flex items-center justify-center text-on-primary-container dark:text-dm-text-green">
+        <aside className="fixed bottom-12 right-12 hidden lg:flex items-center gap-4 p-4 pr-8 rounded-full shadow-card z-20 transition-all hover:translate-y-[-4px]"
+          style={{ background: "var(--card-bg)", border: "1px solid var(--divider)" }}>
+          <div className="w-10 h-10 rounded-full flex items-center justify-center ss-text-accent"
+            style={{ background: "var(--card-bg-tinted)" }}>
             <span className="material-symbols-outlined text-[20px]">info</span>
           </div>
-          <p className="text-[0.875rem] font-medium text-on-surface dark:text-dm-text-primary">
+          <p className="text-[0.875rem] font-medium ss-text-primary">
             Enter your school email to get started
           </p>
         </aside>
       </main>
 
       {/* Footer */}
-      <footer className="bg-transparent w-full pb-8 flex flex-col items-center gap-4 text-on-surface text-[10px] uppercase tracking-widest">
+      <footer className="w-full pb-8 flex flex-col items-center gap-4 text-[10px] uppercase tracking-widest ss-text-secondary">
         <div className="flex gap-6">
-          <a className="text-text-muted hover:text-on-surface transition-all opacity-80 hover:opacity-100" href="#">
-            Privacy
-          </a>
-          <a className="text-text-muted hover:text-on-surface transition-all opacity-80 hover:opacity-100" href="#">
-            Terms
-          </a>
-          <a className="text-text-muted hover:text-on-surface transition-all opacity-80 hover:opacity-100" href="#">
-            Support
-          </a>
+          {["Privacy", "Terms", "Support"].map((item) => (
+            <a key={item} className="ss-text-secondary hover:ss-text-primary transition-all opacity-80 hover:opacity-100" href="#">
+              {item}
+            </a>
+          ))}
         </div>
         <p>© 2024 StudySync Sanctuary. Breathe deep, study well.</p>
       </footer>

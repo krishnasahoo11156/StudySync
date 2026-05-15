@@ -21,8 +21,9 @@
     <script>
       (function () {
         try {
-          var theme = localStorage.getItem('studysync-theme');
+          var theme = localStorage.getItem('ss-theme') || localStorage.getItem('studysync-theme');
           if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
             document.documentElement.classList.add('dark');
           }
         } catch (e) {}
