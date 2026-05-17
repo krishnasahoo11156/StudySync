@@ -1416,3 +1416,45 @@ input:focus, textarea:focus, select:focus {
 .dark .profile-photo-link       { color: #4ade80; }
 .dark .profile-photo-link:hover { color: #86efac; }
 .dark .profile-avatar-upload    { border-color: #182218; }
+
+/* ════════════════════════════════════════════
+   STUDY ROOMS — Collaborative Session UI
+════════════════════════════════════════════ */
+
+/* Screen-reader only helper */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Timer ring glow enhancement for rooms */
+.room-timer-glow {
+  filter: drop-shadow(0 0 12px rgba(61,181,106,0.5));
+}
+
+/* Pulsing connection dot */
+@keyframes connPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+.conn-pulse { animation: connPulse 1.5s ease-in-out infinite; }
+
+/* Chat bubble animation */
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.chat-bubble { animation: bubbleIn 200ms ease-out both; }
+
+/* Avatar pulse (online) */
+.member-avatar-online {
+  box-shadow: 0 0 0 2px var(--accent), 0 0 0 4px rgba(61,181,106,0.2);
+}
+

@@ -5,11 +5,12 @@ import { useProfilePanel } from "../contexts/ProfilePanelContext";
 
 /* ── Navigation items ── */
 const NAV = [
-  { to: "/dashboard",  icon: "dashboard",    label: "Sanctuary" },
-  { to: "/calendar",   icon: "calendar_month", label: "Calendar" },
-  { to: "/library",    icon: "folder_open",  label: "Library" },
-  { to: "/focus",      icon: "self_improvement", label: "Flow" },
-  { to: "/analytics",  icon: "insights",     label: "Insights" },
+  { to: "/dashboard",  icon: "dashboard",       label: "Sanctuary" },
+  { to: "/calendar",   icon: "calendar_month",  label: "Calendar" },
+  { to: "/library",    icon: "folder_open",     label: "Library" },
+  { to: "/focus",      icon: "self_improvement",label: "Flow" },
+  { to: "/analytics",  icon: "insights",        label: "Insights" },
+  { to: "/groups",     icon: "groups",          label: "Study Rooms" },
 ];
 
 export default function Sidebar() {

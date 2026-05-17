@@ -10,6 +10,8 @@ import LibraryPage from "./pages/LibraryPage";
 import FocusPage from "./pages/FocusPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import CalendarPage from "./pages/CalendarPage";
+import StudyGroupsPage from "./pages/StudyGroupsPage";
+import StudyRoomPage from "./pages/StudyRoomPage";
 
 function App() {
   return (
@@ -60,6 +62,16 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/groups"
+            element={
+              <ProtectedRoute>
+                <StudyGroupsPage />
+              </ProtectedRoute>
+            }
+          />
+          {/* Room page uses its own anonymous auth — no ProtectedRoute needed */}
+          <Route path="/room/:roomId" element={<StudyRoomPage />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
