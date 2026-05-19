@@ -988,6 +988,7 @@ input:focus, textarea:focus, select:focus {
 .profile-toggle-knob {
   position: absolute;
   top: 50%;
+  left: 0;
   transform: translateY(-50%) translateX(2px);
   width: 16px;
   height: 16px;
