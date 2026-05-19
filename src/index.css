@@ -797,6 +797,10 @@ input:focus, textarea:focus, select:focus {
 .profile-body::-webkit-scrollbar-track { background: transparent; }
 .profile-body::-webkit-scrollbar-thumb { background: #c6dfc6; border-radius: 4px; }
 
+.profile-text-muted {
+  color: #5a7a5a;
+}
+
 /* Header */
 .profile-header {
   background: linear-gradient(160deg, #e8f5e9 0%, #f0faf0 100%);
@@ -958,6 +962,7 @@ input:focus, textarea:focus, select:focus {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  color: #1a2e1a;
 }
 
 /* Toggle row inside expand section */
@@ -1109,9 +1114,9 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* For edit profile view — add internal padding */
-.profile-panel .profile-view > div,
-.profile-panel .profile-view > label,
-.profile-panel .profile-view > input {
+.profile-panel .profile-view-edit > div,
+.profile-panel .profile-view-edit > label,
+.profile-panel .profile-view-edit > input {
   padding-left: 0;
   padding-right: 0;
 }
@@ -1367,6 +1372,7 @@ input:focus, textarea:focus, select:focus {
   background: linear-gradient(160deg, #0d1f0e 0%, #111a12 100%);
   border-bottom-color: #1e2e1f;
 }
+.dark .profile-text-muted { color: #86a887; }
 .dark .profile-name  { color: #e8f5e9; }
 .dark .profile-email { color: #86a887; }
 .dark .profile-stats-row   { border-bottom-color: #1e2e1f; }
@@ -1383,6 +1389,7 @@ input:focus, textarea:focus, select:focus {
   background: #0a0f0a;
   border-top-color: #1e2e1f;
   border-bottom-color: #1e2e1f;
+  color: #e8f5e9;
 }
 .dark .profile-back-btn {
   border-color: #1e2e1f;

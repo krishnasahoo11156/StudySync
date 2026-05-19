@@ -72,7 +72,7 @@ function Toggle({ checked, onChange }) {
   return (
     <button role="switch" aria-checked={checked} onClick={() => onChange(!checked)}
       className="profile-toggle" style={{ background: checked ? "#22c55e" : "#d1d5db", transition:"background 200ms" }}>
-      <span className="profile-toggle-knob" style={{ transform: checked ? "translateX(16px)" : "translateX(2px)" }} />
+      <span className="profile-toggle-knob" style={{ transform: checked ? "translateY(-50%) translateX(18px)" : "translateY(-50%) translateX(2px)" }} />
     </button>
   );
 }
@@ -83,7 +83,7 @@ function MenuRow({ icon, label, onClick, rightElement, red }) {
       <span className="material-symbols-outlined" style={{ fontSize:18, color: red?"#dc2626":"#22c55e", flexShrink:0 }}>{icon}</span>
       <span className="profile-menu-label" style={red ? { color:"#dc2626" } : {}}>{label}</span>
       <span style={{ marginLeft:"auto" }}>
-        {rightElement ?? <span className="material-symbols-outlined" style={{ fontSize:16, color:"#5a7a5a", opacity:0.6 }}>chevron_right</span>}
+        {rightElement ?? <span className="material-symbols-outlined profile-text-muted" style={{ fontSize:16, opacity:0.6 }}>chevron_right</span>}
       </span>
     </button>
   );
@@ -314,10 +314,10 @@ export default function ProfilePanel() {
               onClick={() => { setDisplayNameInput(displayName); setPhotoFile(null); setPhotoPreview(null); setRemovePhoto(false); setView("editProfile"); }} />
             <MenuRow icon="lock" label="Change Password"
               onClick={() => setChangePassExpanded(v => !v)}
-              rightElement={<span className="material-symbols-outlined" style={{ fontSize:16, color:"#5a7a5a", opacity:0.6 }}>{changePassExpanded?"expand_less":"expand_more"}</span>} />
+              rightElement={<span className="material-symbols-outlined profile-text-muted" style={{ fontSize:16, opacity:0.6 }}>{changePassExpanded?"expand_less":"expand_more"}</span>} />
             {changePassExpanded && (
               <div className="profile-expand-section animate-fade-in">
-                <p style={{ fontSize:12, color:"#5a7a5a", lineHeight:1.5 }}>A reset email will be sent to <strong>{email}</strong>.</p>
+                <p className="profile-text-muted" style={{ fontSize:12, lineHeight:1.5 }}>A reset email will be sent to <strong>{email}</strong>.</p>
                 <button className="profile-btn-green" onClick={async () => {
                   const { sendPasswordResetEmail } = await import("firebase/auth");
                   await sendPasswordResetEmail(auth, email);
@@ -332,7 +332,7 @@ export default function ProfilePanel() {
             )}
 
             <p className="profile-section-label" style={{ marginTop:8 }}>APPEARANCE</p>
-            <div className="profile-menu-row" style={{ cursor: "default" }}>
+            <div className="profile-menu-row" style={{ cursor: "default", paddingLeft: 16, paddingRight: 16 }}>
               <span className="material-symbols-outlined" style={{ fontSize:18, color: "#22c55e", flexShrink:0 }}>dark_mode</span>
               <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                 <span style={{ fontSize:13, fontWeight:500, color:"inherit" }}>Dark Mode</span>
@@ -347,54 +347,54 @@ export default function ProfilePanel() {
             <MenuRow icon="settings" label="Settings" onClick={() => { close(); navigate("/dashboard"); }} />
             <MenuRow icon="notifications" label="Notifications"
               onClick={() => setNotifExpanded(v => !v)}
-              rightElement={<span className="material-symbols-outlined" style={{ fontSize:16, color:"#5a7a5a", opacity:0.6 }}>{notifExpanded?"expand_less":"expand_more"}</span>} />
+              rightElement={<span className="material-symbols-outlined profile-text-muted" style={{ fontSize:16, opacity:0.6 }}>{notifExpanded?"expand_less":"expand_more"}</span>} />
             {notifExpanded && (
               <div className="profile-expand-section animate-fade-in">
-                <div className="profile-toggle-row"><span style={{ fontSize:12, color:"#1a2e1a", fontWeight:500 }}>Due Date Reminders</span><Toggle checked={prefs.dueDateReminders} onChange={v=>savePref("dueDateReminders",v)} /></div>
-                <div className="profile-toggle-row"><span style={{ fontSize:12, color:"#1a2e1a", fontWeight:500 }}>Focus Session Alerts</span><Toggle checked={prefs.focusAlerts} onChange={v=>savePref("focusAlerts",v)} /></div>
-                <div className="profile-toggle-row"><span style={{ fontSize:12, color:"#1a2e1a", fontWeight:500 }}>Weekly Summary</span><Toggle checked={prefs.weeklySummary} onChange={v=>savePref("weeklySummary",v)} /></div>
+                <div className="profile-toggle-row"><span style={{ fontSize:12, color:"inherit", fontWeight:500 }}>Due Date Reminders</span><Toggle checked={prefs.dueDateReminders} onChange={v=>savePref("dueDateReminders",v)} /></div>
+                <div className="profile-toggle-row"><span style={{ fontSize:12, color:"inherit", fontWeight:500 }}>Focus Session Alerts</span><Toggle checked={prefs.focusAlerts} onChange={v=>savePref("focusAlerts",v)} /></div>
+                <div className="profile-toggle-row"><span style={{ fontSize:12, color:"inherit", fontWeight:500 }}>Weekly Summary</span><Toggle checked={prefs.weeklySummary} onChange={v=>savePref("weeklySummary",v)} /></div>
               </div>
             )}
 
             {/* ── Email Notifications ── */}
             <MenuRow icon="mail" label="Email Notifications"
               onClick={() => setEmailExpanded(v => !v)}
-              rightElement={<span className="material-symbols-outlined" style={{ fontSize:16, color:"#5a7a5a", opacity:0.6 }}>{emailExpanded?"expand_less":"expand_more"}</span>} />
+              rightElement={<span className="material-symbols-outlined profile-text-muted" style={{ fontSize:16, opacity:0.6 }}>{emailExpanded?"expand_less":"expand_more"}</span>} />
             {emailExpanded && (
               <div className="profile-expand-section animate-fade-in">
-                <p style={{ fontSize:11, color:"#5a7a5a", marginBottom:10, lineHeight:1.5 }}>
+                <p className="profile-text-muted" style={{ fontSize:11, marginBottom:10, lineHeight:1.5 }}>
                   Choose which emails StudySync sends to <strong>{email}</strong>.
                 </p>
 
                 {/* Task completion digest */}
                 <div className="profile-toggle-row">
-                  <span style={{ fontSize:12, color:"#1a2e1a", fontWeight:500 }}>Task Completion Digest</span>
+                  <span style={{ fontSize:12, color:"inherit", fontWeight:500 }}>Task Completion Digest</span>
                   <Toggle checked={emailPrefs.taskComplete} onChange={v => saveEmailPref("taskComplete", v)} />
                 </div>
 
                 {/* Overdue reminders */}
                 <div className="profile-toggle-row">
-                  <span style={{ fontSize:12, color:"#1a2e1a", fontWeight:500 }}>Overdue Reminders</span>
+                  <span style={{ fontSize:12, color:"inherit", fontWeight:500 }}>Overdue Reminders</span>
                   <Toggle checked={emailPrefs.overdueReminder} onChange={v => saveEmailPref("overdueReminder", v)} />
                 </div>
 
                 {/* Weekly digest */}
                 <div className="profile-toggle-row">
-                  <span style={{ fontSize:12, color:"#1a2e1a", fontWeight:500 }}>Weekly Digest</span>
+                  <span style={{ fontSize:12, color:"inherit", fontWeight:500 }}>Weekly Digest</span>
                   <Toggle checked={emailPrefs.weeklyDigest} onChange={v => saveEmailPref("weeklyDigest", v)} />
                 </div>
 
                 {/* Streak milestones */}
                 <div className="profile-toggle-row">
-                  <span style={{ fontSize:12, color:"#1a2e1a", fontWeight:500 }}>Streak Milestones</span>
+                  <span style={{ fontSize:12, color:"inherit", fontWeight:500 }}>Streak Milestones</span>
                   <Toggle checked={emailPrefs.streakMilestone} onChange={v => saveEmailPref("streakMilestone", v)} />
                 </div>
 
                 {/* Security alerts — always on */}
                 <div className="profile-toggle-row" style={{ opacity:0.65 }}>
-                  <span style={{ fontSize:12, color:"#1a2e1a", fontWeight:500 }}>
+                  <span style={{ fontSize:12, color:"inherit", fontWeight:500 }}>
                     Security Alerts
-                    <span style={{ fontSize:10, color:"#5a7a5a", display:"block", fontWeight:400 }}>Always on for your safety</span>
+                    <span className="profile-text-muted" style={{ fontSize:10, display:"block", fontWeight:400 }}>Always on for your safety</span>
                   </span>
                   <Toggle checked={true} onChange={() => {}} />
                 </div>
@@ -412,7 +412,7 @@ export default function ProfilePanel() {
           </div>
 
           {/* ═══ EDIT PROFILE VIEW ═══ */}
-          <div className="profile-view" style={{
+          <div className="profile-view profile-view-edit" style={{
             opacity: view==="editProfile"?1:0, transform: view==="editProfile"?"translateY(0)":"translateY(8px)",
             pointerEvents: view==="editProfile"?"auto":"none",
             position: view==="menu"?"absolute":"relative", width:"100%",
