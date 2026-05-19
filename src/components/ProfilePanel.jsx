@@ -332,14 +332,15 @@ export default function ProfilePanel() {
             )}
 
             <p className="profile-section-label" style={{ marginTop:8 }}>APPEARANCE</p>
-            <div className="profile-expand-section animate-fade-in" style={{ marginTop:0 }}>
-              <div className="profile-toggle-row">
-                <div>
-                  <span style={{ fontSize:12, color:"inherit", fontWeight:500 }}>Dark Mode</span>
-                  <span style={{ fontSize:10, display:"block", fontWeight:400, opacity:0.7, marginTop:1 }}>Synced across all your devices</span>
-                </div>
-                <DarkModeToggle />
+            <div className="profile-menu-row" style={{ cursor: "default" }}>
+              <span className="material-symbols-outlined" style={{ fontSize:18, color: "#22c55e", flexShrink:0 }}>dark_mode</span>
+              <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize:13, fontWeight:500, color:"inherit" }}>Dark Mode</span>
+                <span style={{ fontSize:10, fontWeight:400, opacity:0.7, marginTop:2, color:"inherit" }}>Synced across all your devices</span>
               </div>
+              <span style={{ marginLeft:"auto" }}>
+                <DarkModeToggle />
+              </span>
             </div>
 
             <p className="profile-section-label" style={{ marginTop:8 }}>PREFERENCES</p>
