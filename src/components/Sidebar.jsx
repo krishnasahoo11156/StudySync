@@ -58,7 +58,7 @@ export default function Sidebar() {
       <aside
         className={`sidebar-shell fixed top-0 left-0 h-full z-50 flex flex-col
           bg-white/95 dark:bg-dm-sidebar glass-nav border-r border-border-default dark:border-dm-border
-          transition-all duration-300 ease-smooth
+          transition-all duration-1000 ease-in-out
           ${expanded ? "w-[220px]" : "w-[64px]"}
           ${isFocusMode ? "lg:translate-x-0" : ""}
           -translate-x-full lg:translate-x-0`}
@@ -72,8 +72,8 @@ export default function Sidebar() {
               eco
             </span>
           </div>
-          <div className={`overflow-hidden transition-all duration-300 ${expanded ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
-            <span className="text-sm font-bold text-on-surface dark:text-dm-text-primary whitespace-nowrap tracking-tight transition-colors duration-300">StudySync</span>
+          <div className={`overflow-hidden transition-all duration-1000 ease-in-out ${expanded ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
+            <span className="text-sm font-bold text-on-surface dark:text-dm-text-primary whitespace-nowrap tracking-tight transition-colors duration-1000">StudySync</span>
           </div>
         </div>
 
@@ -86,7 +86,7 @@ export default function Sidebar() {
                 key={item.to}
                 to={item.to}
                 id={`nav-${item.label.toLowerCase()}`}
-                className={`group relative flex items-center rounded-xl transition-all duration-200
+                className={`group relative flex items-center rounded-xl transition-all duration-1000 ease-in-out
                   ${expanded ? "px-3 py-2.5 gap-3" : "justify-center py-2.5"}
                   ${isActive
                     ? "text-primary bg-primary/[0.08] dark:bg-dm-primary-bg dark:text-dm-text-green"
@@ -101,7 +101,7 @@ export default function Sidebar() {
                 )}
 
                 <span
-                  className={`material-symbols-outlined text-[20px] transition-all duration-200 flex-shrink-0
+                  className={`material-symbols-outlined text-[20px] transition-all duration-1000 ease-in-out flex-shrink-0
                     ${isActive
                       ? "text-primary dark:text-dm-text-green"
                       : "text-text-muted dark:text-dm-text-secondary group-hover:text-on-surface dark:group-hover:text-dm-text-primary"
@@ -112,7 +112,7 @@ export default function Sidebar() {
                 </span>
 
                 {/* Label */}
-                <span className={`text-[13px] font-semibold whitespace-nowrap overflow-hidden transition-all duration-300
+                <span className={`text-[13px] font-semibold whitespace-nowrap overflow-hidden transition-all duration-1000 ease-in-out
                   ${expanded ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
                   {item.label}
                 </span>
@@ -136,11 +136,11 @@ export default function Sidebar() {
             id="sidebar-avatar-btn"
             onClick={togglePanel}
             aria-label="Open profile panel"
-            className={`group flex items-center rounded-xl px-2 py-2 hover:bg-surface-container-high/60 dark:hover:bg-dm-surface-hover transition-all duration-150 ${
+            className={`group flex items-center rounded-xl px-2 py-2 hover:bg-surface-container-high/60 dark:hover:bg-dm-surface-hover transition-all duration-1000 ease-in-out ${
               expanded ? "gap-3" : "justify-center"
             }`}
           >
-            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all duration-150">
+            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all duration-1000 ease-in-out">
               {photoURL ? (
                 <img src={photoURL} alt="" className="w-full h-full rounded-full object-cover" />
               ) : (
@@ -149,11 +149,11 @@ export default function Sidebar() {
                 </span>
               )}
             </div>
-            <div className={`overflow-hidden transition-all duration-300 min-w-0 ${expanded ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
-              <p className="text-xs font-semibold text-on-surface dark:text-dm-text-primary truncate leading-tight transition-colors duration-300">
+            <div className={`overflow-hidden transition-all duration-1000 ease-in-out min-w-0 ${expanded ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
+              <p className="text-xs font-semibold text-on-surface dark:text-dm-text-primary truncate leading-tight transition-colors duration-1000 ease-in-out">
                 {user?.displayName || "Student"}
               </p>
-              <p className="text-[10px] text-text-muted dark:text-dm-text-secondary truncate leading-tight transition-colors duration-300">
+              <p className="text-[10px] text-text-muted dark:text-dm-text-secondary truncate leading-tight transition-colors duration-1000 ease-in-out">
                 {user?.email || ""}
               </p>
             </div>
@@ -163,11 +163,11 @@ export default function Sidebar() {
           <button
             id="sidebar-logout"
             onClick={handleLogout}
-            className={`group flex items-center rounded-xl text-text-muted dark:text-dm-text-secondary hover:text-error-dark dark:hover:text-dm-error hover:bg-error-container/40 dark:hover:bg-dm-error-bg transition-all duration-200
+            className={`group flex items-center rounded-xl text-text-muted dark:text-dm-text-secondary hover:text-error-dark dark:hover:text-dm-error hover:bg-error-container/40 dark:hover:bg-dm-error-bg transition-all duration-1000 ease-in-out
               ${expanded ? "px-3 py-2.5 gap-3" : "justify-center py-2.5"}`}
           >
             <span className="material-symbols-outlined text-[20px] flex-shrink-0">logout</span>
-            <span className={`text-[13px] font-semibold whitespace-nowrap overflow-hidden transition-all duration-300
+            <span className={`text-[13px] font-semibold whitespace-nowrap overflow-hidden transition-all duration-1000 ease-in-out
               ${expanded ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
               Sign Out
             </span>
