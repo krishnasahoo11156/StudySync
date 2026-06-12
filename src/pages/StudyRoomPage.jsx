@@ -58,6 +58,76 @@ export default function StudyRoomPage() {
   const [copied, setCopied] = useState(false);
   const dissolvedRedirectRef = useRef(false);
 
+  /* ── Split Pane Resize State ── */
+  const [leftWidth, setLeftWidth] = useState(() => {
+    const cached = localStorage.getItem("ss_room_left_width");
+    return cached ? parseFloat(cached) : 70;
+  });
+
+  const [topHeight, setTopHeight] = useState(() => {
+    const cached = localStorage.getItem("ss_room_top_height");
+    return cached ? parseFloat(cached) : 60;
+  });
+
+  const [draggingWidth, setDraggingWidth] = useState(false);
+  const [draggingHeight, setDraggingHeight] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!draggingWidth) return;
+
+    const handleMouseMove = (e) => {
+      const newWidthPercent = (e.clientX / window.innerWidth) * 100;
+      const clamped = Math.max(30, Math.min(85, newWidthPercent));
+      setLeftWidth(clamped);
+      localStorage.setItem("ss_room_left_width", clamped.toString());
+    };
+
+    const handleMouseUp = () => {
+      setDraggingWidth(false);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [draggingWidth]);
+
+  useEffect(() => {
+    if (!draggingHeight) return;
+
+    const handleMouseMove = (e) => {
+      const headerHeight = 64;
+      const leftPaneHeight = window.innerHeight - headerHeight;
+      const relativeY = e.clientY - headerHeight;
+      const newHeightPercent = (relativeY / leftPaneHeight) * 100;
+      const clamped = Math.max(20, Math.min(80, newHeightPercent));
+      setTopHeight(clamped);
+      localStorage.setItem("ss_room_top_height", clamped.toString());
+    };
+
+    const handleMouseUp = () => {
+      setDraggingHeight(false);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [draggingHeight]);
+
   /* ── Add a toast ── */
   const addToast = useCallback((message, type = "info") => {
     const id = Date.now();
@@ -218,7 +288,7 @@ export default function StudyRoomPage() {
   const hostUid = room?.meta?.hostUid;
 
   return (
-    <div className="min-h-screen" style={{ background: pageBg }}>
+    <div className="min-h-screen overflow-hidden flex flex-col" style={{ background: pageBg }}>
       {!connected && <ConnectionBanner />}
 
       {/* Toasts */}
@@ -227,9 +297,17 @@ export default function StudyRoomPage() {
           onClose={() => setToasts(ts => ts.filter(x => x.id !== t.id))} />
       ))}
 
+      {/* Resizing Overlays to capture mouse events smoothly */}
+      {draggingWidth && (
+        <div className="fixed inset-0 z-[9999] cursor-col-resize select-none" />
+      )}
+      {draggingHeight && (
+        <div className="fixed inset-0 z-[9999] cursor-row-resize select-none" />
+      )}
+
       {/* ── Header ── */}
-      <header className="sticky top-0 z-40 px-4 py-3 flex items-center justify-between"
-        style={{ background: isDark ? "rgba(13,31,20,0.95)" : "rgba(255,255,255,0.95)", backdropFilter: "blur(16px)", borderBottom: border }}>
+      <header className="sticky top-0 z-40 px-4 py-3 flex items-center justify-between h-16 flex-shrink-0"
+        style={{ background: isDark ? "rgba(13,31,20,0.95)" : "rgba(255,255,255,0.95)", backdropFilter: "blur(16px)", borderBottom: border, height: "64px" }}>
         {/* Logo + room info */}
         <div className="flex items-center gap-4">
           <div className="w-8 h-8 rounded-lg signature-gradient flex items-center justify-center">
@@ -242,7 +320,7 @@ export default function StudyRoomPage() {
               <button onClick={copyCode} title="Copy room code"
                 className="text-xs px-2 py-0.5 rounded-lg font-semibold transition-all"
                 style={{ background: isDark ? "rgba(61,181,106,0.15)" : "#dcfce7", color: isDark ? "var(--accent)" : "#15803d" }}>
-                {copied ? "✓ Copied" : "Copy 📋"}
+                {copied ? "✓" : "Copy 📋"}
               </button>
             </div>
           </div>
@@ -277,37 +355,98 @@ export default function StudyRoomPage() {
       </header>
 
       {/* ── Content ── */}
-      <main className="max-w-[680px] mx-auto px-4 py-6 pb-16">
-        {/* Mobile room code */}
-        <div className="sm:hidden mb-4 flex items-center gap-2">
-          <span className="text-xs font-semibold" style={{ color: textSecondary }}>Room:</span>
-          <span className="font-mono font-bold tracking-widest" style={{ color: textPrimary }}>{roomId}</span>
-          <button onClick={copyCode} className="text-xs px-2 py-0.5 rounded-lg font-semibold"
-            style={{ background: isDark ? "rgba(61,181,106,0.15)" : "#dcfce7", color: isDark ? "var(--accent)" : "#15803d" }}>
-            {copied ? "✓" : "Copy"}
-          </button>
+      {isDesktop ? (
+        <div className="flex w-full overflow-hidden" style={{ height: "calc(100vh - 64px)" }}>
+          {/* Left Workspace */}
+          <div className="flex flex-col overflow-hidden min-w-0" style={{ width: `${leftWidth}%` }}>
+            {/* Top Workspace (TimerCard) */}
+            <div className="overflow-hidden min-h-0 p-4 pb-2" style={{ height: `${topHeight}%` }}>
+              <TimerCard
+                roomId={roomId}
+                timer={timer}
+                isHost={isHost}
+                onSessionEnd={handleSessionEnd}
+                fullHeight={true}
+              />
+            </div>
+
+            {/* Horizontal Splitter */}
+            <div
+              onMouseDown={() => setDraggingHeight(true)}
+              className="h-1.5 w-full cursor-row-resize flex-shrink-0 transition-colors duration-200 relative group"
+              style={{ background: isDark ? "rgba(255,255,255,0.05)" : "#e4edea" }}
+            >
+              <div className="absolute inset-x-0 -top-1 -bottom-1 group-hover:bg-[var(--accent)] opacity-40 transition-colors duration-200" />
+            </div>
+
+            {/* Bottom Workspace (MembersPanel) */}
+            <div className="flex-1 overflow-hidden min-h-0 p-4 pt-2">
+              <MembersPanel
+                roomId={roomId}
+                members={members}
+                hostUid={hostUid}
+                currentUid={currentUid}
+                fullHeight={true}
+              />
+            </div>
+          </div>
+
+          {/* Vertical Splitter */}
+          <div
+            onMouseDown={() => setDraggingWidth(true)}
+            className="w-1.5 h-full cursor-col-resize flex-shrink-0 transition-colors duration-200 relative group"
+            style={{ background: isDark ? "rgba(255,255,255,0.05)" : "#e4edea" }}
+          >
+            <div className="absolute inset-y-0 -left-1 -right-1 group-hover:bg-[var(--accent)] opacity-40 transition-colors duration-200" />
+          </div>
+
+          {/* Right Workspace (ChatPanel) */}
+          <div className="flex-1 overflow-hidden min-w-0 p-4 pl-2">
+            <ChatPanel
+              roomId={roomId}
+              currentUid={currentUid}
+              currentName={currentName}
+              fullHeight={true}
+            />
+          </div>
         </div>
+      ) : (
+        /* Mobile Stacked Layout */
+        <main className="max-w-[680px] mx-auto px-4 py-6 pb-16 overflow-y-auto flex-1">
+          {/* Mobile room code */}
+          <div className="sm:hidden mb-4 flex items-center gap-2">
+            <span className="text-xs font-semibold" style={{ color: textSecondary }}>Room:</span>
+            <span className="font-mono font-bold tracking-widest" style={{ color: textPrimary }}>{roomId}</span>
+            <button onClick={copyCode} className="text-xs px-2 py-0.5 rounded-lg font-semibold"
+              style={{ background: isDark ? "rgba(61,181,106,0.15)" : "#dcfce7", color: isDark ? "var(--accent)" : "#15803d" }}>
+              {copied ? "✓" : "Copy"}
+            </button>
+          </div>
 
-        <TimerCard
-          roomId={roomId}
-          timer={timer}
-          isHost={isHost}
-          onSessionEnd={handleSessionEnd}
-        />
+          <TimerCard
+            roomId={roomId}
+            timer={timer}
+            isHost={isHost}
+            onSessionEnd={handleSessionEnd}
+            fullHeight={false}
+          />
 
-        <MembersPanel
-          roomId={roomId}
-          members={members}
-          hostUid={hostUid}
-          currentUid={currentUid}
-        />
+          <MembersPanel
+            roomId={roomId}
+            members={members}
+            hostUid={hostUid}
+            currentUid={currentUid}
+            fullHeight={false}
+          />
 
-        <ChatPanel
-          roomId={roomId}
-          currentUid={currentUid}
-          currentName={currentName}
-        />
-      </main>
+          <ChatPanel
+            roomId={roomId}
+            currentUid={currentUid}
+            currentName={currentName}
+            fullHeight={false}
+          />
+        </main>
+      )}
     </div>
   );
 }

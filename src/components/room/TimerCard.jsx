@@ -7,7 +7,7 @@ const ARC_R = 88;
 const ARC_C = 100;
 const ARC_CIRCUM = 2 * Math.PI * ARC_R;
 
-export default function TimerCard({ roomId, timer, isHost, onSessionEnd }) {
+export default function TimerCard({ roomId, timer, isHost, onSessionEnd, fullHeight = false }) {
   const { isDark } = useTheme();
   const timerRef = ref(db, `rooms/${roomId}/timer`);
 
@@ -88,10 +88,14 @@ export default function TimerCard({ roomId, timer, isHost, onSessionEnd }) {
   const accent = "var(--accent)";
   const disabled = !isHost || timer?.running;
 
+  const wrapperClass = fullHeight
+    ? "h-full flex flex-col p-5 overflow-hidden animate-fade-in"
+    : "rounded-2xl p-6 mb-5 animate-fade-in";
+
   return (
-    <div className="rounded-2xl p-6 mb-5 animate-fade-in" style={{ background: cardBg, border, boxShadow: "0 4px 24px rgba(22,163,74,0.06)" }}>
+    <div className={wrapperClass} style={{ background: cardBg, border, boxShadow: "0 4px 24px rgba(22,163,74,0.06)" }}>
       {/* Mode pill */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-5 flex-shrink-0">
         <span className="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full"
           style={isFocus
             ? { background: isDark ? "var(--badge-pill-bg)" : "#dcfce7", color: isDark ? "var(--badge-pill-text)" : "#15803d" }
@@ -105,100 +109,102 @@ export default function TimerCard({ roomId, timer, isHost, onSessionEnd }) {
         )}
       </div>
 
-      {/* SVG Arc + Countdown */}
-      <div className="flex flex-col items-center mb-6">
-        <div className="relative" style={{ width: 200, height: 200 }}>
-          <svg width={200} height={200} viewBox="0 0 200 200" className="timer-ring-glow" style={{ transform: "rotate(-90deg)" }}>
-            {/* Track */}
-            <circle cx={ARC_C} cy={ARC_C} r={ARC_R} fill="none" stroke={isDark ? "rgba(255,255,255,0.08)" : "#e4edea"} strokeWidth={8} />
-            {/* Progress */}
-            <circle cx={ARC_C} cy={ARC_C} r={ARC_R} fill="none"
-              stroke={isFocus ? accent : "#f59e0b"}
-              strokeWidth={8} strokeLinecap="round"
-              strokeDasharray={ARC_CIRCUM}
-              strokeDashoffset={ARC_CIRCUM - strokeDash}
-              style={{ transition: "stroke-dashoffset 0.1s linear" }}
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="font-mono font-semibold" style={{ fontSize: 52, color: textPrimary, lineHeight: 1, letterSpacing: "-0.02em" }}>
-              {formatCountdown(remaining)}
-            </span>
-            <span className="text-xs mt-1 font-semibold uppercase tracking-widest" style={{ color: textSecondary }}>
-              {timer?.running ? "running" : remaining > 0 ? "paused" : "done"}
-            </span>
+      <div className={fullHeight ? "flex-1 flex flex-col items-center justify-center min-h-0 overflow-y-auto w-full scroll-on-hover pr-1" : ""}>
+        {/* SVG Arc + Countdown */}
+        <div className="flex flex-col items-center mb-6">
+          <div className="relative" style={{ width: 200, height: 200 }}>
+            <svg width={200} height={200} viewBox="0 0 200 200" className="timer-ring-glow" style={{ transform: "rotate(-90deg)" }}>
+              {/* Track */}
+              <circle cx={ARC_C} cy={ARC_C} r={ARC_R} fill="none" stroke={isDark ? "rgba(255,255,255,0.08)" : "#e4edea"} strokeWidth={8} />
+              {/* Progress */}
+              <circle cx={ARC_C} cy={ARC_C} r={ARC_R} fill="none"
+                stroke={isFocus ? accent : "#f59e0b"}
+                strokeWidth={8} strokeLinecap="round"
+                strokeDasharray={ARC_CIRCUM}
+                strokeDashoffset={ARC_CIRCUM - strokeDash}
+                style={{ transition: "stroke-dashoffset 0.1s linear" }}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="font-mono font-semibold" style={{ fontSize: 52, color: textPrimary, lineHeight: 1, letterSpacing: "-0.02em" }}>
+                {formatCountdown(remaining)}
+              </span>
+              <span className="text-xs mt-1 font-semibold uppercase tracking-widest" style={{ color: textSecondary }}>
+                {timer?.running ? "running" : remaining > 0 ? "paused" : "done"}
+              </span>
+            </div>
           </div>
+
+          {/* SR live region */}
+          <span ref={srRef} aria-live="polite" className="sr-only" />
         </div>
 
-        {/* SR live region */}
-        <span ref={srRef} aria-live="polite" className="sr-only" />
-      </div>
-
-      {/* Controls */}
-      <div className="flex items-center justify-center gap-3 mb-5" title={!isHost ? "Only the host can control the timer" : ""}>
-        {/* Start / Pause / Resume */}
-        {!timer?.running && remaining > 0 && (
-          <button id="timer-start-btn" aria-label={timer?.pausedElapsed > 0 ? "Resume focus timer" : "Start focus timer"}
-            onClick={isHost ? (timer?.pausedElapsed > 0 ? handleResume : handleStart) : undefined}
+        {/* Controls */}
+        <div className="flex items-center justify-center gap-3 mb-5" title={!isHost ? "Only the host can control the timer" : ""}>
+          {/* Start / Pause / Resume */}
+          {!timer?.running && remaining > 0 && (
+            <button id="timer-start-btn" aria-label={timer?.pausedElapsed > 0 ? "Resume focus timer" : "Start focus timer"}
+              onClick={isHost ? (timer?.pausedElapsed > 0 ? handleResume : handleStart) : undefined}
+              disabled={!isHost}
+              className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white transition-all"
+              style={{ background: isHost ? accent : "#9ca3af", cursor: isHost ? "pointer" : "not-allowed", opacity: isHost ? 1 : 0.6 }}>
+              <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
+                {timer?.pausedElapsed > 0 ? "play_arrow" : "play_circle"}
+              </span>
+              {timer?.pausedElapsed > 0 ? "Resume" : "Start"}
+            </button>
+          )}
+          {timer?.running && (
+            <button id="timer-pause-btn" aria-label="Pause timer"
+              onClick={isHost ? handlePause : undefined}
+              disabled={!isHost}
+              className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white transition-all"
+              style={{ background: isHost ? "#f59e0b" : "#9ca3af", cursor: isHost ? "pointer" : "not-allowed", opacity: isHost ? 1 : 0.6 }}>
+              <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>pause</span>
+              Pause
+            </button>
+          )}
+          <button id="timer-reset-btn" aria-label="Reset timer"
+            onClick={isHost ? handleReset : undefined}
             disabled={!isHost}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white transition-all"
-            style={{ background: isHost ? accent : "#9ca3af", cursor: isHost ? "pointer" : "not-allowed", opacity: isHost ? 1 : 0.6 }}>
-            <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>
-              {timer?.pausedElapsed > 0 ? "play_arrow" : "play_circle"}
-            </span>
-            {timer?.pausedElapsed > 0 ? "Resume" : "Start"}
-          </button>
-        )}
-        {timer?.running && (
-          <button id="timer-pause-btn" aria-label="Pause timer"
-            onClick={isHost ? handlePause : undefined}
-            disabled={!isHost}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm text-white transition-all"
-            style={{ background: isHost ? "#f59e0b" : "#9ca3af", cursor: isHost ? "pointer" : "not-allowed", opacity: isHost ? 1 : 0.6 }}>
-            <span className="material-symbols-outlined text-base" style={{ fontVariationSettings: "'FILL' 1" }}>pause</span>
-            Pause
-          </button>
-        )}
-        <button id="timer-reset-btn" aria-label="Reset timer"
-          onClick={isHost ? handleReset : undefined}
-          disabled={!isHost}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all"
-          style={{
-            background: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f4",
-            color: isHost ? textPrimary : "#9ca3af",
-            cursor: isHost ? "pointer" : "not-allowed",
-            opacity: isHost ? 1 : 0.6,
-          }}>
-          <span className="material-symbols-outlined text-base">restart_alt</span>
-          Reset
-        </button>
-      </div>
-
-      {/* Duration dropdowns — host only, when not running */}
-      <div className="flex items-center justify-center gap-4 flex-wrap">
-        {[
-          { label: "Focus", key: "focus", current: Math.round((timer?.focusDuration || 1500) / 60) },
-          { label: "Break", key: "break", current: Math.round((timer?.breakDuration || 300) / 60) },
-        ].map(({ label, key, current }) => (
-          <div key={key} className="flex items-center gap-2">
-            <span className="text-xs font-semibold" style={{ color: textSecondary }}>{label}:</span>
-            <select
-              aria-label={`Set ${label.toLowerCase()} duration`}
-              value={current}
-              disabled={disabled}
-              onChange={e => handleDurationChange(key, Number(e.target.value))}
-              className="text-xs font-bold rounded-lg px-2 py-1 border appearance-none cursor-pointer"
-              style={{
-                background: isDark ? "var(--input-bg)" : "#f9fafb",
-                border: `1px solid ${isDark ? "var(--input-border)" : "#d1d5db"}`,
-                color: disabled ? "#9ca3af" : textPrimary,
-                cursor: disabled ? "not-allowed" : "pointer",
-              }}>
-              {DURATION_OPTIONS.map(m => <option key={m} value={m}>{m} min</option>)}
-            </select>
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all"
+            style={{
+              background: isDark ? "rgba(255,255,255,0.06)" : "#f1f5f4",
+              color: isHost ? textPrimary : "#9ca3af",
+              cursor: isHost ? "pointer" : "not-allowed",
+              opacity: isHost ? 1 : 0.6,
+            }}>
+              <span className="material-symbols-outlined text-base">restart_alt</span>
+              Reset
+            </button>
           </div>
-        ))}
-      </div>
+
+          {/* Duration dropdowns — host only, when not running */}
+          <div className="flex items-center justify-center gap-4 flex-wrap">
+            {[
+              { label: "Focus", key: "focus", current: Math.round((timer?.focusDuration || 1500) / 60) },
+              { label: "Break", key: "break", current: Math.round((timer?.breakDuration || 300) / 60) },
+            ].map(({ label, key, current }) => (
+              <div key={key} className="flex items-center gap-2">
+                <span className="text-xs font-semibold" style={{ color: textSecondary }}>{label}:</span>
+                <select
+                  aria-label={`Set ${label.toLowerCase()} duration`}
+                  value={current}
+                  disabled={disabled}
+                  onChange={e => handleDurationChange(key, Number(e.target.value))}
+                  className="text-xs font-bold rounded-lg px-2 py-1 border appearance-none cursor-pointer"
+                  style={{
+                    background: isDark ? "var(--input-bg)" : "#f9fafb",
+                    border: `1px solid ${isDark ? "var(--input-border)" : "#d1d5db"}`,
+                    color: disabled ? "#9ca3af" : textPrimary,
+                    cursor: disabled ? "not-allowed" : "pointer",
+                  }}>
+                  {DURATION_OPTIONS.map(m => <option key={m} value={m}>{m} min</option>)}
+                </select>
+              </div>
+            ))}
+          </div>
+        </div>
     </div>
   );
 }
