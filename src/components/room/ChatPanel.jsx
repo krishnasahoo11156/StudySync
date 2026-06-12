@@ -5,13 +5,15 @@ import { getInitials, relativeTime } from "../../lib/roomUtils";
 
 const MAX_LEN = 200;
 
-export default function ChatPanel({ roomId, currentUid, currentName }) {
+export default function ChatPanel({ roomId, currentUid, currentName, fullHeight = false }) {
   const { isDark } = useTheme();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const bottomRef = useRef(null);
   const [, forceRerender] = useState(0);
+
+  const isOpen = fullHeight || open;
 
   // Relative time ticks
   useEffect(() => {
@@ -21,7 +23,7 @@ export default function ChatPanel({ roomId, currentUid, currentName }) {
 
   // Subscribe to last 20 messages only when panel open
   useEffect(() => {
-    if (!open) return;
+    if (!isOpen) return;
     const chatQuery = query(ref(db, `rooms/${roomId}/chat`), limitToLast(20));
     const unsub = onValue(chatQuery, snap => {
       const data = [];
@@ -29,12 +31,12 @@ export default function ChatPanel({ roomId, currentUid, currentName }) {
       setMessages(data);
     });
     return () => unsub();
-  }, [open, roomId]);
+  }, [isOpen, roomId]);
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
-    if (open) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, open]);
+    if (isOpen) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, isOpen]);
 
   const handleSend = () => {
     const text = input.trim().slice(0, MAX_LEN);
@@ -56,40 +58,58 @@ export default function ChatPanel({ roomId, currentUid, currentName }) {
   const textSecondary = isDark ? "var(--text-secondary)" : "#6b7280";
   const charsLeft = MAX_LEN - input.length;
 
+  const wrapperClass = fullHeight
+    ? "h-full flex flex-col overflow-hidden animate-fade-in"
+    : "rounded-2xl overflow-hidden animate-fade-in";
+
+  const wrapperStyle = fullHeight
+    ? { background: cardBg }
+    : { background: cardBg, border };
+
   return (
-    <div className="rounded-2xl overflow-hidden animate-fade-in" style={{ background: cardBg, border }}>
+    <div className={wrapperClass} style={wrapperStyle}>
       {/* Toggle header */}
       <button
-        onClick={() => setOpen(v => !v)}
-        className="w-full flex items-center justify-between px-5 py-4 transition-all"
-        style={{ background: "transparent", color: textPrimary }}
+        onClick={() => !fullHeight && setOpen(v => !v)}
+        disabled={fullHeight}
+        className="w-full flex items-center justify-between px-5 py-4 transition-all flex-shrink-0"
+        style={{
+          background: "transparent",
+          color: textPrimary,
+          cursor: fullHeight ? "default" : "pointer",
+          borderBottom: fullHeight ? border : "none"
+        }}
       >
         <div className="flex items-center gap-2">
           <span className="material-symbols-outlined text-xl" style={{ color: "var(--accent)", fontVariationSettings: "'FILL' 1" }}>chat</span>
           <span className="font-bold text-sm">Chat</span>
-          {messages.length > 0 && !open && (
+          {messages.length > 0 && !isOpen && (
             <span className="text-xs px-1.5 py-0.5 rounded-full font-bold"
-              style={{ background: isDark ? "rgba(61,181,106,0.2)" : "#dcfce7", color: isDark ? "var(--accent)" : "#15803d" }}>
+              style={{ background: isDark ? "rgba(61,181,106,0.25)" : "#dcfce7", color: isDark ? "var(--accent)" : "#15803d" }}>
               {messages.length}
             </span>
           )}
         </div>
-        <span className="material-symbols-outlined text-base" style={{ color: textSecondary }}>
-          {open ? "expand_less" : "expand_more"}
-        </span>
+        {!fullHeight && (
+          <span className="material-symbols-outlined text-base" style={{ color: textSecondary }}>
+            {open ? "expand_less" : "expand_more"}
+          </span>
+        )}
       </button>
 
       {/* Body */}
-      {open && (
-        <div className="px-4 pb-4">
+      {isOpen && (
+        <div className={fullHeight ? "flex-1 flex flex-col p-4 overflow-hidden min-h-0" : "px-4 pb-4"}>
           {/* Session-only notice */}
-          <p className="text-[11px] px-3 py-2 rounded-lg mb-3 text-center"
+          <p className="text-[11px] px-3 py-2 rounded-lg mb-3 text-center flex-shrink-0"
             style={{ background: isDark ? "rgba(245,158,11,0.1)" : "#fef9c3", color: isDark ? "#fde68a" : "#92400e" }}>
             💬 Chat is session-only and won't persist after you leave.
           </p>
 
           {/* Messages */}
-          <div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1 scroll-on-hover mb-3">
+          <div className={fullHeight
+            ? "flex-1 flex flex-col gap-2 overflow-y-auto pr-1 scroll-on-hover mb-3 min-h-0"
+            : "flex flex-col gap-2 max-h-72 overflow-y-auto pr-1 scroll-on-hover mb-3"}>
             {messages.length === 0 ? (
               <p className="text-center text-xs py-8" style={{ color: textSecondary }}>
                 No messages yet. Say hi! 👋
@@ -127,7 +147,7 @@ export default function ChatPanel({ roomId, currentUid, currentName }) {
           </div>
 
           {/* Input */}
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-auto flex-shrink-0">
             <div className="flex-1 relative">
               <input
                 aria-label="Type a message"
