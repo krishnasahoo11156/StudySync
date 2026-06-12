@@ -10,7 +10,6 @@ export default function ChatPanel({ roomId, currentUid, currentName }) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const [sending, setSending] = useState(false);
   const bottomRef = useRef(null);
   const [, forceRerender] = useState(0);
 
@@ -37,23 +36,18 @@ export default function ChatPanel({ roomId, currentUid, currentName }) {
     if (open) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, open]);
 
-  const handleSend = async () => {
+  const handleSend = () => {
     const text = input.trim().slice(0, MAX_LEN);
     if (!text) return;
-    setSending(true);
     setInput("");
-    try {
-      await push(ref(db, `rooms/${roomId}/chat`), {
-        uid: currentUid,
-        name: currentName,
-        text,
-        sentAt: serverTimestamp(),
-      });
-    } catch (e) {
+    push(ref(db, `rooms/${roomId}/chat`), {
+      uid: currentUid,
+      name: currentName,
+      text,
+      sentAt: serverTimestamp(),
+    }).catch(e => {
       console.error("[Chat] Send error:", e);
-    } finally {
-      setSending(false);
-    }
+    });
   };
 
   const cardBg = isDark ? "var(--card-bg)" : "#fff";
@@ -159,7 +153,7 @@ export default function ChatPanel({ roomId, currentUid, currentName }) {
             </div>
             <button
               onClick={handleSend}
-              disabled={!input.trim() || sending}
+              disabled={!input.trim()}
               className="px-4 py-2.5 rounded-xl font-bold text-sm text-white transition-all flex-shrink-0"
               style={{
                 background: input.trim() ? "var(--accent)" : "#9ca3af",
