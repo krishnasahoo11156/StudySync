@@ -22,13 +22,13 @@ import PageShell from "../components/PageShell";
 
 /* ── Tag colour map ── */
 const TAG_COLORS = {
-  Physics:   { bg: "bg-emerald-100",  text: "text-emerald-800" },
-  Research:  { bg: "bg-blue-100",     text: "text-blue-800"    },
-  Draft:     { bg: "bg-amber-100",    text: "text-amber-800"   },
-  Math:      { bg: "bg-purple-100",   text: "text-purple-800"  },
-  Chemistry: { bg: "bg-rose-100",     text: "text-rose-800"    },
-  Biology:   { bg: "bg-teal-100",     text: "text-teal-800"    },
-  Default:   { bg: "bg-gray-100",     text: "text-gray-700"    },
+  Physics:   { bg: "bg-emerald-100 dark:bg-emerald-950/40",  text: "text-emerald-800 dark:text-emerald-300" },
+  Research:  { bg: "bg-blue-100 dark:bg-blue-950/40",     text: "text-blue-800 dark:text-blue-300"    },
+  Draft:     { bg: "bg-amber-100 dark:bg-amber-950/40",    text: "text-amber-800 dark:text-amber-300"   },
+  Math:      { bg: "bg-purple-100 dark:bg-purple-950/40",   text: "text-purple-800 dark:text-purple-300"  },
+  Chemistry: { bg: "bg-rose-100 dark:bg-rose-950/40",     text: "text-rose-800 dark:text-rose-300"    },
+  Biology:   { bg: "bg-teal-100 dark:bg-teal-950/40",     text: "text-teal-800 dark:text-teal-300"    },
+  Default:   { bg: "bg-gray-100 dark:bg-gray-800/40",     text: "text-gray-700 dark:text-gray-300"    },
 };
 
 function getTagColor(tag) {
@@ -76,7 +76,7 @@ function FolderCard({ folder, onOpen, onRename, onDelete }) {
 
   return (
     <div
-      className="card-static rounded-2xl p-5 hover:-translate-y-1 transition-all duration-200 cursor-pointer group relative animate-fade-in"
+      className="card-static dark:bg-dm-surface dark:border-dm-border dark:hover:bg-dm-surface-hover rounded-2xl p-5 hover:-translate-y-1 transition-all duration-200 cursor-pointer group relative animate-fade-in"
       onClick={() => onOpen(folder)}
     >
       {/* Three-dot menu */}
@@ -88,20 +88,20 @@ function FolderCard({ folder, onOpen, onRename, onDelete }) {
         <button
           id={`folder-menu-${folder.id}`}
           onClick={() => setMenuOpen((v) => !v)}
-          className="w-7 h-7 rounded-lg flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors"
+          className="w-7 h-7 rounded-lg flex items-center justify-center text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-high dark:hover:bg-dm-surface-hover transition-colors"
         >
           <span className="material-symbols-outlined text-sm">more_vert</span>
         </button>
         {menuOpen && (
-          <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-modal border border-border-default w-36 z-50 animate-scale-in overflow-hidden">
+          <div className="absolute right-0 top-full mt-1 bg-white dark:bg-dm-surface-elevated rounded-xl shadow-modal border border-border-default dark:border-dm-border w-36 z-50 animate-scale-in overflow-hidden">
             <button
-              className="w-full text-left px-4 py-2.5 text-sm text-on-surface hover:bg-surface-container-low flex items-center gap-2"
+              className="w-full text-left px-4 py-2.5 text-sm text-on-surface dark:text-dm-text-primary hover:bg-surface-container-low dark:hover:bg-dm-surface-hover flex items-center gap-2"
               onClick={() => { setMenuOpen(false); onRename(folder); }}
             >
               <span className="material-symbols-outlined text-base">edit</span> Rename
             </button>
             <button
-              className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+              className="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-dm-error-bg flex items-center gap-2"
               onClick={() => { setMenuOpen(false); onDelete(folder); }}
             >
               <span className="material-symbols-outlined text-base">delete</span> Delete
@@ -114,12 +114,12 @@ function FolderCard({ folder, onOpen, onRename, onDelete }) {
       <div className="w-12 h-12 rounded-xl bg-primary-dark flex items-center justify-center mb-4">
         <span className="material-symbols-outlined text-white text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>folder</span>
       </div>
-      <h4 className="font-bold text-on-surface text-sm mb-1 truncate pr-4">{folder.name}</h4>
-      <p className="text-xs text-text-muted">
+      <h4 className="font-bold text-on-surface dark:text-dm-text-primary text-sm mb-1 truncate pr-4">{folder.name}</h4>
+      <p className="text-xs text-text-muted dark:text-dm-text-secondary">
         {folder.itemCount ?? 0} items • {fmtBytes(folder.totalSize ?? 0)}
       </p>
       {/* Progress bar */}
-      <div className="mt-3 h-1 w-full bg-surface-container-high rounded-full overflow-hidden">
+      <div className="mt-3 h-1 w-full bg-surface-container-high dark:bg-dm-border rounded-full overflow-hidden">
         <div
           className="h-full signature-gradient rounded-full transition-all duration-700"
           style={{ width: `${Math.min(((folder.itemCount ?? 0) / 20) * 100, 100)}%` }}
@@ -137,12 +137,12 @@ function NewFolderCard({ onClick }) {
     <button
       id="new-folder-btn"
       onClick={onClick}
-      className="bg-white rounded-2xl p-5 border-2 border-dashed border-border-default hover:border-primary/40 hover:bg-surface-container-low hover:-translate-y-1 transition-all duration-200 flex flex-col items-center justify-center gap-2 min-h-[148px] w-full animate-fade-in"
+      className="bg-white dark:bg-dm-surface rounded-2xl p-5 border-2 border-dashed border-border-default dark:border-dm-border hover:border-primary/40 dark:hover:border-primary/40 hover:bg-surface-container-low dark:hover:bg-dm-surface-hover hover:-translate-y-1 transition-all duration-200 flex flex-col items-center justify-center gap-2 min-h-[148px] w-full animate-fade-in"
     >
-      <div className="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center">
+      <div className="w-10 h-10 rounded-xl bg-primary-container dark:bg-dm-primary-bg/20 flex items-center justify-center">
         <span className="material-symbols-outlined text-primary text-xl">create_new_folder</span>
       </div>
-      <span className="type-caption text-text-muted">New Folder</span>
+      <span className="type-caption text-text-muted dark:text-dm-text-secondary">New Folder</span>
     </button>
   );
 }
@@ -164,9 +164,9 @@ function FileRow({ file, onDelete, onRename }) {
   }, []);
 
   return (
-    <div className="flex items-center gap-4 p-4 rounded-xl hover:bg-surface-container-low transition-colors group relative">
+    <div className="flex items-center gap-4 p-4 rounded-xl hover:bg-surface-container-low dark:hover:bg-dm-surface-hover transition-colors group relative">
       {/* PDF icon */}
-      <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center flex-shrink-0">
+      <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 flex items-center justify-center flex-shrink-0">
         <span className="material-symbols-outlined text-red-400 text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>picture_as_pdf</span>
       </div>
 
@@ -176,7 +176,7 @@ function FileRow({ file, onDelete, onRename }) {
           href={file.downloadUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-semibold text-on-surface text-sm hover:text-primary truncate block"
+          className="font-semibold text-on-surface dark:text-dm-text-primary text-sm hover:text-primary transition-colors truncate block"
           onClick={(e) => e.stopPropagation()}
         >
           {file.name}
@@ -185,7 +185,7 @@ function FileRow({ file, onDelete, onRename }) {
           <span className={`text-[0.6rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${tagColor.bg} ${tagColor.text}`}>
             {file.tag || "PDF"}
           </span>
-          <span className="text-xs text-text-muted">
+          <span className="text-xs text-text-muted dark:text-dm-text-secondary">
             Uploaded {fmtRelative(file.createdAt)} • {fmtBytes(file.size)}
           </span>
         </div>
@@ -201,21 +201,21 @@ function FileRow({ file, onDelete, onRename }) {
           href={file.downloadUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors"
+          className="p-1.5 rounded-lg hover:bg-surface-container-high dark:hover:bg-dm-surface-hover text-on-surface-variant dark:text-dm-text-secondary transition-colors"
           title="Preview/Download"
         >
           <span className="material-symbols-outlined text-base">open_in_new</span>
         </a>
         <button
           onClick={() => onRename(file)}
-          className="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors"
+          className="p-1.5 rounded-lg hover:bg-surface-container-high dark:hover:bg-dm-surface-hover text-on-surface-variant dark:text-dm-text-secondary transition-colors"
           title="Rename"
         >
           <span className="material-symbols-outlined text-base">edit</span>
         </button>
         <button
           onClick={() => onDelete(file)}
-          className="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-colors"
+          className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-dm-error-bg text-red-400 transition-colors"
           title="Delete"
         >
           <span className="material-symbols-outlined text-base">delete</span>
@@ -231,25 +231,25 @@ function FileRow({ file, onDelete, onRename }) {
 function FileCard({ file, onDelete, onRename }) {
   const tagColor = getTagColor(file.tag);
   return (
-    <div className="card-static rounded-2xl p-4 hover:-translate-y-1 transition-all duration-200 group animate-fade-in">
+    <div className="card-static dark:bg-dm-surface dark:border-dm-border dark:hover:bg-dm-surface-hover rounded-2xl p-4 hover:-translate-y-1 transition-all duration-200 group animate-fade-in">
       <div className="flex justify-between items-start mb-3">
-        <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
           <span className="material-symbols-outlined text-red-400 text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>picture_as_pdf</span>
         </div>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <a href={file.downloadUrl} target="_blank" rel="noopener noreferrer"
-            className="p-1 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors">
+            className="p-1 rounded-lg hover:bg-surface-container-high dark:hover:bg-dm-surface-hover text-on-surface-variant dark:text-dm-text-secondary transition-colors">
             <span className="material-symbols-outlined text-sm">open_in_new</span>
           </a>
-          <button onClick={() => onRename(file)} className="p-1 rounded-lg hover:bg-surface-container-high text-on-surface-variant transition-colors">
+          <button onClick={() => onRename(file)} className="p-1 rounded-lg hover:bg-surface-container-high dark:hover:bg-dm-surface-hover text-on-surface-variant dark:text-dm-text-secondary transition-colors">
             <span className="material-symbols-outlined text-sm">edit</span>
           </button>
-          <button onClick={() => onDelete(file)} className="p-1 rounded-lg hover:bg-red-50 text-red-400 transition-colors">
+          <button onClick={() => onDelete(file)} className="p-1 rounded-lg hover:bg-red-50 dark:hover:bg-dm-error-bg text-red-400 transition-colors">
             <span className="material-symbols-outlined text-sm">delete</span>
           </button>
         </div>
       </div>
-      <p className="font-semibold text-on-surface text-sm truncate">{file.name}</p>
+      <p className="font-semibold text-on-surface dark:text-dm-text-primary text-sm truncate">{file.name}</p>
       <div className="flex items-center gap-2 mt-1">
         <span className={`text-[0.55rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${tagColor.bg} ${tagColor.text}`}>
           {file.tag || "PDF"}
@@ -283,6 +283,7 @@ export default function LibraryPage() {
   const [folders, setFolders] = useState([]);
   const [files, setFiles]     = useState([]);
   const [loading, setLoading] = useState(true);
+  const [firestoreError, setFirestoreError] = useState(null);
 
   /* ── Modals ── */
   const [showNewFolderModal,  setShowNewFolderModal]  = useState(false);
@@ -316,6 +317,7 @@ export default function LibraryPage() {
   useEffect(() => {
     if (!user) return;
     setLoading(true);
+    setFirestoreError(null);
 
     const q = query(
       collection(db, "library_folders"),
@@ -326,6 +328,10 @@ export default function LibraryPage() {
       const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       setFolders(data);
       setLoading(false);
+    }, (err) => {
+      console.error("Firestore error listening to library_folders:", err);
+      setFirestoreError(err.message || String(err));
+      setLoading(false);
     });
     return unsub;
   }, [user, currentFolder.id]);
@@ -333,6 +339,7 @@ export default function LibraryPage() {
   /* ══════════════════ Firestore: Files ══════════════════ */
   useEffect(() => {
     if (!user) return;
+    setFirestoreError(null);
 
     const q = query(
       collection(db, "library_files"),
@@ -342,6 +349,9 @@ export default function LibraryPage() {
     const unsub = onSnapshot(q, (snap) => {
       const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       setFiles(data);
+    }, (err) => {
+      console.error("Firestore error listening to library_files:", err);
+      setFirestoreError(err.message || String(err));
     });
     return unsub;
   }, [user, currentFolder.id]);
@@ -492,7 +502,7 @@ export default function LibraryPage() {
           placeholder="Search in Library..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full bg-white border border-border-default rounded-xl pl-11 pr-5 py-2.5 text-sm text-on-surface placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all shadow-sm"
+          className="w-full bg-white dark:bg-dm-surface border border-border-default dark:border-dm-border rounded-xl pl-11 pr-5 py-2.5 text-sm text-on-surface dark:text-dm-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all shadow-sm"
         />
       </div>
 
@@ -507,11 +517,11 @@ export default function LibraryPage() {
           Add Material
         </button>
         {showAddMenu && (
-          <div className="absolute right-0 top-full mt-2 bg-white rounded-xl shadow-modal border border-border-default w-48 z-50 animate-scale-in overflow-hidden">
+          <div className="absolute right-0 top-full mt-2 bg-white dark:bg-dm-surface-elevated rounded-xl shadow-modal border border-border-default dark:border-dm-border w-48 z-50 animate-scale-in overflow-hidden">
             <button
               id="upload-pdf-option"
               onClick={() => { setShowAddMenu(false); setShowUploadModal(true); }}
-              className="w-full text-left px-5 py-3.5 text-sm text-on-surface hover:bg-surface-container-low flex items-center gap-3"
+              className="w-full text-left px-5 py-3.5 text-sm text-on-surface dark:text-dm-text-primary hover:bg-surface-container-low dark:hover:bg-dm-surface-hover flex items-center gap-3"
             >
               <span className="material-symbols-outlined text-red-400">picture_as_pdf</span>
               Upload PDF
@@ -519,7 +529,7 @@ export default function LibraryPage() {
             <button
               id="create-folder-option"
               onClick={() => { setShowAddMenu(false); setShowNewFolderModal(true); }}
-              className="w-full text-left px-5 py-3.5 text-sm text-on-surface hover:bg-surface-container-low flex items-center gap-3 border-t border-border-default"
+              className="w-full text-left px-5 py-3.5 text-sm text-on-surface dark:text-dm-text-primary hover:bg-surface-container-low dark:hover:bg-dm-surface-hover flex items-center gap-3 border-t border-border-default dark:border-dm-border"
             >
               <span className="material-symbols-outlined text-primary">create_new_folder</span>
               Create Folder
@@ -566,30 +576,58 @@ export default function LibraryPage() {
             <button
               id="sort-last-modified"
               onClick={() => setSortMode((v) => (v === "modified" ? "name" : "modified"))}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-border-default rounded-xl text-xs font-semibold text-on-surface-variant hover:bg-surface-container-low transition-colors shadow-sm"
+              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-dm-surface border border-border-default dark:border-dm-border rounded-xl text-xs font-semibold text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-low dark:hover:bg-dm-surface-hover transition-colors shadow-sm"
             >
-            <span className="material-symbols-outlined text-base">filter_list</span>
-            {sortMode === "modified" ? "Last Modified" : "Name A–Z"}
+              <span className="material-symbols-outlined text-base">filter_list</span>
+              {sortMode === "modified" ? "Last Modified" : "Name A–Z"}
             </button>
             <button
               id="toggle-view-grid"
               onClick={() => setViewMode("grid")}
-              className={`p-2 rounded-xl border transition-colors ${viewMode === "grid" ? "bg-primary text-white border-primary" : "bg-white border-border-default text-on-surface-variant hover:bg-surface-container-low"}`}
+              className={`p-2 rounded-xl border transition-colors ${viewMode === "grid" ? "bg-primary text-white border-primary" : "bg-white dark:bg-dm-surface border-border-default dark:border-dm-border text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-low dark:hover:bg-dm-surface-hover"}`}
             >
               <span className="material-symbols-outlined text-base">grid_view</span>
             </button>
             <button
               id="toggle-view-list"
               onClick={() => setViewMode("list")}
-              className={`p-2 rounded-xl border transition-colors ${viewMode === "list" ? "bg-primary text-white border-primary" : "bg-white border-border-default text-on-surface-variant hover:bg-surface-container-low"}`}
+              className={`p-2 rounded-xl border transition-colors ${viewMode === "list" ? "bg-primary text-white border-primary" : "bg-white dark:bg-dm-surface border-border-default dark:border-dm-border text-on-surface-variant dark:text-dm-text-secondary hover:bg-surface-container-low dark:hover:bg-dm-surface-hover"}`}
             >
               <span className="material-symbols-outlined text-base">view_list</span>
             </button>
           </div>
         </div>
 
+        {firestoreError && (
+          <div className="mb-6 p-5 bg-red-50 dark:bg-dm-error-bg border border-red-200 dark:border-red-950/30 rounded-2xl flex gap-3.5 items-start animate-fade-in text-red-950 dark:text-dm-text-primary shadow-sm">
+            <span className="material-symbols-outlined text-red-500 dark:text-dm-error text-2xl flex-shrink-0 mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>error</span>
+            <div className="flex-1">
+              <h4 className="font-bold text-sm text-red-900 dark:text-dm-text-primary">Firestore Security Rules Issue Detected</h4>
+              <p className="text-xs text-red-700 dark:text-dm-text-secondary mt-1 leading-relaxed">
+                The database returned a permission denied error: <code className="bg-red-100/50 dark:bg-dm-bg px-1 py-0.5 rounded font-mono break-all">{firestoreError}</code>.
+              </p>
+              <div className="mt-4 p-4 bg-white/70 dark:bg-dm-surface rounded-xl border border-red-100 dark:border-dm-border">
+                <p className="text-xs font-bold text-red-900 dark:text-dm-text-primary mb-2">How to Fix in Firebase Console:</p>
+                <p className="text-xs text-red-800 dark:text-dm-text-secondary leading-relaxed mb-2">
+                  Go to <span className="font-bold">Firestore Database → Rules</span> and add read/write rules for <code className="bg-red-50 dark:bg-dm-bg px-1 rounded font-mono">library_folders</code> and <code className="bg-red-50 dark:bg-dm-bg px-1 rounded font-mono">library_files</code>:
+                </p>
+                <pre className="text-[10px] bg-red-950 dark:bg-dm-bg text-red-100 dark:text-dm-text-green p-3 rounded-lg overflow-x-auto font-mono leading-normal select-all">
+{`match /library_folders/{folderId} {
+  allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+  allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+}
+match /library_files/{fileId} {
+  allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+  allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+}`}
+                </pre>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ── Content Card ── */}
-        <div className="card-static rounded-2xl p-6 lg:p-8">
+        <div className="card-static dark:bg-dm-surface dark:border-dm-border rounded-2xl p-6 lg:p-8">
 
           {loading ? (
             <div className="flex items-center justify-center h-48">
@@ -600,7 +638,7 @@ export default function LibraryPage() {
               {/* ── Folders Section ── */}
               {filteredFolders.length > 0 || true /* always show section */ ? (
                 <section className="mb-10">
-                  <h2 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-5">Folders</h2>
+                  <h2 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 dark:text-dm-text-secondary mb-5">Folders</h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     {filteredFolders.map((folder) => (
                       <FolderCard
@@ -618,17 +656,17 @@ export default function LibraryPage() {
 
               {/* ── Files Section ── */}
               <section>
-                <h2 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-5">Files</h2>
+                <h2 className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 dark:text-dm-text-secondary mb-5">Files</h2>
                 {filteredFiles.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4">
-                      <span className="material-symbols-outlined text-emerald-300 text-3xl">folder_open</span>
+                    <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-dm-surface-elevated flex items-center justify-center mb-4">
+                      <span className="material-symbols-outlined text-emerald-300 dark:text-dm-text-secondary text-3xl">folder_open</span>
                     </div>
-                    <p className="text-on-surface-variant font-medium text-sm">No files here yet</p>
-                    <p className="text-on-surface-variant/60 text-xs mt-1">Upload a PDF using the "Add Material" button</p>
+                    <p className="text-on-surface-variant dark:text-dm-text-primary font-medium text-sm">No files here yet</p>
+                    <p className="text-on-surface-variant/60 dark:text-dm-text-secondary text-xs mt-1">Upload a PDF using the "Add Material" button</p>
                   </div>
                 ) : viewMode === "list" ? (
-                  <div className="divide-y divide-emerald-50 stagger-children">
+                  <div className="divide-y divide-emerald-50 dark:divide-dm-border stagger-children">
                     {filteredFiles.map((file) => (
                       <FileRow
                         key={file.id}
@@ -659,17 +697,17 @@ export default function LibraryPage() {
       {/* ══════════════════ MODAL: New Folder ══════════════════ */}
       {showNewFolderModal && (
         <div className="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-6" onClick={() => setShowNewFolderModal(false)}>
-          <div className="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl animate-scale-in" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white dark:bg-dm-surface-elevated border border-border-default dark:border-dm-border rounded-3xl p-8 w-full max-w-sm shadow-2xl animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
-                <span className="material-symbols-outlined text-emerald-600">create_new_folder</span>
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-dm-primary-bg/30 flex items-center justify-center">
+                <span className="material-symbols-outlined text-emerald-600 dark:text-dm-text-green">create_new_folder</span>
               </div>
-              <h3 className="text-lg font-bold text-emerald-900">New Folder</h3>
+              <h3 className="text-lg font-bold text-emerald-900 dark:text-dm-text-primary">New Folder</h3>
             </div>
             <input
               id="new-folder-name-input"
               autoFocus
-              className="w-full border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-900 placeholder:text-emerald-400/60 focus:outline-none focus:ring-2 focus:ring-emerald-300 transition-all mb-6"
+              className="w-full bg-white dark:bg-dm-surface border border-emerald-200 dark:border-dm-border rounded-xl px-4 py-3 text-sm text-emerald-900 dark:text-dm-text-primary placeholder:text-emerald-400/60 dark:placeholder:text-dm-text-tertiary focus:outline-none focus:ring-2 focus:ring-emerald-300 transition-all mb-6"
               placeholder="Folder name..."
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
@@ -678,7 +716,7 @@ export default function LibraryPage() {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => { setShowNewFolderModal(false); setNewFolderName(""); }}
-                className="px-5 py-2.5 rounded-xl text-emerald-700 font-semibold text-sm hover:bg-emerald-50 transition-colors"
+                className="px-5 py-2.5 rounded-xl text-emerald-700 dark:text-dm-text-secondary font-semibold text-sm hover:bg-emerald-50 dark:hover:bg-dm-surface-hover transition-colors"
               >
                 Cancel
               </button>
@@ -698,18 +736,20 @@ export default function LibraryPage() {
       {/* ══════════════════ MODAL: Upload PDF ══════════════════ */}
       {showUploadModal && (
         <div className="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-6" onClick={() => !uploading && resetUploadModal()}>
-          <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl animate-scale-in" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-white dark:bg-dm-surface-elevated border border-border-default dark:border-dm-border rounded-3xl p-8 w-full max-w-md shadow-2xl animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/40 flex items-center justify-center">
                 <span className="material-symbols-outlined text-red-400">picture_as_pdf</span>
               </div>
-              <h3 className="text-lg font-bold text-emerald-900">Upload PDF</h3>
+              <h3 className="text-lg font-bold text-emerald-900 dark:text-dm-text-primary">Upload PDF</h3>
             </div>
 
             {/* Drop zone */}
             <div
               className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-colors mb-4 ${
-                uploadFile ? "border-emerald-400 bg-emerald-50" : "border-emerald-200 hover:border-emerald-400 hover:bg-emerald-50/50"
+                uploadFile
+                  ? "border-emerald-400 bg-emerald-50 dark:bg-dm-primary-bg/25 dark:border-emerald-600"
+                  : "border-emerald-200 dark:border-dm-border hover:border-emerald-400 dark:hover:border-emerald-500 hover:bg-emerald-50/50 dark:hover:bg-dm-surface-hover"
               }`}
               onClick={() => fileInputRef.current?.click()}
               onDragOver={(e) => e.preventDefault()}
@@ -730,21 +770,21 @@ export default function LibraryPage() {
               {uploadFile ? (
                 <div className="flex flex-col items-center gap-2">
                   <span className="material-symbols-outlined text-red-400 text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>picture_as_pdf</span>
-                  <p className="font-semibold text-emerald-900 text-sm">{uploadFile.name}</p>
-                  <p className="text-xs text-emerald-600/60">{fmtBytes(uploadFile.size)}</p>
+                  <p className="font-semibold text-emerald-900 dark:text-dm-text-primary text-sm">{uploadFile.name}</p>
+                  <p className="text-xs text-emerald-600/60 dark:text-dm-text-secondary">{fmtBytes(uploadFile.size)}</p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-2">
-                  <span className="material-symbols-outlined text-emerald-300 text-4xl">upload_file</span>
-                  <p className="font-semibold text-emerald-700 text-sm">Click or drag PDF here</p>
-                  <p className="text-xs text-emerald-500/60">Only PDF files supported</p>
+                  <span className="material-symbols-outlined text-emerald-300 dark:text-dm-text-secondary text-4xl">upload_file</span>
+                  <p className="font-semibold text-emerald-700 dark:text-dm-text-primary text-sm">Click or drag PDF here</p>
+                  <p className="text-xs text-emerald-500/60 dark:text-dm-text-secondary">Only PDF files supported</p>
                 </div>
               )}
             </div>
 
             {/* Tag selector */}
             <div className="mb-6">
-              <label className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 mb-2 block">Tag</label>
+              <label className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600/60 dark:text-dm-text-secondary mb-2 block">Tag</label>
               <div className="flex flex-wrap gap-2">
                 {Object.keys(TAG_COLORS).filter(t => t !== "Default").map((tag) => (
                   <button
@@ -765,10 +805,10 @@ export default function LibraryPage() {
             {/* Upload progress */}
             {uploading && (
               <div className="mb-4">
-                <div className="flex justify-between text-xs text-emerald-700 mb-1">
+                <div className="flex justify-between text-xs text-emerald-700 dark:text-dm-text-secondary mb-1">
                   <span>Uploading...</span><span>{uploadProgress}%</span>
                 </div>
-                <div className="h-1.5 bg-emerald-100 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-emerald-100 dark:bg-dm-border rounded-full overflow-hidden">
                   <div
                     className="h-full signature-gradient rounded-full transition-all duration-300"
                     style={{ width: `${uploadProgress}%` }}
@@ -779,17 +819,17 @@ export default function LibraryPage() {
 
             {/* Error banner */}
             {uploadError && (
-              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl flex gap-3 items-start animate-fade-in">
-                <span className="material-symbols-outlined text-red-400 text-xl flex-shrink-0 mt-0.5">error</span>
+              <div className="mb-4 p-4 bg-red-50 dark:bg-dm-error-bg border border-red-200 dark:border-red-950/30 rounded-xl flex gap-3 items-start animate-fade-in">
+                <span className="material-symbols-outlined text-red-400 dark:text-dm-error text-xl flex-shrink-0 mt-0.5">error</span>
                 <div>
-                  <p className="text-red-700 font-semibold text-sm">Upload Failed</p>
-                  <p className="text-red-600/80 text-xs mt-0.5 leading-relaxed">{uploadError}</p>
+                  <p className="text-red-700 dark:text-dm-text-primary font-semibold text-sm">Upload Failed</p>
+                  <p className="text-red-600/80 dark:text-dm-text-secondary text-xs mt-0.5 leading-relaxed">{uploadError}</p>
                   {uploadError.includes("CORS") && (
                     <a
                       href="https://firebase.google.com/docs/storage/web/start#cors"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs font-bold text-red-700 underline mt-1 inline-block"
+                      className="text-xs font-bold text-red-700 dark:text-red-400 underline mt-1 inline-block"
                     >
                       Fix CORS → Firebase Docs
                     </a>
@@ -802,7 +842,7 @@ export default function LibraryPage() {
               <button
                 onClick={resetUploadModal}
                 disabled={uploading}
-                className="px-5 py-2.5 rounded-xl text-emerald-700 font-semibold text-sm hover:bg-emerald-50 transition-colors disabled:opacity-40"
+                className="px-5 py-2.5 rounded-xl text-emerald-700 dark:text-dm-text-secondary font-semibold text-sm hover:bg-emerald-50 dark:hover:bg-dm-surface-hover transition-colors disabled:opacity-40"
               >
                 Cancel
               </button>
@@ -827,19 +867,19 @@ export default function LibraryPage() {
       {/* ══════════════════ MODAL: Rename ══════════════════ */}
       {showRenameModal && (
         <div className="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-6" onClick={() => setShowRenameModal(false)}>
-          <div className="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl animate-scale-in" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-emerald-900 mb-6">
+          <div className="bg-white dark:bg-dm-surface-elevated border border-border-default dark:border-dm-border rounded-3xl p-8 w-full max-w-sm shadow-2xl animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-emerald-900 dark:text-dm-text-primary mb-6">
               Rename {selectedItem?._type === "folder" ? "Folder" : "File"}
             </h3>
             <input
               autoFocus
-              className="w-full border border-emerald-200 rounded-xl px-4 py-3 text-sm text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-300 transition-all mb-6"
+              className="w-full bg-white dark:bg-dm-surface border border-emerald-200 dark:border-dm-border rounded-xl px-4 py-3 text-sm text-emerald-900 dark:text-dm-text-primary focus:outline-none focus:ring-2 focus:ring-emerald-300 transition-all mb-6"
               value={renameValue}
               onChange={(e) => setRenameValue(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && doRename()}
             />
             <div className="flex gap-3 justify-end">
-              <button onClick={() => setShowRenameModal(false)} className="px-5 py-2.5 rounded-xl text-emerald-700 font-semibold text-sm hover:bg-emerald-50 transition-colors">
+              <button onClick={() => setShowRenameModal(false)} className="px-5 py-2.5 rounded-xl text-emerald-700 dark:text-dm-text-secondary font-semibold text-sm hover:bg-emerald-50 dark:hover:bg-dm-surface-hover transition-colors">
                 Cancel
               </button>
               <button
@@ -857,18 +897,18 @@ export default function LibraryPage() {
       {/* ══════════════════ MODAL: Delete Confirm ══════════════════ */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-6" onClick={() => setShowDeleteConfirm(false)}>
-          <div className="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl animate-scale-in" onClick={(e) => e.stopPropagation()}>
-            <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center mx-auto mb-5">
+          <div className="bg-white dark:bg-dm-surface-elevated border border-border-default dark:border-dm-border rounded-3xl p-8 w-full max-w-sm shadow-2xl animate-scale-in" onClick={(e) => e.stopPropagation()}>
+            <div className="w-12 h-12 rounded-2xl bg-red-50 dark:bg-dm-error-bg flex items-center justify-center mx-auto mb-5">
               <span className="material-symbols-outlined text-red-400 text-2xl">delete</span>
             </div>
-            <h3 className="text-lg font-bold text-emerald-900 text-center mb-2">
+            <h3 className="text-lg font-bold text-emerald-900 dark:text-dm-text-primary text-center mb-2">
               Delete {selectedItem?._type === "folder" ? "Folder" : "File"}?
             </h3>
-            <p className="text-sm text-emerald-600/70 text-center mb-8">
+            <p className="text-sm text-emerald-600/70 dark:text-dm-text-secondary text-center mb-8">
               "<span className="font-semibold">{selectedItem?.name}</span>" will be permanently deleted.
             </p>
             <div className="flex gap-3 justify-center">
-              <button onClick={() => setShowDeleteConfirm(false)} className="px-6 py-2.5 rounded-xl border border-emerald-200 text-emerald-800 font-semibold text-sm hover:bg-emerald-50 transition-colors">
+              <button onClick={() => setShowDeleteConfirm(false)} className="px-6 py-2.5 rounded-xl border border-emerald-200 dark:border-dm-border text-emerald-800 dark:text-dm-text-secondary font-semibold text-sm hover:bg-emerald-50 dark:hover:bg-dm-surface-hover transition-colors">
                 Cancel
               </button>
               <button
