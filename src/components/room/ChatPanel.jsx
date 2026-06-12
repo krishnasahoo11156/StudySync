@@ -23,14 +23,27 @@ export default function ChatPanel({ roomId, currentUid, currentName, fullHeight 
 
   // Subscribe to last 20 messages only when panel open
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      console.log("[ChatPanel] useEffect: panel is closed, not subscribing to messages.");
+      return;
+    }
+    console.log("[ChatPanel] useEffect: panel is open, subscribing to messages for room:", roomId);
     const chatQuery = query(ref(db, `rooms/${roomId}/chat`), limitToLast(20));
     const unsub = onValue(chatQuery, snap => {
+      console.log("[ChatPanel] onValue triggered! snap.exists():", snap.exists());
       const data = [];
-      snap.forEach(child => data.push({ key: child.key, ...child.val() }));
+      snap.forEach(child => {
+        data.push({ key: child.key, ...child.val() });
+      });
+      console.log("[ChatPanel] Retrieved messages count:", data.length, data);
       setMessages(data);
+    }, error => {
+      console.error("[ChatPanel] onValue subscription ERROR:", error);
     });
-    return () => unsub();
+    return () => {
+      console.log("[ChatPanel] useEffect cleanup: unsubscribing from messages.");
+      unsub();
+    };
   }, [isOpen, roomId]);
 
   // Scroll to bottom when new messages arrive
@@ -40,16 +53,38 @@ export default function ChatPanel({ roomId, currentUid, currentName, fullHeight 
 
   const handleSend = () => {
     const text = input.trim().slice(0, MAX_LEN);
-    if (!text) return;
+    if (!text) {
+      console.log("[ChatPanel] handleSend: input is empty, skipping.");
+      return;
+    }
+    console.log("[ChatPanel] handleSend: preparing message...", {
+      roomId,
+      currentUid,
+      currentName,
+      text,
+      sentAt: "serverTimestamp()"
+    });
+    
     setInput("");
+    console.log("[ChatPanel] handleSend: cleared input field. Calling Firebase push...");
+    
     push(ref(db, `rooms/${roomId}/chat`), {
       uid: currentUid,
       name: currentName,
       text,
       sentAt: serverTimestamp(),
-    }).catch(e => {
-      console.error("[Chat] Send error:", e);
-    });
+    })
+      .then((newRef) => {
+        console.log("[ChatPanel] handleSend success: message sent successfully! Key:", newRef.key);
+      })
+      .catch(e => {
+        console.error("[ChatPanel] handleSend ERROR details:", {
+          message: e.message,
+          code: e.code,
+          stack: e.stack,
+          fullError: e
+        });
+      });
   };
 
   const cardBg = isDark ? "var(--card-bg)" : "#fff";
